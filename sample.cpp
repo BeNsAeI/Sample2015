@@ -127,7 +127,7 @@ int trees[7][2];
 #define END 1
 #define TANKSCALE 0.25
 #define TANKSPEED 0.5
-#define TANKBODY 6.0
+#define BODY 6.0
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramCurrentXY[2] = {0,-9};
@@ -136,7 +136,7 @@ float IS3TurretAngle = 0;
 float IS3HullAngle = 0;
 float IS3CurrentXY[2] = {0,9};
 float IS3XY[2] = { 0,9 };
-
+bool keyBuffer[256];
 #define TOTAL_MS (180 * 1000)
 
 void	Animate();
@@ -157,6 +157,7 @@ void	InitGraphics();
 void	InitLists();
 void	InitMenus();
 void	Keyboard(unsigned char, int, int);
+void	keyUp(unsigned char, int, int);
 void	MouseButton(int, int, int, int);
 void	MouseMotion(int, int);
 void	Reset();
@@ -376,6 +377,79 @@ void drawCube(float X, float Y, float Z)
 
 	glPopMatrix();
 }
+void KeyHandler() {
+	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
+	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
+	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
+	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
+	if (keyBuffer['w'] || keyBuffer['W']) {
+		if (!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[0] -= AbramTX;
+			AbramXY[1] -= AbramTY;
+		}
+	}
+	if (keyBuffer['s'] || keyBuffer['S']) {
+		if (!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[0] += AbramTX;
+			AbramXY[1] += AbramTY;
+		}
+	}
+	if (keyBuffer['a'] || keyBuffer['A']) {
+		AbramHullAngle += 2;
+	}
+	if (keyBuffer['d'] || keyBuffer['D']) {
+		AbramHullAngle -= 2;
+	}
+	if (keyBuffer['q'] || keyBuffer['Q']) {
+		AbramTurretAngle += 2;
+	}
+	if (keyBuffer['e'] || keyBuffer['E']) {
+		AbramTurretAngle -= 2;
+	}
+
+	if (keyBuffer['i'] || keyBuffer['I']) {
+		if (!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[0] -= IS3TX;
+			IS3XY[1] -= IS3TY;
+		}
+	}
+	if (keyBuffer['k'] || keyBuffer['K']) {
+		if (!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[0] += IS3TX;
+			IS3XY[1] += IS3TY;
+		}
+	}
+	if (keyBuffer['j'] || keyBuffer['J']) {
+		IS3HullAngle += 2;
+	}
+	if (keyBuffer['l'] || keyBuffer['L']) {
+		IS3HullAngle -= 2;
+	}
+	if (keyBuffer['u'] || keyBuffer['U']) {
+		IS3TurretAngle += 2;
+	}
+	if (keyBuffer['o'] || keyBuffer['O']) {
+		IS3TurretAngle -= 2;
+	}
+	if (keyBuffer['f'] || keyBuffer['F']) {
+		freeze = !freeze;
+	}
+	if (keyBuffer[ESCAPE]) {
+
+		DoMainMenu(QUIT);	// will not return here
+	}
+	// force a call to :
+	//glutSetWindow(MainWindow);
+	//glutPostRedisplay();
+}
 void Display()
 {
 	if (DebugOn != 0)
@@ -410,10 +484,10 @@ void Display()
 	GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
 	GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
 	GLsizei v = vx < vy ? vx : vy;			// minimum dimension
+	v = vx > vy ? vx : vy;
 	GLint xl = (vx - v) / 2;
 	GLint yb = (vy - v) / 2;
 	glViewport(xl, yb, v, v);
-
 
 	// set the viewing volume:
 	// remember that the Z clipping  values are actually
@@ -499,7 +573,7 @@ void Display()
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
-
+		KeyHandler();
 		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		drawIS3  (IS3XY[0]  , 0  , IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
 		drawCube(0,0,0);
@@ -539,7 +613,7 @@ void Display()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glColor3f(1., 1., 1.);
-	DoRasterString(5., 5., 0., (char *)"Final Project: Tank 2017");
+	//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
 
 
 	// swap the double-buffered framebuffers:
@@ -800,6 +874,7 @@ void InitGraphics()
 	glutDisplayFunc(Display);
 	glutReshapeFunc(Resize);
 	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(keyUp);
 	glutMouseFunc(MouseButton);
 	glutMotionFunc(MouseMotion);
 	glutPassiveMotionFunc(NULL);
@@ -935,116 +1010,13 @@ void InitLists()
 }
 void Keyboard(unsigned char c, int x, int y)
 {
-	if (DebugOn != 0)
-		fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
-	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
-	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
-	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
-	switch (c)
-	{
-	case 'w':
-	case 'W':
-		if (!(((AbramXY[0] - AbramTX < IS3XY[0] + TANKBODY) && (AbramXY[0] - AbramTX > IS3XY[0] - TANKBODY)) &&
-			 ((AbramXY[1] - AbramTY < IS3XY[1] + TANKBODY) && (AbramXY[1] - AbramTY > IS3XY[1] - TANKBODY))))
-		{
-			AbramXY[0] -= AbramTX;
-			AbramXY[1] -= AbramTY;
-		}
-		break;
-	case 's':
-	case 'S':
-		if (!(((AbramXY[0] + AbramTX < IS3XY[0] + TANKBODY) && (AbramXY[0] + AbramTX > IS3XY[0] - TANKBODY)) &&
-			((AbramXY[1] + AbramTY < IS3XY[1] + TANKBODY) && (AbramXY[1] + AbramTY > IS3XY[1] - TANKBODY))))
-		{
-			AbramXY[0] += AbramTX;
-			AbramXY[1] += AbramTY;
-		}
-		break;
-	case 'a':
-	case 'A':
-		AbramHullAngle += 2;
-		break;
-	case 'd':
-	case 'D':
-		AbramHullAngle -= 2;
-		break;
-	case 'q':
-	case 'Q':
-		AbramTurretAngle += 2;
-		break;
-	case 'e':
-	case 'E':
-		AbramTurretAngle -= 2;
-		break;
+	keyBuffer[c] = true;
+	
+}
+void keyUp(unsigned char c, int x, int y)
+{
+	keyBuffer[c] = false;
 
-	case 'i':
-	case 'I':
-		if (!(((IS3XY[0] - IS3TX < AbramXY[0] + TANKBODY) && (IS3XY[0] - IS3TX > AbramXY[0] - TANKBODY)) &&
-			((IS3XY[1] - IS3TY < AbramXY[1] + TANKBODY) && (IS3XY[1] - IS3TY > AbramXY[1] - TANKBODY))))
-		{
-			IS3XY[0] -= IS3TX;
-			IS3XY[1] -= IS3TY;
-		}
-		break;
-	case 'k':
-	case 'K':
-		if (!(((IS3XY[0] + IS3TX < AbramXY[0] + TANKBODY) && (IS3XY[0] + IS3TX > AbramXY[0] - TANKBODY)) &&
-			((IS3XY[1] + IS3TY < AbramXY[1] + TANKBODY) && (IS3XY[1] + IS3TY > AbramXY[1] - TANKBODY))))
-		{
-			IS3XY[0] += IS3TX;
-			IS3XY[1] += IS3TY;
-		}
-		break;
-	case 'j':
-	case 'J':
-		IS3HullAngle += 2;
-		break;
-	case 'l':
-	case 'L':
-		IS3HullAngle -= 2;
-		break;
-	case 'u':
-	case 'U':
-		IS3TurretAngle += 2;
-		break;
-	case 'o':
-	case 'O':
-		IS3TurretAngle -= 2;
-		break;
-
-//	case 'o':
-//	case 'O':
-//		WhichProjection = ORTHO;
-//		break;
-
-	case 'p':
-	case 'P':
-		WhichProjection = PERSP;
-		break;
-	case 'c':
-	case 'C':
-		camState++;
-		if (camState >2)
-			camState = 0;
-		DoCameraMenu(camState);
-		break;
-	case 'f':
-	case 'F':
-		freeze = !freeze;
-		break;
-	case ESCAPE:
-		DoMainMenu(QUIT);	// will not return here
-		break;				// happy compiler
-
-	default:
-		fprintf(stderr, "Don't know what to do with keyboard hit: '%c' (0x%0x)\n", c, c);
-	}
-
-	// force a call to :
-
-	glutSetWindow(MainWindow);
-	glutPostRedisplay();
 }
 void MouseButton(int button, int state, int x, int y)
 {

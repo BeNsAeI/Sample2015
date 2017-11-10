@@ -207,7 +207,7 @@ void Animate()
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }
-void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float AZ)
+void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float AZ,float turretAngle)
 {
 	glPushMatrix();
 	glTranslatef(X,Y,Z);	//movement
@@ -219,6 +219,9 @@ void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float 
 	int beginPoint = IS3[0][START];
 	int endPoint = IS3[0][END] - IS3[0][START];
 	glPushMatrix();
+	glTranslatef(0, 3, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -3, 0);
 	glColor3f(0, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -276,7 +279,7 @@ void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float 
 
 	glPopMatrix();
 }
-void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ)
+void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,float turretAngle)
 {
 	glPushMatrix();
 	glTranslatef(X, Y, Z);	//movement
@@ -288,6 +291,9 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ)
 	int beginPoint = Abram[0][START];
 	int endPoint = Abram[0][END] - Abram[0][START];
 	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0);
 	glColor3f(0.5, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -480,8 +486,8 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 
-		drawAbram(0,0,-9,180,0,1,0);
-		drawIS3(0,0,9, 0, 0, 0,0);
+		drawAbram(0,0,-9,180,0,1,0,Time*5000);
+		drawIS3(0,0,9, 0, 0, 0,0,Time * 5000);
 		drawCube(0,0,0);
 		glDisableVertexAttribArray(0);
 	}

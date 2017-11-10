@@ -207,10 +207,12 @@ void Animate()
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }
-void drawIS3(int X, int Y, int Z )
+void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float AZ)
 {
 	glPushMatrix();
 	glTranslatef(X,Y,Z);	//movement
+	glTranslatef(0,2.1,0);
+	glRotatef(angle, AX, AY, AZ);
 	glRotatef(270, 1, 0, 0);
 	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
 
@@ -264,6 +266,86 @@ void drawIS3(int X, int Y, int Z )
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glColor3f(0, 0, 0);
+	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	glColor3f(1, 0, 0);
+	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(angle, AX, AY, AZ);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = Abram[0][START];
+	int endPoint = Abram[0][END] - Abram[0][START];
+	glPushMatrix();
+	glTranslatef(1.75, 0, 0);
+	glColor3f(0.5, 0.5, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glColor3f(0, 0, 0);
+	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	glColor3f(1, 0, 0);
+	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Abram[1][START];
+	endPoint = Abram[1][END] - Abram[1][START];
+	glPushMatrix();
+	glTranslatef(-1,0,0);
+	glColor3f(0.5, 0.5, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glColor3f(0, 0, 0);
+	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	glColor3f(1, 0, 0);
+	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glColor3f(0, 0, 0);
+	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	glColor3f(1, 0, 0);
+	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glColor3f(0, 0, 0);
+	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	glColor3f(1, 0, 0);
+	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawCube(int X, int Y, int Z)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(-5.25, 1, 0);
+	glScalef(3, 3, 3);
+
+	int beginPoint = cube[START];
+	int endPoint = cube[END] - cube[START];
+	glPushMatrix();
+	glTranslatef(1.75, 0, 0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -398,8 +480,9 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 
-		drawIS3(0,0,0);
-
+		drawAbram(0,0,-9,180,0,1,0);
+		drawIS3(0,0,9, 0, 0, 0,0);
+		drawCube(0,0,0);
 		glDisableVertexAttribArray(0);
 	}
 
@@ -416,7 +499,7 @@ void Display()
 
 	glDisable(GL_DEPTH_TEST);
 	glColor3f(1., 1., 1.);
-	DoRasterString(0., 1., 0., (char *)"text1");
+	//DoRasterString(0., 1., 0., (char *)"text1");
 
 
 	// draw some gratuitous text that is fixed on the screen:
@@ -436,7 +519,7 @@ void Display()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glColor3f(1., 1., 1.);
-	DoRasterString(5., 5., 0., (char *)"Project #");
+	DoRasterString(5., 5., 0., (char *)"Final Project: Tank 2017");
 
 
 	// swap the double-buffered framebuffers:

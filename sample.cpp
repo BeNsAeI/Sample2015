@@ -97,14 +97,14 @@ float	Xrot, Yrot;				// rotation angles in degrees
 bool freeze = false;
 float Time;
 float factor = 0;
-float eyex = 20;
-float eyey = 20;
-float eyez = 20;
+float eyex = -40;
+float eyey = 80;
+float eyez = 0;
 float targetx = 0;
 float targety = 0;
 float targetz = 0;
-float upx = 0;
-float upy = 1;
+float upx = 1;
+float upy = 0;
 float upz = 0;
 int camState = 0;
 bool res;
@@ -127,6 +127,8 @@ int trees[7][2];
 #define END 1
 #define TANKSCALE 0.25
 #define TANKSPEED 0.5
+#define MAPEDGEX 40
+#define MAPEDGEY 70
 #define BODY 6.0
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
@@ -383,25 +385,43 @@ void KeyHandler() {
 	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
 	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
 	if (keyBuffer['w'] || keyBuffer['W']) {
-		if (!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
+		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
+			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] -= AbramTX;
+		}
+		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
+			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
+		{
 			AbramXY[1] -= AbramTY;
 		}
 	}
 	if (keyBuffer['s'] || keyBuffer['S']) {
-		if (!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
+		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
+			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] += AbramTX;
+		}
+		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
+			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
+		{
 			AbramXY[1] += AbramTY;
 		}
 	}
 	if (keyBuffer['a'] || keyBuffer['A']) {
-		AbramHullAngle += 2;
+		if (keyBuffer['s'] || keyBuffer['S'])
+			AbramHullAngle -= 2;
+		else
+			AbramHullAngle += 2;
 	}
 	if (keyBuffer['d'] || keyBuffer['D']) {
+		if (keyBuffer['s'] || keyBuffer['S'])
+			AbramHullAngle += 2;
+		else
 		AbramHullAngle -= 2;
 	}
 	if (keyBuffer['q'] || keyBuffer['Q']) {
@@ -412,26 +432,44 @@ void KeyHandler() {
 	}
 
 	if (keyBuffer['i'] || keyBuffer['I']) {
-		if (!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
+		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
+			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] -= IS3TX;
+		}
+		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
+			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
+		{
 			IS3XY[1] -= IS3TY;
 		}
 	}
 	if (keyBuffer['k'] || keyBuffer['K']) {
-		if (!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
+		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
+			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] += IS3TX;
+		}
+		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
+			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
+		{
 			IS3XY[1] += IS3TY;
 		}
 	}
 	if (keyBuffer['j'] || keyBuffer['J']) {
-		IS3HullAngle += 2;
+		if(keyBuffer['k'] || keyBuffer['K'])
+			IS3HullAngle -= 2;
+		else
+			IS3HullAngle += 2;
 	}
 	if (keyBuffer['l'] || keyBuffer['L']) {
-		IS3HullAngle -= 2;
+		if (keyBuffer['k'] || keyBuffer['K'])
+			IS3HullAngle += 2;
+		else
+			IS3HullAngle -= 2;
 	}
 	if (keyBuffer['u'] || keyBuffer['U']) {
 		IS3TurretAngle += 2;

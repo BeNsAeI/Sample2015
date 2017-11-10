@@ -1,19 +1,19 @@
 ﻿  sample.cpp
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(229): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(263): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(275): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(287): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(301): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(337): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(349): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(370): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(381): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(382): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(231): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(265): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(277): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(289): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(303): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(339): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(351): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(372): warning C4305: 'argument': truncation from 'double' to 'GLfloat'
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(383): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(384): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(687): warning C4305: '=': truncation from 'double' to 'float'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(688): warning C4305: '=': truncation from 'double' to 'float'
-c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(689): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(385): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(386): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(725): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(726): warning C4305: '=': truncation from 'double' to 'float'
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(727): warning C4305: '=': truncation from 'double' to 'float'
 loader.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
   Sample.vcxproj -> C:\Users\Behnam\Documents\Visual Studio 2015\Projects\Sample2015\.\Debug\Sample.exe
   Sample.vcxproj -> .\Debug/Sample.pdb (Full PDB)

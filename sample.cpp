@@ -15,6 +15,9 @@
 #include "glut.h"
 #include <glm/glm.hpp>
 #include "loader.h"
+#include <math.h>       /* cos */
+
+#define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
 const char *WINDOWTITLE = { "Tanks 2017" };
 const char *GLUITITLE = { "Tanks" };
@@ -94,9 +97,9 @@ float	Xrot, Yrot;				// rotation angles in degrees
 bool freeze = false;
 float Time;
 float factor = 0;
-float eyex = 5;
-float eyey = 5;
-float eyez = 5;
+float eyex = 20;
+float eyey = 20;
+float eyez = 20;
 float targetx = 0;
 float targety = 0;
 float targetz = 0;
@@ -123,6 +126,17 @@ int trees[7][2];
 #define START 0
 #define END 1
 #define TANKSCALE 0.25
+#define TANKSPEED 0.5
+#define TANKBODY 6.0
+float AbramTurretAngle = 0;
+float AbramHullAngle = 180;
+float AbramCurrentXY[2] = {0,-9};
+float AbramXY[2] = { 0,-9 };
+float IS3TurretAngle = 0;
+float IS3HullAngle = 0;
+float IS3CurrentXY[2] = {0,9};
+float IS3XY[2] = { 0,9 };
+
 #define TOTAL_MS (180 * 1000)
 
 void	Animate();
@@ -207,12 +221,12 @@ void Animate()
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }
-void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float AZ,float turretAngle)
+void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 {
 	glPushMatrix();
 	glTranslatef(X,Y,Z);	//movement
 	glTranslatef(0,2.1,0);
-	glRotatef(angle, AX, AY, AZ);
+	glRotatef(hullAngle, 0, 1, 0);
 	glRotatef(270, 1, 0, 0);
 	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
 
@@ -279,12 +293,12 @@ void drawIS3(float X, float Y, float Z , float angle, float AX, float AY, float 
 
 	glPopMatrix();
 }
-void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,float turretAngle)
+void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 {
 	glPushMatrix();
 	glTranslatef(X, Y, Z);	//movement
 	glTranslatef(0, 2.1, 0);
-	glRotatef(angle, AX, AY, AZ);
+	glRotatef(hullAngle, 0, 1, 0);
 	glRotatef(270, 1, 0, 0);
 	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
 
@@ -294,7 +308,7 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,fl
 	glTranslatef(0, 1, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
-	glTranslatef(1.75, 0, 0);
+	glTranslatef(1.75, 0, 0.25);
 	glColor3f(0.5, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -306,7 +320,7 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,fl
 	beginPoint = Abram[1][START];
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
-	glTranslatef(-1,0,0);
+	glTranslatef(-1,0,0.25);
 	glColor3f(0.5, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -318,7 +332,7 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,fl
 	beginPoint = Track[0][START];
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
-	glTranslatef(-13, 0, -3);
+	glTranslatef(-12.75, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -330,7 +344,7 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,fl
 	beginPoint = Track[1][START];
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
-	glTranslatef(0, 0, -3);
+	glTranslatef(-0.25, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
@@ -341,7 +355,7 @@ void drawAbram(int X, int Y, int Z, float angle, float AX, float AY, float AZ,fl
 
 	glPopMatrix();
 }
-void drawCube(int X, int Y, int Z)
+void drawCube(float X, float Y, float Z)
 {
 	glPushMatrix();
 	glTranslatef(X, Y, Z);	//movement
@@ -486,8 +500,8 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 
-		drawAbram(0,0,-9,180,0,1,0,Time*5000);
-		drawIS3(0,0,9, 0, 0, 0,0,Time * 5000);
+		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		drawIS3  (IS3XY[0]  , 0  , IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
 		drawCube(0,0,0);
 		glDisableVertexAttribArray(0);
 	}
@@ -923,13 +937,86 @@ void Keyboard(unsigned char c, int x, int y)
 {
 	if (DebugOn != 0)
 		fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
+	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
+	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
+	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
+	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
 	switch (c)
 	{
+	case 'w':
+	case 'W':
+		if (!(((AbramXY[0] - AbramTX < IS3XY[0] + TANKBODY) && (AbramXY[0] - AbramTX > IS3XY[0] - TANKBODY)) &&
+			 ((AbramXY[1] - AbramTY < IS3XY[1] + TANKBODY) && (AbramXY[1] - AbramTY > IS3XY[1] - TANKBODY))))
+		{
+			AbramXY[0] -= AbramTX;
+			AbramXY[1] -= AbramTY;
+		}
+		break;
+	case 's':
+	case 'S':
+		if (!(((AbramXY[0] + AbramTX < IS3XY[0] + TANKBODY) && (AbramXY[0] + AbramTX > IS3XY[0] - TANKBODY)) &&
+			((AbramXY[1] + AbramTY < IS3XY[1] + TANKBODY) && (AbramXY[1] + AbramTY > IS3XY[1] - TANKBODY))))
+		{
+			AbramXY[0] += AbramTX;
+			AbramXY[1] += AbramTY;
+		}
+		break;
+	case 'a':
+	case 'A':
+		AbramHullAngle += 2;
+		break;
+	case 'd':
+	case 'D':
+		AbramHullAngle -= 2;
+		break;
+	case 'q':
+	case 'Q':
+		AbramTurretAngle += 2;
+		break;
+	case 'e':
+	case 'E':
+		AbramTurretAngle -= 2;
+		break;
+
+	case 'i':
+	case 'I':
+		if (!(((IS3XY[0] - IS3TX < AbramXY[0] + TANKBODY) && (IS3XY[0] - IS3TX > AbramXY[0] - TANKBODY)) &&
+			((IS3XY[1] - IS3TY < AbramXY[1] + TANKBODY) && (IS3XY[1] - IS3TY > AbramXY[1] - TANKBODY))))
+		{
+			IS3XY[0] -= IS3TX;
+			IS3XY[1] -= IS3TY;
+		}
+		break;
+	case 'k':
+	case 'K':
+		if (!(((IS3XY[0] + IS3TX < AbramXY[0] + TANKBODY) && (IS3XY[0] + IS3TX > AbramXY[0] - TANKBODY)) &&
+			((IS3XY[1] + IS3TY < AbramXY[1] + TANKBODY) && (IS3XY[1] + IS3TY > AbramXY[1] - TANKBODY))))
+		{
+			IS3XY[0] += IS3TX;
+			IS3XY[1] += IS3TY;
+		}
+		break;
+	case 'j':
+	case 'J':
+		IS3HullAngle += 2;
+		break;
+	case 'l':
+	case 'L':
+		IS3HullAngle -= 2;
+		break;
+	case 'u':
+	case 'U':
+		IS3TurretAngle += 2;
+		break;
 	case 'o':
 	case 'O':
-		WhichProjection = ORTHO;
+		IS3TurretAngle -= 2;
 		break;
+
+//	case 'o':
+//	case 'O':
+//		WhichProjection = ORTHO;
+//		break;
 
 	case 'p':
 	case 'P':
@@ -946,8 +1033,6 @@ void Keyboard(unsigned char c, int x, int y)
 	case 'F':
 		freeze = !freeze;
 		break;
-	case 'q':
-	case 'Q':
 	case ESCAPE:
 		DoMainMenu(QUIT);	// will not return here
 		break;				// happy compiler

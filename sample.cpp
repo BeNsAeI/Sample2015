@@ -17,6 +17,7 @@
 #include "loader.h"
 #include <math.h>       /* cos */
 #include <fstream>
+#include <time.h>       /* time */
 
 #define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
@@ -397,6 +398,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 0:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(-8.5, -0.5, 6);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[0][START];
 		endPoint = 3960 - 2250;
@@ -418,6 +420,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 1:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(1, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[1][START];
 		endPoint = 5688 - 2022;
@@ -439,6 +442,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 2:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(5.5, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[2][START];
 		endPoint = 4398 - 3525;
@@ -460,6 +464,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 3:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(8.5, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[3][START];
 		endPoint = 3522 - 3000;
@@ -481,6 +486,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 4:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(-6, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[4][START];
 		endPoint = 4752 - 3816;
@@ -502,6 +508,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 5:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(0, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[5][START];
 		endPoint = 6105 - 4668;
@@ -523,6 +530,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 6:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(6, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[6][START];
 		endPoint = 6030 - 4944;
@@ -781,12 +789,19 @@ void Display()
 	// since we are using glScalef( ), be sure normals get unitized:
 
 	glEnable(GL_NORMALIZE);
-
+	glBegin(GL_QUADS);
+	glPushMatrix();
+	glColor3f(0.05, 0.05, 0.0);
+	glVertex3f(MAPEDGEX + CUBESIZE,0, MAPEDGEY + CUBESIZE);
+	glVertex3f(MAPEDGEX + CUBESIZE, 0, -MAPEDGEY - CUBESIZE);
+	glVertex3f(-MAPEDGEX - CUBESIZE, 0, -MAPEDGEY - CUBESIZE);
+	glVertex3f(-MAPEDGEX - CUBESIZE, 0, MAPEDGEY + CUBESIZE);
+	glPopMatrix();
+	glEnd();
 
 	// draw the current object:
 	glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
-	glColor3f(0.5, 0.5, 0.5);
 	if (res)
 	{
 		glEnableVertexAttribArray(0);
@@ -820,19 +835,20 @@ void Display()
 		{
 			for (int i = 0; i < 24; i++)
 			{
-				if(myMap.MCM[i][j])
+				if(myMap.MCM[i][j] && myMap.isSolid[i][j])
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+				if (myMap.MCM[i][j] && !myMap.isSolid[i][j])
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0]);
 			}
 		}
-		// Tree test
-		drawTreeCube(0, 0, 0);
+		//tree test
+		/*drawTreeCube(0, 0, 0);
 		drawTreeCube(0, 0, 1);
 		drawTreeCube(0, 0, 2);
 		drawTreeCube(0, 0, 3);
 		drawTreeCube(0, 0, 4);
 		drawTreeCube(0, 0, 5);
-		drawTreeCube(0, 0, 6);
-
+		drawTreeCube(0, 0, 6);*/
 		glDisableVertexAttribArray(0);
 	}
 
@@ -1171,6 +1187,7 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 }
 void loadMap()
 {
+	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
 	{
 		for (int i = 0; i < 24; i++)
@@ -1185,7 +1202,7 @@ void loadMap()
 		}
 	}
 	std::cout << "Loading Map ..." << std::endl;
-	std::ifstream mapFile("Maps/2.txt");
+	std::ifstream mapFile("Maps/1.txt");
 	char tmp;
 	int k = 0;
 	while (mapFile.get(tmp))
@@ -1211,7 +1228,8 @@ void loadMap()
 			}
 			if (MapRaw[j * 25 + i] == '$')
 			{
-				myMap.color[i][j][0] = 0;
+
+				myMap.color[i][j][0] = rand() % 7;
 				myMap.color[i][j][1] = 0.5;
 				myMap.color[i][j][2] = 0;
 				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;

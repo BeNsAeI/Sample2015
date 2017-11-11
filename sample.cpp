@@ -128,7 +128,7 @@ int Abram[2][2];
 int IS3[3][2];
 int Track[2][2];
 int cube[2];
-int trees[7][2];
+int trees[8][2];
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
@@ -139,6 +139,7 @@ int trees[7][2];
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
+#define ROCKTHRESH 5
 GLSLProgram *Pattern;
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
@@ -509,7 +510,7 @@ void drawTreeCube(float X, float Y, int index)
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
 
-		beginPoint = trees[0][START]+ 3960 - 2250;
+		beginPoint = trees[0][START] + 3960 - 2250;
 		endPoint = 2250;
 		glPushMatrix();
 		SetMaterial(0, 0.75, 0, 1.0);
@@ -663,6 +664,21 @@ void drawTreeCube(float X, float Y, int index)
 		glPopMatrix();
 		glPopMatrix();
 		break;
+	case 7:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glTranslatef(12, 0, 4.5);
+		glScalef(TREESCALE/2, TREESCALE/2, TREESCALE/2);
+		beginPoint = trees[7][START];
+		endPoint = trees[7][END] - trees[7][START];
+		glPushMatrix();
+		SetMaterial(0.5, 0.5, 0.5, 1);
+		glColor3f(0.75, 0.75, 0.75);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
 	}
 }
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
@@ -671,10 +687,16 @@ bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sig
 	{
 		for (int i = 0; i < 24; i++)
 		{
-			if (myMap.isSolid[i][j])
+			if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
 			{
 				if((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
 					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+					return true;
+			}
+			if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+			{
+				if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY/2) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY/2)) &&
+					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY/2) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY/2))))
 					return true;
 			}
 		}
@@ -984,11 +1006,11 @@ void Display()
 		{
 			for (int i = 0; i < 24; i++)
 			{
-				if (myMap.MCM[i][j] && myMap.isSolid[i][j])
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
 				{
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 				}
-				if (myMap.MCM[i][j] && !myMap.isSolid[i][j])
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -1022,7 +1044,8 @@ void Display()
 		drawTreeCube(0, 0, 3);
 		drawTreeCube(0, 0, 4);
 		drawTreeCube(0, 0, 5);
-		drawTreeCube(0, 0, 6);*/
+		drawTreeCube(0, 0, 6);
+		drawTreeCube(0, 0, 7);*/
 		glDisableVertexAttribArray(0);
 	}
 
@@ -1373,7 +1396,7 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 }
 void loadMap()
 {
-	std::string mapName;
+	std::string mapName = " ";
 	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
 	{
@@ -1390,6 +1413,23 @@ void loadMap()
 	}
 	std::cout << "Enter map directory: " << std::endl;
 	std::cin  >> mapName;
+	switch (mapName[0])
+	{
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		std::string folder = "Maps/";
+		std::string ext = ".txt";
+		mapName = folder + mapName[0] + ext;
+		break;
+	}
 	std::cout << "Loading Map ..." << std::endl;
 	std::ifstream mapFile(mapName.c_str());
 	char tmp;
@@ -1400,8 +1440,11 @@ void loadMap()
 		k++;
 	}
 	mapFile.close();
+	int rockCount = 0;
+	int rowRockCount = 0;
 	for (int j = 0; j < 14; j++)
 	{
+		rowRockCount = 0;
 		for (int i = 0; i < 24; i++)
 		{
 			std::cout << MapRaw[j * 25 + i];
@@ -1415,16 +1458,46 @@ void loadMap()
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = true;
 			}
-			if (MapRaw[j * 25 + i] == '$')
+			if (MapRaw[j * 25 + i] == '+')
 			{
-
-				myMap.color[i][j][0] = rand() % 7;
+				myMap.color[i][j][0] = 7;
 				myMap.color[i][j][1] = 0.5;
 				myMap.color[i][j][2] = 0;
 				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
-				myMap.isSolid[i][j] = false;
+				myMap.isSolid[i][j] = true;
+			}
+			if (MapRaw[j * 25 + i] == '$')
+			{
+				if (rockCount < ROCKTHRESH)
+				{
+					int selector = rand() % 8-rowRockCount;
+					if(selector == 7)
+						selector = rand() % 8;
+					myMap.color[i][j][0] = selector;
+					myMap.color[i][j][1] = 0.5;
+					myMap.color[i][j][2] = 0;
+					myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+					myMap.MCM[i][j] = true;
+					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
+					if (myMap.color[i][j][0] == 7)
+					{
+						rockCount++;
+						rowRockCount++;
+					}
+				}
+				else
+				{
+					myMap.color[i][j][0] = rand() % 7;
+					myMap.color[i][j][1] = 0.5;
+					myMap.color[i][j][2] = 0;
+					myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+					myMap.MCM[i][j] = true;
+					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
+				}
 			}
 			if (MapRaw[j * 25 + i] == 'B')
 			{
@@ -1519,6 +1592,10 @@ void loadAll()
 	trees[6][START] = vertices.size();
 	res = loadOBJ("models/tree7.obj", vertices, uvs, normals);
 	trees[6][END] = vertices.size();
+
+	trees[7][START] = vertices.size();
+	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
+	trees[7][END] = vertices.size();
 
 	if (res)
 	{

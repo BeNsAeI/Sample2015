@@ -140,13 +140,17 @@ int trees[8][2];
 #define SPAWN 45
 #define TREESCALE 25
 #define ROCKTHRESH 5
+#define REFLECT -1
 GLSLProgram *Pattern;
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
-float AbramXY[2] = { 0,-SPAWN };
+float AbramInitCoord[2] = { 0,-SPAWN };
+float IS3InitCoord[2] = { 0,SPAWN };
+float AbramXY[2] = { AbramInitCoord[0],AbramInitCoord[1] };
+float IS3XY[2] = { IS3InitCoord[0],IS3InitCoord[1] };
 float IS3TurretAngle = 0;
 float IS3HullAngle = 0;
-float IS3XY[2] = { 0,SPAWN };
+
 bool keyBuffer[256];
 char MapRaw[25 * 14];
 #define TOTAL_MS (180 * 1000)
@@ -1413,6 +1417,8 @@ void loadMap()
 	}
 	std::cout << "Enter map directory: " << std::endl;
 	std::cin  >> mapName;
+	std::string folder = "Maps/";
+	std::string ext = ".txt";
 	switch (mapName[0])
 	{
 	case '0':
@@ -1425,21 +1431,73 @@ void loadMap()
 	case '7':
 	case '8':
 	case '9':
-		std::string folder = "Maps/";
-		std::string ext = ".txt";
 		mapName = folder + mapName[0] + ext;
+		break;
+	case'r':
+	case'R':
+		mapName = "RANDOM";
 		break;
 	}
 	std::cout << "Loading Map ..." << std::endl;
-	std::ifstream mapFile(mapName.c_str());
-	char tmp;
-	int k = 0;
-	while (mapFile.get(tmp))
+	if (mapName == "RANDOM")
 	{
-		MapRaw[k] = tmp;
-		k++;
+		int AX=0;
+		int AY=0;
+		int TX=0;
+		int TY=0;
+
+		while (AX == TX)
+		{
+			AX = rand() % 24;
+			AY = rand() % 14;
+			TX = rand() % 24;
+			TY = rand() % 14;
+		}
+
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				char e = '_';
+				if (i == AX && j == AY)
+				{
+					e = 'A';
+				}
+				if (i == TX && j == TY)
+				{
+					e = 'T';
+				}
+				if ((!(i == AX && j == AY)) && (!(i == TX && j == TY)))
+				{
+					int element = rand() % 16;
+					switch (element)
+					{
+					case 0:
+						e = '#';
+						break;
+					case 10:
+					case 5:
+					case 1:
+						e = '$';
+						break;
+					}
+				}
+				MapRaw[j * 24 + i] = e;
+			}
+		}
 	}
-	mapFile.close();
+	else
+	{
+		std::ifstream mapFile(mapName.c_str());
+		char tmp;
+		int k = 0;
+		while (mapFile.get(tmp))
+		{
+			MapRaw[k] = tmp;
+			k++;
+		}
+		mapFile.close();
+	}
 	int rockCount = 0;
 	int rowRockCount = 0;
 	for (int j = 0; j < 14; j++)
@@ -1448,12 +1506,30 @@ void loadMap()
 		for (int i = 0; i < 24; i++)
 		{
 			std::cout << MapRaw[j * 25 + i];
+			if (MapRaw[j * 25 + i] == 'A')
+			{
+				AbramInitCoord[0] = AbramXY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				AbramInitCoord[1] = AbramXY[1] = -MAPEDGEY + i * CUBESIZE;
+				if (i <= 12)
+					AbramHullAngle = 180;
+				else
+					AbramHullAngle = 0;
+			}
+			if (MapRaw[j * 25 + i] == 'T')
+			{
+				IS3InitCoord[0] = IS3XY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				IS3InitCoord[1]  = IS3XY[1] = -MAPEDGEY + i * CUBESIZE;
+				if (i <= 12)
+					IS3HullAngle = 180;
+				else
+					IS3HullAngle = 0;
+			}
 			if (MapRaw[j * 25 + i] == '#')
 			{
 				myMap.color[i][j][0] = 0.35;
 				myMap.color[i][j][1] = 0.25;
 				myMap.color[i][j][2] = 0.18;
-				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = true;
@@ -1463,7 +1539,7 @@ void loadMap()
 				myMap.color[i][j][0] = 7;
 				myMap.color[i][j][1] = 0.5;
 				myMap.color[i][j][2] = 0;
-				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = true;
@@ -1472,13 +1548,13 @@ void loadMap()
 			{
 				if (rockCount < ROCKTHRESH)
 				{
-					int selector = rand() % 8-rowRockCount;
+					int selector = rand() % (8-rowRockCount);
 					if(selector == 7)
 						selector = rand() % 8;
 					myMap.color[i][j][0] = selector;
 					myMap.color[i][j][1] = 0.5;
 					myMap.color[i][j][2] = 0;
-					myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 					myMap.MCM[i][j] = true;
 					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
@@ -1493,7 +1569,7 @@ void loadMap()
 					myMap.color[i][j][0] = rand() % 7;
 					myMap.color[i][j][1] = 0.5;
 					myMap.color[i][j][2] = 0;
-					myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 					myMap.MCM[i][j] = true;
 					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
@@ -1504,7 +1580,7 @@ void loadMap()
 				myMap.color[i][j][0] = 0.50;
 				myMap.color[i][j][1] = 0.50;
 				myMap.color[i][j][2] = 0.00;
-				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = true;

@@ -133,6 +133,7 @@ int trees[7][2];
 #define BODY 5.0
 #define CUBESIZE 6.0
 #define SPAWN 45
+#define TREESCALE 25
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramXY[2] = { 0,-SPAWN };
@@ -386,6 +387,161 @@ void drawCube(float X, float Y,float r,float g, float b)
 	glPopMatrix();
 
 	glPopMatrix();
+}
+void drawTreeCube(float X, float Y, int index)
+{
+	int beginPoint;
+	int endPoint;
+	switch (index)
+	{
+	case 0:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[0][START];
+		endPoint = 3960 - 2250;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0.4, 0.2, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[0][START]+ 3960 - 2250;
+		endPoint = 2250;
+		glPushMatrix();
+		glColor3f(0, 0.75, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 1:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[1][START];
+		endPoint = 5688 - 2022;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0.4, 0.2, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[1][START] + 5688 - 2022;
+		endPoint = 2022;
+		glPushMatrix();
+		glColor3f(0, 0.75, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 2:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[2][START];
+		endPoint = 4398 - 3525;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0, 0.75, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[2][START] + 4398 - 3525;
+		endPoint = 3525;
+		glPushMatrix();
+		glColor3f(0.4, 0.2, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 3:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[3][START];
+		endPoint = 3522 - 3000;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0, 0.75, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[3][START] + 3522 - 3000;
+		endPoint = 3000;
+		glPushMatrix();
+		glColor3f(0.4, 0.2, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 4:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[4][START];
+		endPoint = 4752 - 3816;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0.4, 0.2, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[4][START] + 4752 - 3816;
+		endPoint = 3816;
+		glPushMatrix();
+		glColor3f(0, 0.75, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 5:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[5][START];
+		endPoint = 6105 - 5000;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0.4, 0.2, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[5][START] + 6105 - 5000;
+		endPoint = 5000;
+		glPushMatrix();
+		glColor3f(0, 0.75, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	case 6:
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE, TREESCALE, TREESCALE);
+		beginPoint = trees[6][START];
+		endPoint = 6030 - 5000;
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0.4, 0.2, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+
+		beginPoint = trees[6][START] + 6030 - 5000;
+		endPoint = 5000;
+		glPushMatrix();
+		glColor3f(0, 0.75, 0);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		break;
+	}
 }
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
 {
@@ -668,6 +824,15 @@ void Display()
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 			}
 		}
+		// Tree test
+		drawTreeCube(0, 0, 0);
+		drawTreeCube(0, 0, 1);
+		drawTreeCube(0, 0, 2);
+		drawTreeCube(0, 0, 3);
+		drawTreeCube(0, 0, 4);
+		drawTreeCube(0, 0, 5);
+		drawTreeCube(0, 0, 6);
+
 		glDisableVertexAttribArray(0);
 	}
 
@@ -1020,7 +1185,7 @@ void loadMap()
 		}
 	}
 	std::cout << "Loading Map ..." << std::endl;
-	std::ifstream mapFile("Maps/1.txt");
+	std::ifstream mapFile("Maps/2.txt");
 	char tmp;
 	int k = 0;
 	while (mapFile.get(tmp))

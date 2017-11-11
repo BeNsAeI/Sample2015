@@ -18,6 +18,7 @@
 #include <math.h>       /* cos */
 #include <fstream>
 #include <time.h>       /* time */
+#include "glslprogram.h"
 
 #define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
@@ -128,13 +129,14 @@ int trees[7][2];
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
-#define TANKSPEED 0.5
+#define TANKSPEED 0.4
 #define MAPEDGEX 40
 #define MAPEDGEY 70
 #define BODY 5.0
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
+GLSLProgram *Pattern;
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramXY[2] = { 0,-SPAWN };
@@ -234,6 +236,63 @@ void Animate()
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }
+float White[4] = { 1,1,1,1 };
+float *Array3(float a, float b, float c)
+{
+	static float array[4];
+	array[0] = a;
+	array[1] = b;
+	array[2] = c;
+	array[3] = 1.;
+	return array;
+}
+float *MulArray3(float factor, float array0[3])
+{
+	static float array[4];
+	array[0] = factor * array0[0];
+	array[1] = factor * array0[1];
+	array[2] = factor * array0[2];
+	array[3] = 1.;
+	return array;
+}
+void SetPointLight(int ilight, float x, float y, float z, float r, float g, float b)
+{
+	glLightfv(ilight, GL_POSITION, Array3(x, y, z));
+	glLightfv(ilight, GL_AMBIENT, Array3(r, g, b));
+	glLightfv(ilight, GL_DIFFUSE, Array3(r, g, b));
+	glLightfv(ilight, GL_SPECULAR, Array3(r, g, b));
+	glLightf(ilight, GL_CONSTANT_ATTENUATION, 1.);
+	glLightf(ilight, GL_LINEAR_ATTENUATION, 0.);
+	glLightf(ilight, GL_QUADRATIC_ATTENUATION, 0.);
+	glEnable(ilight);
+}
+void SetSpotLight(int ilight, float x, float y, float z, float xdir, float ydir, float zdir, float r, float g, float b)
+{
+	glLightfv(ilight, GL_POSITION, Array3(x, y, z));
+	glLightfv(ilight, GL_SPOT_DIRECTION, Array3(xdir, ydir, zdir));
+	glLightf(ilight, GL_SPOT_EXPONENT, 1.);
+	glLightf(ilight, GL_SPOT_CUTOFF, 45.);
+	glLightfv(ilight, GL_AMBIENT, Array3(0., 0., 0.));
+	glLightfv(ilight, GL_DIFFUSE, Array3(r, g, b));
+	glLightfv(ilight, GL_SPECULAR, Array3(r, g, b));
+	glLightf(ilight, GL_CONSTANT_ATTENUATION, 1.);
+	glLightf(ilight, GL_LINEAR_ATTENUATION, 0.);
+	glLightf(ilight, GL_QUADRATIC_ATTENUATION, 0.);
+	glEnable(ilight);
+}
+void SetMaterial(float r, float g, float b, float shininess)
+{
+	glMaterialfv(GL_BACK, GL_EMISSION, Array3(0., 0., 0.));
+	glMaterialfv(GL_BACK, GL_AMBIENT, MulArray3(.4f, White));
+	glMaterialfv(GL_BACK, GL_DIFFUSE, MulArray3(1., White));
+	glMaterialfv(GL_BACK, GL_SPECULAR, Array3(0., 0., 0.));
+	glMaterialf(GL_BACK, GL_SHININESS, 2.f);
+	glMaterialfv(GL_FRONT, GL_EMISSION, Array3(0., 0., 0.));
+	glMaterialfv(GL_FRONT, GL_AMBIENT, Array3(r/2, g/2, b /2));
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, Array3(r , g , b ));
+	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+}
 void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 {
 	glPushMatrix();
@@ -249,10 +308,11 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0, 3, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
-	glColor3f(0, 0.5, 0);
+	glColor3f(0, 0.75, 0);
+	SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0.25, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -261,10 +321,11 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	endPoint = IS3[1][END] - IS3[1][START];
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
-	glColor3f(0, 0.5, 0);
+	glColor3f(0, 0.75, 0);
+	SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0.25, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -272,10 +333,11 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	beginPoint = IS3[2][START];
 	endPoint = IS3[2][END] - IS3[2][START];
 	glPushMatrix();
-	glColor3f(0.1, 0.1, 0.1);
+	glColor3f(0.2, 0.2, 0.2);
+	SetMaterial(0.1, 0.1, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -285,9 +347,10 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
+	SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -297,9 +360,10 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
+	SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -322,10 +386,11 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0.25);
-	glColor3f(0.5, 0.5, 0);
+	SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(1, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0.25, 0.25, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -334,10 +399,11 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
 	glTranslatef(-1,0,0.25);
-	glColor3f(0.5, 0.5, 0);
+	SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(1, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0.25, 0.25, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -346,10 +412,11 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-12.75, 0, -3);
+	SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -358,10 +425,11 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(-0.25, 0, -3);
+	SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
@@ -370,24 +438,53 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 }
 void drawCube(float X, float Y,float r,float g, float b)
 {
-	glPushMatrix();
+	glPushMatrix();				// 0
 	glTranslatef(X, 0, Y);	//movement
 	glTranslatef(-5.25, CUBESIZE / 2, 0);
 	glScalef(CUBESIZE/2, CUBESIZE/2, CUBESIZE/2);
 
 	int beginPoint = cube[START];
 	int endPoint = cube[END] - cube[START];
-	glPushMatrix();
-	glTranslatef(1.75, 0, 0);
-	glColor3f(r, g, b);
-	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
-	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
-	glPopMatrix();
 
-	glPopMatrix();
+	glPushMatrix();				// 1
+	glTranslatef(1.75, 0, 0);
+
+	glPushMatrix();				// 2
+	glScalef(.9, .9, .9);
+	//SetMaterial(0.25, 0.25, 0.25, 1.0);
+	glColor3f(0.25, 0.25, 0.25);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();				// 2
+
+	//SetMaterial(r, g, b, 1.0);
+	glColor3f(r, g, b);
+	glPushMatrix();				// 3
+	glTranslatef(-0.55, -0.55, 0);
+	glScalef(0.48, 0.48,.95);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();				// 3
+
+	glPushMatrix();				// 4
+	glTranslatef(0.55, -0.55, 0);
+	glScalef(0.48, 0.48, .95);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();				// 4
+	
+	glPushMatrix();				// 5
+	glTranslatef(0, 0.55, -0.55);
+	glScalef(.95, 0.48, 0.48);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();				// 5
+
+	glPushMatrix();				// 6
+	glTranslatef(0, 0.55, 0.55);
+	glScalef(.95, 0.48, 0.48);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();				// 6
+
+	glPopMatrix();				// 1
+
+	glPopMatrix();				// 0
 }
 void drawTreeCube(float X, float Y, int index)
 {
@@ -404,6 +501,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 3960 - 2250;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -411,6 +509,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[0][START]+ 3960 - 2250;
 		endPoint = 2250;
 		glPushMatrix();
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -426,6 +525,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 5688 - 2022;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -433,6 +533,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[1][START] + 5688 - 2022;
 		endPoint = 2022;
 		glPushMatrix();
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -448,6 +549,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 4398 - 3525;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -455,6 +557,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[2][START] + 4398 - 3525;
 		endPoint = 3525;
 		glPushMatrix();
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -470,6 +573,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 3522 - 3000;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -477,6 +581,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[3][START] + 3522 - 3000;
 		endPoint = 3000;
 		glPushMatrix();
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -492,6 +597,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 4752 - 3816;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -499,6 +605,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[4][START] + 4752 - 3816;
 		endPoint = 3816;
 		glPushMatrix();
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -514,6 +621,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 6105 - 4668;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -521,6 +629,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[5][START] + 6105 - 4668;
 		endPoint = 4668;
 		glPushMatrix();
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -536,6 +645,7 @@ void drawTreeCube(float X, float Y, int index)
 		endPoint = 6030 - 4944;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
+		SetMaterial(0.4, 0.2, 0, 1.0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -543,6 +653,7 @@ void drawTreeCube(float X, float Y, int index)
 		beginPoint = trees[6][START] + 6030 - 4944;
 		endPoint = 4944;
 		glPushMatrix();
+		SetMaterial(0, 0.75, 0, 1.0);
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -788,9 +899,15 @@ void Display()
 
 	// since we are using glScalef( ), be sure normals get unitized:
 
+	Pattern->Use();
+	Pattern->SetUniformVariable((char *)"uKa", (float)0.05);
+	Pattern->SetUniformVariable((char *)"uKd", (float)1);
+	Pattern->SetUniformVariable((char *)"uKs", (float)1);
+	Pattern->SetUniformVariable((char *)"uShininess", (float)80);
 	glEnable(GL_NORMALIZE);
 	glBegin(GL_QUADS);
 	glPushMatrix();
+	//SetMaterial(0.05, 0.05, 0, 1.0);
 	glColor3f(0.05, 0.05, 0.0);
 	glVertex3f(MAPEDGEX + CUBESIZE,0, MAPEDGEY + CUBESIZE);
 	glVertex3f(MAPEDGEX + CUBESIZE, 0, -MAPEDGEY - CUBESIZE);
@@ -798,7 +915,7 @@ void Display()
 	glVertex3f(-MAPEDGEX - CUBESIZE, 0, MAPEDGEY + CUBESIZE);
 	glPopMatrix();
 	glEnd();
-
+	Pattern->Use(0);
 	// draw the current object:
 	glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
@@ -816,9 +933,38 @@ void Display()
 		);
 		KeyHandler();
 		// Draw Tanks
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(3.0f);
+		// Set the colour to be white
+		glColor3f(.5, .5, .5);
+		// Render the object
 		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		drawIS3  (IS3XY[0]  , 0  , IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
+		// Set the polygon mode to be filled triangles 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+		glShadeModel(GL_FLAT);
+		glEnable(GL_LIGHTING);
+
+		SetPointLight(GL_LIGHT0, 0 , 30, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		drawIS3(IS3XY[0], 0, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		// Pop the state changes off the attribute stack
+		// to set things back how they were
+		glPopAttrib();
+		glDisable(GL_LIGHT0);
+		glDisable(GL_LIGHTING);
+
+		Pattern->Use();
 		// draw map border
 		for(int i = 0; i < (2*MAPEDGEX)/CUBESIZE + 2; i++)
 			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0.5,0.5,0.5);
@@ -828,17 +974,42 @@ void Display()
 			drawCube( -MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
 			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
-
+		Pattern->Use(0);
 
 		// Draw Map
 		for (int j = 0; j < 14; j++)
 		{
 			for (int i = 0; i < 24; i++)
 			{
-				if(myMap.MCM[i][j] && myMap.isSolid[i][j])
-					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j])
+				{
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+				}
 				if (myMap.MCM[i][j] && !myMap.isSolid[i][j])
+				{
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(3.0f);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0]);
+					// Set the polygon mode to be filled triangles 
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					glEnable(GL_LIGHTING);
+					SetPointLight(GL_LIGHT1, 0, 20, 0, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0]);
+					glPopAttrib();
+					glDisable(GL_LIGHT1);
+					glDisable(GL_LIGHTING);
+				}
 			}
 		}
 		//tree test
@@ -1176,6 +1347,18 @@ void InitGraphics()
 		fprintf(stderr, "GLEW initialized OK\n");
 	fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
+	Pattern = new GLSLProgram();
+	bool valid = Pattern->Create((char *)"shaders/lighting2.vert", (char *)"shaders/lighting2.frag");
+	if (!valid)
+	{
+		fprintf(stderr, "Shader cannot be created!\n");
+		DoMainMenu(QUIT);
+	}
+	else
+	{
+		fprintf(stderr, "Shader created.\n");
+	}
+	Pattern->SetVerbose(false);
 
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)
@@ -1218,7 +1401,7 @@ void loadMap()
 			std::cout << MapRaw[j * 25 + i];
 			if (MapRaw[j * 25 + i] == '#')
 			{
-				myMap.color[i][j][0] = 0.3;
+				myMap.color[i][j][0] = 0.35;
 				myMap.color[i][j][1] = 0.25;
 				myMap.color[i][j][2] = 0.18;
 				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
@@ -1236,6 +1419,16 @@ void loadMap()
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = false;
+			}
+			if (MapRaw[j * 25 + i] == 'B')
+			{
+				myMap.color[i][j][0] = 0.50;
+				myMap.color[i][j][1] = 0.50;
+				myMap.color[i][j][2] = 0.00;
+				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = true;
 			}
 		}
 		std::cout << std::endl;

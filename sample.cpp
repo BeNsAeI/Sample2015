@@ -311,8 +311,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0, 3, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
-	glColor3f(0, 0.75, 0);
-	SetMaterial(0, 0.5, 0, 1.0);
+	glColor3f(0, 0, 0.75);
+	SetMaterial(0, 0, 0.5, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -324,8 +324,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	endPoint = IS3[1][END] - IS3[1][START];
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
-	glColor3f(0, 0.75, 0);
-	SetMaterial(0, 0.5, 0, 1.0);
+	glColor3f(0, 0, 0.75);
+	SetMaterial(0, 0, 0.5, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);

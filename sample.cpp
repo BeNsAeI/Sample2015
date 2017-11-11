@@ -19,6 +19,9 @@
 #include <fstream>
 #include <time.h>       /* time */
 #include "glslprogram.h"
+#include <cstring>
+#include <string>
+#include <iostream>
 
 #define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
@@ -1370,6 +1373,7 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 }
 void loadMap()
 {
+	std::string mapName;
 	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
 	{
@@ -1384,8 +1388,10 @@ void loadMap()
 			myMap.isSolid[i][j] = false;
 		}
 	}
+	std::cout << "Enter map directory: " << std::endl;
+	std::cin  >> mapName;
 	std::cout << "Loading Map ..." << std::endl;
-	std::ifstream mapFile("Maps/1.txt");
+	std::ifstream mapFile(mapName.c_str());
 	char tmp;
 	int k = 0;
 	while (mapFile.get(tmp))

@@ -504,15 +504,15 @@ void drawTreeCube(float X, float Y, int index)
 		glTranslatef(X, 0, Y);	//movement
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[5][START];
-		endPoint = 6105 - 5000;
+		endPoint = 6105 - 4668;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
 
-		beginPoint = trees[5][START] + 6105 - 5000;
-		endPoint = 5000;
+		beginPoint = trees[5][START] + 6105 - 4668;
+		endPoint = 4668;
 		glPushMatrix();
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);
@@ -525,15 +525,15 @@ void drawTreeCube(float X, float Y, int index)
 		glTranslatef(X, 0, Y);	//movement
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[6][START];
-		endPoint = 6030 - 5000;
+		endPoint = 6030 - 4944;
 		glPushMatrix();
 		glRotatef(270, 1, 0, 0);
 		glColor3f(0.4, 0.2, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
 
-		beginPoint = trees[6][START] + 6030 - 5000;
-		endPoint = 5000;
+		beginPoint = trees[6][START] + 6030 - 4944;
+		endPoint = 4944;
 		glPushMatrix();
 		glColor3f(0, 0.75, 0);
 		glRotatef(270, 1, 0, 0);

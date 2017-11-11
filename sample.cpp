@@ -16,6 +16,7 @@
 #include <glm/glm.hpp>
 #include "loader.h"
 #include <math.h>       /* cos */
+#include <fstream>
 
 #define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
@@ -97,7 +98,7 @@ float	Xrot, Yrot;				// rotation angles in degrees
 bool freeze = false;
 float Time;
 float factor = 0;
-float eyex = -40;
+float eyex = -45;
 float eyey = 80;
 float eyez = 0;
 float targetx = 0;
@@ -130,6 +131,7 @@ int trees[7][2];
 #define MAPEDGEX 40
 #define MAPEDGEY 70
 #define BODY 6.0
+#define CUBESIZE 6.0
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramCurrentXY[2] = {0,-9};
@@ -139,8 +141,14 @@ float IS3HullAngle = 0;
 float IS3CurrentXY[2] = {0,9};
 float IS3XY[2] = { 0,9 };
 bool keyBuffer[256];
+char MapRaw[25 * 14];
 #define TOTAL_MS (180 * 1000)
-
+struct Map {
+	float coord[24][14][2];
+	float color[24][14][3];
+	bool MCM[24][14];
+};
+struct Map myMap;
 void	Animate();
 void	Display();
 void	DoAxesMenu(int);
@@ -241,10 +249,10 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
+	glColor3f(0, 0.25, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[1][START];
@@ -253,10 +261,10 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
+	glColor3f(0, 0.25, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[2][START];
@@ -266,8 +274,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -278,8 +286,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -290,8 +298,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -314,10 +322,10 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glTranslatef(1.75, 0, 0.25);
 	glColor3f(0.5, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
+	glColor3f(0.25, 0.25, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Abram[1][START];
@@ -326,10 +334,10 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glTranslatef(-1,0,0.25);
 	glColor3f(0.5, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	glColor3f(0, 0, 0);
+	glColor3f(0.25, 0.25, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -340,8 +348,8 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -352,24 +360,24 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
-	glColor3f(1, 0, 0);
-	glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
 }
-void drawCube(float X, float Y, float Z)
+void drawCube(float X, float Y,float r,float g, float b)
 {
 	glPushMatrix();
-	glTranslatef(X, Y, Z);	//movement
-	glTranslatef(-5.25, 1, 0);
-	glScalef(3, 3, 3);
+	glTranslatef(X, 0, Y);	//movement
+	glTranslatef(-5.25, CUBESIZE / 2, 0);
+	glScalef(CUBESIZE/2, CUBESIZE/2, CUBESIZE/2);
 
 	int beginPoint = cube[START];
 	int endPoint = cube[END] - cube[START];
 	glPushMatrix();
 	glTranslatef(1.75, 0, 0);
-	glColor3f(0.3, 0.25, 0.18);
+	glColor3f(r, g, b);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glColor3f(0, 0, 0);
 	glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -612,9 +620,30 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 		KeyHandler();
+		// Draw Tanks
 		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		drawIS3  (IS3XY[0]  , 0  , IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
-		drawCube(0,0,0);
+
+		// draw map border
+		for(int i = 0; i < (2*MAPEDGEX)/CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0.5,0.5,0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube( -MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
+
+
+		// Draw Map
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if(myMap.MCM[i][j])
+					drawCube(myMap.coord[i][j][0]+2, myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+			}
+		}
 		glDisableVertexAttribArray(0);
 	}
 
@@ -951,6 +980,73 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 	glBufferData(target, size, data, usage);
 	glBindBuffer(target, 0);
 }
+void loadMap()
+{
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			myMap.color[i][j][0] = 0;
+			myMap.color[i][j][1] = 0;
+			myMap.color[i][j][2] = 0;
+			myMap.coord[i][j][0] = 0;
+			myMap.coord[i][j][1] = 0;
+			myMap.MCM[i][j] = false;
+		}
+	}
+	std::cout << "Loading Map ..." << std::endl;
+	std::ifstream mapFile("Maps/1.txt");
+	char tmp;
+	int k = 0;
+	while (mapFile.get(tmp))
+	{
+		MapRaw[k] = tmp;
+		k++;
+	}
+	mapFile.close();
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			std::cout << MapRaw[j * 25 + i];
+			if (MapRaw[j * 25 + i] == '#')
+			{
+				myMap.color[i][j][0] = 0.3;
+				myMap.color[i][j][1] = 0.25;
+				myMap.color[i][j][2] = 0.18;
+				myMap.coord[i][j][0] = -MAPEDGEX + j * BODY;
+				myMap.coord[i][j][1] = -MAPEDGEY + i * BODY;
+				myMap.MCM[i][j] = true;
+			}
+			if (MapRaw[j * 25 + i] == '$')
+			{
+				myMap.color[i][j][0] = 0;
+				myMap.color[i][j][1] = 0.5;
+				myMap.color[i][j][2] = 0;
+				myMap.coord[i][j][0] = -MAPEDGEX + j * BODY;
+				myMap.coord[i][j][1] = -MAPEDGEY + i * BODY;
+				myMap.MCM[i][j] = true;
+			}
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			std::cout << myMap.color[i][j][0] << ", ";
+			std::cout << myMap.color[i][j][1] << ", ";
+			std::cout << myMap.color[i][j][2] << ", ";
+			std::cout << myMap.coord[i][j][0] << ", ";
+			std::cout << myMap.coord[i][j][1] << ", ";
+			std::cout << myMap.MCM[i][j];
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
 void loadAll() 
 {
 	std::cout << "Loading Abrams ..." << std::endl;
@@ -1028,7 +1124,7 @@ void InitLists()
 	float dy = BOXSIZE / 2.f;
 	float dz = BOXSIZE / 2.f;
 	glutSetWindow(MainWindow);
-	
+	loadMap();
 	loadAll();
 	// create the object:
 	BoxList = glGenLists(1);

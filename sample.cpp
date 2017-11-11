@@ -126,26 +126,26 @@ int cube[2];
 int trees[7][2];
 #define START 0
 #define END 1
-#define TANKSCALE 0.25
+#define TANKSCALE 0.175
 #define TANKSPEED 0.5
 #define MAPEDGEX 40
 #define MAPEDGEY 70
-#define BODY 6.0
+#define BODY 5.0
 #define CUBESIZE 6.0
+#define SPAWN 45
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
-float AbramCurrentXY[2] = {0,-9};
-float AbramXY[2] = { 0,-9 };
+float AbramXY[2] = { 0,-SPAWN };
 float IS3TurretAngle = 0;
 float IS3HullAngle = 0;
-float IS3CurrentXY[2] = {0,9};
-float IS3XY[2] = { 0,9 };
+float IS3XY[2] = { 0,SPAWN };
 bool keyBuffer[256];
 char MapRaw[25 * 14];
 #define TOTAL_MS (180 * 1000)
 struct Map {
 	float coord[24][14][2];
 	float color[24][14][3];
+	bool isSolid[24][14];
 	bool MCM[24][14];
 };
 struct Map myMap;
@@ -387,6 +387,22 @@ void drawCube(float X, float Y,float r,float g, float b)
 
 	glPopMatrix();
 }
+bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
+{
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			if (myMap.isSolid[i][j])
+			{
+				if((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
+					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+					return true;
+			}
+		}
+	}
+	return false;
+}
 void KeyHandler() {
 	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
 	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
@@ -394,12 +410,14 @@ void KeyHandler() {
 	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
 	if (keyBuffer['w'] || keyBuffer['W']) {
 		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY,(-1))) &&
 			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] -= AbramTX;
 		}
 		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1))) &&
 			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
@@ -408,12 +426,14 @@ void KeyHandler() {
 	}
 	if (keyBuffer['s'] || keyBuffer['S']) {
 		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1))) &&
 			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] += AbramTX;
 		}
 		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1))) &&
 			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
 		{
@@ -441,12 +461,14 @@ void KeyHandler() {
 
 	if (keyBuffer['i'] || keyBuffer['I']) {
 		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1))) &&
 			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] -= IS3TX;
 		}
 		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1))) &&
 			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
 		{
@@ -455,12 +477,14 @@ void KeyHandler() {
 	}
 	if (keyBuffer['k'] || keyBuffer['K']) {
 		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1))) &&
 			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] += IS3TX;
 		}
 		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1))) &&
 			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
 		{
@@ -641,7 +665,7 @@ void Display()
 			for (int i = 0; i < 24; i++)
 			{
 				if(myMap.MCM[i][j])
-					drawCube(myMap.coord[i][j][0]+2, myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 			}
 		}
 		glDisableVertexAttribArray(0);
@@ -992,6 +1016,7 @@ void loadMap()
 			myMap.coord[i][j][0] = 0;
 			myMap.coord[i][j][1] = 0;
 			myMap.MCM[i][j] = false;
+			myMap.isSolid[i][j] = false;
 		}
 	}
 	std::cout << "Loading Map ..." << std::endl;
@@ -1014,18 +1039,20 @@ void loadMap()
 				myMap.color[i][j][0] = 0.3;
 				myMap.color[i][j][1] = 0.25;
 				myMap.color[i][j][2] = 0.18;
-				myMap.coord[i][j][0] = -MAPEDGEX + j * BODY;
-				myMap.coord[i][j][1] = -MAPEDGEY + i * BODY;
+				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = true;
 			}
 			if (MapRaw[j * 25 + i] == '$')
 			{
 				myMap.color[i][j][0] = 0;
 				myMap.color[i][j][1] = 0.5;
 				myMap.color[i][j][2] = 0;
-				myMap.coord[i][j][0] = -MAPEDGEX + j * BODY;
-				myMap.coord[i][j][1] = -MAPEDGEY + i * BODY;
+				myMap.coord[i][j][0] = -MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2;
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
 				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = false;
 			}
 		}
 		std::cout << std::endl;

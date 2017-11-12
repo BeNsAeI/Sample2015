@@ -134,6 +134,7 @@ bool smokeSet = false;
 float smokeIDBuffer[1000];
 float smokeCoordBuffer[1000][2];
 float smokeDurBuffer[1000];
+float smokeAngleBuffer[1000];
 bool  smokeIDBufferSet[1000];
 int smokeIndex = 0;
 #define START 0
@@ -146,7 +147,7 @@ int smokeIndex = 0;
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
-#define ROCKTHRESH 5
+#define ROCKTHRESH 25
 #define REFLECT -1
 #define SMOKECOUNT 5
 float AbramSmoke = SMOKECOUNT;
@@ -312,7 +313,7 @@ void SetMaterial(float r, float g, float b, float shininess)
 	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
 	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }
-void drawSmoke(float X, float Y, float Z, float scale, float r, float g, float b, float beginTime,float duration)
+void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, float g, float b, float beginTime,float duration)
 {
 	int beginPoint;
 	int endPoint;
@@ -322,6 +323,7 @@ void drawSmoke(float X, float Y, float Z, float scale, float r, float g, float b
 		glPushMatrix();
 		glTranslatef(X, Z+ (Time - beginTime) * 100, Y);
 		glScalef(1 + (Time - beginTime)* 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
+		glRotatef(angle, 0, 1, 0);
 		glPushMatrix();
 		glScalef(scale, scale, scale);
 		glTranslatef(0.5, 0, 0.25);
@@ -771,6 +773,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
 		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -795,6 +798,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
 		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -809,6 +813,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
 		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -823,6 +828,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
 		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -854,6 +860,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
 		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -878,6 +885,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
 		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -892,6 +900,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
 		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -906,6 +915,7 @@ void KeyHandler() {
 		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
 		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
 		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeIndex++;
 	}
@@ -1166,14 +1176,14 @@ void Display()
 			// Set the colour to be white
 			glColor3f(.5, .5, .5);
 			// Render the object
-			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
+			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 			// Set the polygon mode to be filled triangles 
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glShadeModel(GL_FLAT);
 			glEnable(GL_LIGHTING);
 			SetPointLight(GL_LIGHT1, 0, 20, 0, 0.9, 0.9, 0.9);
 			glColor3f(0.0f, 0.0f, 0.0f);
-			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
+			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 			glPopAttrib();
 			glDisable(GL_LIGHT1);
 			glDisable(GL_LIGHTING);
@@ -1677,8 +1687,11 @@ void loadMap()
 				if (rockCount < ROCKTHRESH)
 				{
 					int selector = rand() % (8-rowRockCount);
-					if(selector == 7)
-						selector = rand() % 8;
+					if (selector == 7)
+					{
+						if(rand() % 2 == 0)
+							selector = rand() % 7;
+					}
 					myMap.color[i][j][0] = selector;
 					myMap.color[i][j][1] = 0.5;
 					myMap.color[i][j][2] = 0;

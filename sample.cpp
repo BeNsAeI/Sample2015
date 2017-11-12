@@ -129,6 +129,7 @@ int IS3[3][2];
 int Track[2][2];
 int cube[2];
 int trees[8][2];
+int shell[2];
 float smokeBeginTime = 0;
 bool smokeSet = false;
 float smokeIDBuffer[1000];
@@ -147,9 +148,28 @@ int smokeIndex = 0;
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
+#define SHELLSCALE 0.0625
+#define SHELLSPEED 40000
 #define ROCKTHRESH 25
 #define REFLECT -1
-#define SMOKECOUNT 5
+#define SMOKECOUNT 3
+#define TANKHP 1
+#define BRICKHP 1
+#define FRONTARMOR 0.75
+#define SIDEARMOR 0.5
+#define BACKARMOR 0.25
+#define SHELLDAMAGE 1
+#define SHELLBOUNCETHRESH 0.25
+#define SHELLDURATION 0.03
+#define SHELLMAX 50
+#define SHELLSTORAGE 25
+
+int AbramShells = SHELLSTORAGE;
+int IS3Shells = SHELLSTORAGE;
+
+float AbramHP = TANKHP;
+float IS3HP = TANKHP;
+
 float AbramSmoke = SMOKECOUNT;
 float IS3Smoke = SMOKECOUNT;
 
@@ -169,10 +189,22 @@ char MapRaw[25 * 14];
 struct Map {
 	float coord[24][14][2];
 	float color[24][14][3];
+	float angle[24][14];
+	float HP[24][14];
 	bool isSolid[24][14];
 	bool MCM[24][14];
 };
+struct Shell {
+	float x;
+	float y;
+	float angle;
+	float startTime;
+	int id;
+	bool active;
+};
 struct Map myMap;
+struct Shell Shells[SHELLMAX];
+int shellSize = 0;
 void	Animate();
 void	Display();
 void	DoAxesMenu(int);
@@ -249,7 +281,7 @@ void Animate()
 	// for Display( ) to find:
 	int ms = glutGet(GLUT_ELAPSED_TIME);
 	ms %= TOTAL_MS;
-	Time = (float)ms / (float)TOTAL_MS;
+	Time = (float)ms/180000;
 	// animate with time here:
 	// force a call to Display( ) next time it is convenient:
 
@@ -321,7 +353,7 @@ void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, floa
 	{
 		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
 		glPushMatrix();
-		glTranslatef(X, Z+ (Time - beginTime) * 100, Y);
+		glTranslatef(X, Z + 3 + (Time - beginTime) * 100, Y);
 		glScalef(1 + (Time - beginTime)* 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
 		glRotatef(angle, 0, 1, 0);
 		glPushMatrix();
@@ -418,6 +450,83 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 
 	glPopMatrix();
 }
+void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = IS3[0][START];
+	int endPoint = IS3[0][END] - IS3[0][START];
+	glPushMatrix();
+	glTranslatef(0, 3, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -3, 0);
+	glColor3f(0, 0, 0.1);
+	SetMaterial(0, 0, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = IS3[1][START];
+	endPoint = IS3[1][END] - IS3[1][START];
+	glPushMatrix();
+	glTranslatef(0.75, 0, 0);
+	glColor3f(0, 0, 0.1);
+	SetMaterial(0, 0, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = IS3[2][START];
+	endPoint = IS3[2][END] - IS3[2][START];
+	glPushMatrix();
+	glColor3f(0.2, 0.2, 0.2);
+	SetMaterial(0.1, 0.1, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0, 0, 0.1);
+	SetMaterial(0, 0, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0, 0, 0.1);
+	SetMaterial(0, 0, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 {
 	glPushMatrix();
@@ -484,6 +593,72 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 
 	glPopMatrix();
 }
+void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = Abram[0][START];
+	int endPoint = Abram[0][END] - Abram[0][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -1, 0);
+	glTranslatef(1.75, 0, 0.25);
+	SetMaterial(0.15, 0.15, 0, 1.0);
+	glColor3f(0.1, 0.1, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Abram[1][START];
+	endPoint = Abram[1][END] - Abram[1][START];
+	glPushMatrix();
+	glTranslatef(-1, 0, 0.25);
+	SetMaterial(0.15, 0.15, 0, 1.0);
+	glColor3f(0.1, 0.1, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-12.75, 0, -3);
+	SetMaterial(0.15, 0.15, 0, 1.0);
+	glColor3f(0.1, 0.1, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(-0.25, 0, -3);
+	SetMaterial(0.15, 0.15, 0, 1.0);
+	glColor3f(0.1, 0.1, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawCube(float X, float Y,float r,float g, float b)
 {
 	glPushMatrix();				// 0
@@ -534,7 +709,7 @@ void drawCube(float X, float Y,float r,float g, float b)
 
 	glPopMatrix();				// 0
 }
-void drawTreeCube(float X, float Y, int index)
+void drawTreeCube(float X, float Y,float angle, int index)
 {
 	int beginPoint;
 	int endPoint;
@@ -543,6 +718,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 0:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(-8.5, -0.5, 6);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[0][START];
@@ -567,6 +743,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 1:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(1, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[1][START];
@@ -591,6 +768,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 2:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(5.5, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[2][START];
@@ -615,6 +793,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 3:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(8.5, -0.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[3][START];
@@ -639,6 +818,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 4:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(-6, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[4][START];
@@ -663,6 +843,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 5:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(0, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[5][START];
@@ -687,6 +868,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 6:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(6, 10.5, 4);
 		glScalef(TREESCALE, TREESCALE, TREESCALE);
 		beginPoint = trees[6][START];
@@ -711,6 +893,7 @@ void drawTreeCube(float X, float Y, int index)
 	case 7:
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
 		glTranslatef(12, 0, 4.5);
 		glScalef(TREESCALE/2, TREESCALE/2, TREESCALE/2);
 		beginPoint = trees[7][START];
@@ -724,6 +907,26 @@ void drawTreeCube(float X, float Y, int index)
 		glPopMatrix();
 		break;
 	}
+}
+void drawShell(float X, float Y, float angle)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+	glTranslatef(X, 2.75, Y);	//movement
+	glRotatef(angle, 0, 1, 0);
+	glTranslatef(0, 0, -2.5);
+	glScalef(SHELLSCALE, SHELLSCALE, SHELLSCALE);
+	beginPoint = shell[START];
+	endPoint = shell[END];
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	SetMaterial(1, 1, 0, 1.0);
+	glColor3f(1, 0.125, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+	glPopMatrix();
 }
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
 {
@@ -1085,8 +1288,8 @@ void Display()
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
-		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-		drawIS3  (IS3XY[0]  , 0  , IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
+		drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		drawIS3  (IS3XY[0]  , -0.25, IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -1097,8 +1300,8 @@ void Display()
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
-		drawAbram(AbramXY[0], 0, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-		drawIS3(IS3XY[0], 0, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		drawIS3  (IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
@@ -1139,14 +1342,14 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
-					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0]);
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.angle[i][j], myMap.color[i][j][0]);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
 					SetPointLight(GL_LIGHT1, 0, 20, 0, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
-					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0]);
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					glPopAttrib();
 					glDisable(GL_LIGHT1);
 					glDisable(GL_LIGHTING);
@@ -1154,14 +1357,16 @@ void Display()
 			}
 		}
 		//tree test
-		/*drawTreeCube(0, 0, 0);
-		drawTreeCube(0, 0, 1);
-		drawTreeCube(0, 0, 2);
-		drawTreeCube(0, 0, 3);
-		drawTreeCube(0, 0, 4);
-		drawTreeCube(0, 0, 5);
-		drawTreeCube(0, 0, 6);
-		drawTreeCube(0, 0, 7);*/
+	//	drawTreeCube(0, 0, 180, 0);
+	//	drawTreeCube(0, 0, 180, 1);
+	//	drawTreeCube(0, 0, 180, 2);
+	//	drawTreeCube(0, 0, 180, 3);
+	//	drawTreeCube(0, 0, 180, 4);
+	//	drawTreeCube(0, 0, 180, 5);
+	//	drawTreeCube(0, 0, 180, 6);
+	//	drawTreeCube(0, 0, 180, 7);
+
+
 		//Smoke
 		for (int i = 0; i < 1000; i=i+10)
 		{
@@ -1187,6 +1392,81 @@ void Display()
 			glPopAttrib();
 			glDisable(GL_LIGHT1);
 			glDisable(GL_LIGHTING);
+		}
+
+		// draw shell
+		for (int i = 0; i < SHELLMAX; i++)
+		{
+			if ((Time - Shells[i].startTime) < SHELLDURATION && Shells[i].active)
+			{
+				// Push the GL attribute bits so that we don't wreck any settings
+				glPushAttrib(GL_ALL_ATTRIB_BITS);
+				// Enable polygon offsets, and offset filled polygons forward by 2.5
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-2.5f, -2.5f);
+				// Set the render mode to be line rendering with a thick line width
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glLineWidth(3.0f);
+				// Set the colour to be white
+				glColor3f(.5, .5, .5);
+				// Render the object
+				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
+				// Set the polygon mode to be filled triangles 
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				glShadeModel(GL_FLAT);
+				glEnable(GL_LIGHTING);
+				SetPointLight(GL_LIGHT1, 0, 20, 0, 0.9, 0.9, 0.9);
+				glColor3f(0.0f, 0.0f, 0.0f);
+				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
+				glPopAttrib();
+				glDisable(GL_LIGHT1);
+				glDisable(GL_LIGHTING);
+				// Calculate trajectory:
+				if (
+					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < IS3XY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > IS3XY[0] - BODY)) &&
+					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < IS3XY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > IS3XY[1] - BODY)) &&
+					(Time - Shells[i].startTime) > 0.0001
+				)
+				{
+					if (
+						abs(Shells[i].angle - IS3HullAngle) > 45 &&
+						abs(Shells[i].angle - IS3HullAngle) < 135
+						)
+					{
+						Shells[i].active = false;
+					}
+					else
+					{
+						Shells[i].angle = -Shells[i].angle; // <-------------------------------------------------------------------------------------------------------------------------------
+
+						Shells[i].x = Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180));
+						Shells[i].y = Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180));
+					}
+				}
+				if (
+					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < AbramXY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > AbramXY[0] - BODY)) &&
+					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < AbramXY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > AbramXY[1] - BODY)) &&
+					(Time - Shells[i].startTime) > 0.0001
+				)
+				{
+					Shells[i].active = false;
+				}
+				if(
+					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < -MAPEDGEX) ||
+					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) >  MAPEDGEX) ||
+					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < -MAPEDGEY) ||
+					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) >  MAPEDGEY)
+				)
+					Shells[i].active = false;
+				if (
+					MapCollisionModel(Shells[i].x, Shells[i].y,
+						(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
+						(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
+						-1
+					)
+				)
+					Shells[i].active = false;
+			}
 		}
 		glDisableVertexAttribArray(0);
 	}
@@ -1538,6 +1818,17 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 }
 void loadMap()
 {
+	// Shell test
+/*	Shells[0].x = 0;
+	Shells[0].y = 0;
+	Shells[0].angle = 45;
+	Shells[0].id = shellSize;
+	Shells[0].startTime = 0.08;
+	if (shellSize < 100)
+		shellSize++;
+	else
+		shellSize = 0;
+		*/
 	std::string mapName = " ";
 	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
@@ -1669,6 +1960,7 @@ void loadMap()
 				myMap.color[i][j][2] = 0.18;
 				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+				myMap.HP[i][j] = BRICKHP;
 				myMap.MCM[i][j] = true;
 				myMap.isSolid[i][j] = true;
 			}
@@ -1697,6 +1989,7 @@ void loadMap()
 					myMap.color[i][j][2] = 0;
 					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
 					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+					myMap.angle[i][j] = rand() % 360;
 					myMap.MCM[i][j] = true;
 					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
 					if (myMap.color[i][j][0] == 7)
@@ -1818,6 +2111,10 @@ void loadAll()
 	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
 	trees[7][END] = vertices.size();
 
+	shell[START] = vertices.size();
+	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
+	shell[END] = vertices.size();
+
 	if (res)
 	{
 		glGenBuffers(1, &VertexVBOID);
@@ -1864,6 +2161,7 @@ void Keyboard(unsigned char c, int x, int y)
 			smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
 			smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
 			smokeDurBuffer[smokeIndex] = 0.09;
+			smokeAngleBuffer[smokeIndex] = rand() % 360;
 			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 			smokeIndex++;
 			for (int i = 0; i < 120; i++)
@@ -1873,6 +2171,7 @@ void Keyboard(unsigned char c, int x, int y)
 				smokeIDBuffer[smokeIndex] = Time;
 				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] + 10 * (sin(i *  PI / 6));
 				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] + 10 * (cos(i *  PI / 6));
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
 				smokeDurBuffer[smokeIndex] = 0.09;
 				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 				smokeIndex++;
@@ -1889,6 +2188,7 @@ void Keyboard(unsigned char c, int x, int y)
 			smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
 			smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
 			smokeDurBuffer[smokeIndex] = 0.09;
+			smokeAngleBuffer[smokeIndex] = rand() % 360;
 			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 			smokeIndex++;
 			for (int i = 0; i < 120; i++)
@@ -1899,6 +2199,63 @@ void Keyboard(unsigned char c, int x, int y)
 				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] + 10 * (sin(i *  PI / 6));
 				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] + 10 * (cos(i *  PI / 6));
 				smokeDurBuffer[smokeIndex] = 0.09;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeIndex++;
+			}
+		}
+		break;
+	case 'f':
+	case 'F':
+		if (AbramShells > 0)
+		{
+			Shells[shellSize].x = AbramXY[0];
+			Shells[shellSize].y = AbramXY[1];
+			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
+			Shells[shellSize].id = shellSize;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			AbramShells--;
+			if (smokeIndex >= 1000)
+				smokeIndex = 0;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeIndex++;
+			}
+		}
+		break;
+	case 'h':
+	case 'H':
+		if (IS3Shells > 0)
+		{
+			Shells[shellSize].x = IS3XY[0];
+			Shells[shellSize].y = IS3XY[1];
+			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;
+			Shells[shellSize].id = shellSize;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			IS3Shells--;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
 				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 				smokeIndex++;
 			}

@@ -129,6 +129,13 @@ int IS3[3][2];
 int Track[2][2];
 int cube[2];
 int trees[8][2];
+float smokeBeginTime = 0;
+bool smokeSet = false;
+float smokeIDBuffer[1000];
+float smokeCoordBuffer[1000][2];
+float smokeDurBuffer[1000];
+bool  smokeIDBufferSet[1000];
+int smokeIndex = 0;
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
@@ -141,6 +148,10 @@ int trees[8][2];
 #define TREESCALE 25
 #define ROCKTHRESH 5
 #define REFLECT -1
+#define SMOKECOUNT 5
+float AbramSmoke = SMOKECOUNT;
+float IS3Smoke = SMOKECOUNT;
+
 GLSLProgram *Pattern;
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
@@ -300,6 +311,33 @@ void SetMaterial(float r, float g, float b, float shininess)
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, Array3(r , g , b ));
 	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
 	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+}
+void drawSmoke(float X, float Y, float Z, float scale, float r, float g, float b, float beginTime,float duration)
+{
+	int beginPoint;
+	int endPoint;
+	if ((Time - beginTime) >= 0 && (Time - beginTime) <= duration)
+	{
+		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
+		glPushMatrix();
+		glTranslatef(X, Z+ (Time - beginTime) * 100, Y);
+		glScalef(1 + (Time - beginTime)* 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
+		glPushMatrix();
+		glScalef(scale, scale, scale);
+		glTranslatef(0.5, 0, 0.25);
+		beginPoint = trees[7][START];
+		endPoint = trees[7][END] - trees[7][START];
+		glPushMatrix();
+		glTranslatef(0.5, 0, 0.5);
+		SetMaterial(r-0.10, g - 0.10, b - 0.10, 1);
+		glColor3f(r, g, b);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		glPopMatrix();
+
+	}
 }
 void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 {
@@ -727,6 +765,14 @@ void KeyHandler() {
 		{
 			AbramXY[1] -= AbramTY;
 		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['s'] || keyBuffer['S']) {
 		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
@@ -743,18 +789,42 @@ void KeyHandler() {
 		{
 			AbramXY[1] += AbramTY;
 		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['a'] || keyBuffer['A']) {
 		if (keyBuffer['s'] || keyBuffer['S'])
 			AbramHullAngle -= 2;
 		else
 			AbramHullAngle += 2;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['d'] || keyBuffer['D']) {
 		if (keyBuffer['s'] || keyBuffer['S'])
 			AbramHullAngle += 2;
 		else
 		AbramHullAngle -= 2;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['q'] || keyBuffer['Q']) {
 		AbramTurretAngle += 2;
@@ -778,6 +848,14 @@ void KeyHandler() {
 		{
 			IS3XY[1] -= IS3TY;
 		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['k'] || keyBuffer['K']) {
 		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
@@ -794,18 +872,42 @@ void KeyHandler() {
 		{
 			IS3XY[1] += IS3TY;
 		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['j'] || keyBuffer['J']) {
 		if(keyBuffer['k'] || keyBuffer['K'])
 			IS3HullAngle -= 2;
 		else
 			IS3HullAngle += 2;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['l'] || keyBuffer['L']) {
 		if (keyBuffer['k'] || keyBuffer['K'])
 			IS3HullAngle += 2;
 		else
 			IS3HullAngle -= 2;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeIndex++;
 	}
 	if (keyBuffer['u'] || keyBuffer['U']) {
 		IS3TurretAngle += 2;
@@ -813,7 +915,7 @@ void KeyHandler() {
 	if (keyBuffer['o'] || keyBuffer['O']) {
 		IS3TurretAngle -= 2;
 	}
-	if (keyBuffer['f'] || keyBuffer['F']) {
+	if (keyBuffer['g'] || keyBuffer['G']) {
 		freeze = !freeze;
 	}
 	if (keyBuffer[ESCAPE]) {
@@ -1050,6 +1152,32 @@ void Display()
 		drawTreeCube(0, 0, 5);
 		drawTreeCube(0, 0, 6);
 		drawTreeCube(0, 0, 7);*/
+		//Smoke
+		for (int i = 0; i < 1000; i=i+10)
+		{
+			// Push the GL attribute bits so that we don't wreck any settings
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			// Enable polygon offsets, and offset filled polygons forward by 2.5
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			// Set the render mode to be line rendering with a thick line width
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glLineWidth(3.0f);
+			// Set the colour to be white
+			glColor3f(.5, .5, .5);
+			// Render the object
+			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
+			// Set the polygon mode to be filled triangles 
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glShadeModel(GL_FLAT);
+			glEnable(GL_LIGHTING);
+			SetPointLight(GL_LIGHT1, 0, 20, 0, 0.9, 0.9, 0.9);
+			glColor3f(0.0f, 0.0f, 0.0f);
+			drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
+			glPopAttrib();
+			glDisable(GL_LIGHT1);
+			glDisable(GL_LIGHTING);
+		}
 		glDisableVertexAttribArray(0);
 	}
 
@@ -1604,6 +1732,10 @@ void loadMap()
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
+	for (int i = 0; i < 1000; i++)
+	{
+		smokeIDBufferSet[i] = false;
+	}
 }
 void loadAll() 
 {
@@ -1707,7 +1839,59 @@ void InitLists()
 void Keyboard(unsigned char c, int x, int y)
 {
 	keyBuffer[c] = true;
-	
+	switch (c)
+	{
+	case 'c':
+	case 'C':
+		if (AbramSmoke > 0) {
+			AbramSmoke--;
+			if (smokeIndex >= 1000)
+				smokeIndex = 0;
+			smokeIDBuffer[smokeIndex] = Time;
+			smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+			smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+			smokeDurBuffer[smokeIndex] = 0.09;
+			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+			smokeIndex++;
+			for (int i = 0; i < 120; i++)
+			{
+				if (smokeIndex >= 1000)
+					smokeIndex = 0;
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] + 10 * (sin(i *  PI / 6));
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] + 10 * (cos(i *  PI / 6));
+				smokeDurBuffer[smokeIndex] = 0.09;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeIndex++;
+			}
+		}
+		break;
+	case 'n':
+	case 'N':
+		if (IS3Smoke > 0) {
+			IS3Smoke--;
+			if (smokeIndex >= 1000)
+				smokeIndex = 0;
+			smokeIDBuffer[smokeIndex] = Time;
+			smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+			smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+			smokeDurBuffer[smokeIndex] = 0.09;
+			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+			smokeIndex++;
+			for (int i = 0; i < 120; i++)
+			{
+				if (smokeIndex >= 1000)
+					smokeIndex = 0;
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] + 10 * (sin(i *  PI / 6));
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] + 10 * (cos(i *  PI / 6));
+				smokeDurBuffer[smokeIndex] = 0.09;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeIndex++;
+			}
+		}
+		break;
+	}
 }
 void keyUp(unsigned char c, int x, int y)
 {

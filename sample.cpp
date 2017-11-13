@@ -138,6 +138,7 @@ float smokeDurBuffer[1000];
 float smokeAngleBuffer[1000];
 bool  smokeIDBufferSet[1000];
 int smokeIndex = 0;
+float destructionTimeBuffer[24][14];
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
@@ -187,7 +188,7 @@ bool keyBuffer[256];
 char MapRaw[25 * 14];
 #define TOTAL_MS (180 * 1000)
 struct Map {
-	float coord[24][14][2];
+	float coord[24][14][3];
 	float color[24][14][3];
 	float angle[24][14];
 	float HP[24][14];
@@ -659,10 +660,10 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 
 	glPopMatrix();
 }
-void drawCube(float X, float Y,float r,float g, float b)
+void drawCube(float X, float Y, float Z,float r,float g, float b)
 {
 	glPushMatrix();				// 0
-	glTranslatef(X, 0, Y);	//movement
+	glTranslatef(X, Z, Y);	//movement
 	glTranslatef(-5.25, CUBESIZE / 2, 0);
 	glScalef(CUBESIZE/2, CUBESIZE/2, CUBESIZE/2);
 
@@ -709,6 +710,7 @@ void drawCube(float X, float Y,float r,float g, float b)
 
 	glPopMatrix();				// 0
 }
+
 void drawTreeCube(float X, float Y,float angle, int index)
 {
 	int beginPoint;
@@ -928,7 +930,7 @@ void drawShell(float X, float Y, float angle)
 	glPopMatrix();
 	glPopMatrix();
 }
-bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
+bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign,int * ival = NULL, int *jval = NULL)
 {
 	for (int j = 0; j < 14; j++)
 	{
@@ -936,9 +938,16 @@ bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sig
 		{
 			if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
 			{
-				if((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
+				if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
 					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+				{
+					if (ival != NULL && jval != NULL)
+					{
+						*ival = i;
+						*jval = j;
+					}
 					return true;
+				}
 			}
 			if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
 			{
@@ -1311,13 +1320,13 @@ void Display()
 		Pattern->Use();
 		// draw map border
 		for(int i = 0; i < (2*MAPEDGEX)/CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0.5,0.5,0.5);
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0,0.5,0.5,0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE,0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube( -MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
+			drawCube( -MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE,0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0.5, 0.5, 0.5);
+			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE,0, 0.5, 0.5, 0.5);
 		Pattern->Use(0);
 
 		// Draw Map
@@ -1327,7 +1336,14 @@ void Display()
 			{
 				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
 				{
-					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -1458,14 +1474,54 @@ void Display()
 					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) >  MAPEDGEY)
 				)
 					Shells[i].active = false;
+				int tmpi;
+				int tmpj;
 				if (
 					MapCollisionModel(Shells[i].x, Shells[i].y,
-						(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
+					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
 						(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
-						-1
+						-1,
+						&tmpi,
+						&tmpj
 					)
 				)
+				{
+
+					int wallState = rand() % 4;
+					switch (wallState)
+					{
+					case 0:
+						//myMap.isSolid[tmpi][tmpj] = false;
+						//myMap.MCM[tmpi][tmpj] = false;
+						break;
+					case 1:
+						//myMap.color[tmpi][tmpj][0] = 7;
+						//myMap.angle[tmpi][tmpj] = (rand() % 360 * (rand() % 3 + 1)) % 360;
+						break;
+					case 2:
+						//myMap.isSolid[tmpi][tmpj] = false;
+						//myMap.MCM[tmpi][tmpj] = false;
+						break;
+					case 3:
+						//myMap.isSolid[tmpi][tmpj] = false;
+						//myMap.MCM[tmpi][tmpj] = false;
+						break;
+					}
+					for (int i = 0; i < 50; i++)
+					{
+						if (smokeIndex >= 1000)
+							smokeIndex = 0;
+						smokeIDBuffer[smokeIndex] = Time;
+						smokeCoordBuffer[smokeIndex][0] = myMap.coord[tmpi][tmpj][0];
+						smokeCoordBuffer[smokeIndex][1] = myMap.coord[tmpi][tmpj][1];
+						smokeAngleBuffer[smokeIndex] = rand() % 360;
+						smokeDurBuffer[smokeIndex] = 0.02;
+						smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+						smokeIndex++;
+					}
+					destructionTimeBuffer[tmpi][tmpj] = Time;
 					Shells[i].active = false;
+				}
 			}
 		}
 		glDisableVertexAttribArray(0);
@@ -1840,8 +1896,10 @@ void loadMap()
 			myMap.color[i][j][2] = 0;
 			myMap.coord[i][j][0] = 0;
 			myMap.coord[i][j][1] = 0;
+			myMap.coord[i][j][2] = 0;
 			myMap.MCM[i][j] = false;
 			myMap.isSolid[i][j] = false;
+			destructionTimeBuffer[i][j] = -1;
 		}
 	}
 	std::cout << "Enter map directory: " << std::endl;

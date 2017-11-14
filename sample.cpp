@@ -1030,9 +1030,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['a'] || keyBuffer['A']) && AbramHP > 0) {
 		if (keyBuffer['s'] || keyBuffer['S'])
-			AbramHullAngle -= 2;
+			AbramHullAngle -= TANKSPEED * 5;
 		else
-			AbramHullAngle += 2;
+			AbramHullAngle += TANKSPEED * 5;
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
 		smokeIDBuffer[smokeIndex] = Time;
@@ -1046,9 +1046,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['d'] || keyBuffer['D']) && AbramHP > 0) {
 		if (keyBuffer['s'] || keyBuffer['S'])
-			AbramHullAngle += 2;
+			AbramHullAngle += TANKSPEED * 5;
 		else
-		AbramHullAngle -= 2;
+			AbramHullAngle -= TANKSPEED * 5;
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
 		smokeIDBuffer[smokeIndex] = Time;
@@ -1121,9 +1121,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['j'] || keyBuffer['J']) && IS3HP > 0) {
 		if(keyBuffer['k'] || keyBuffer['K'])
-			IS3HullAngle -= 2;
+			IS3HullAngle -= TANKSPEED * 5;
 		else
-			IS3HullAngle += 2;
+			IS3HullAngle += TANKSPEED * 5;
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
 		smokeIDBuffer[smokeIndex] = Time;
@@ -1137,9 +1137,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['l'] || keyBuffer['L']) && IS3HP > 0) {
 		if (keyBuffer['k'] || keyBuffer['K'])
-			IS3HullAngle += 2;
+			IS3HullAngle += TANKSPEED * 5;
 		else
-			IS3HullAngle -= 2;
+			IS3HullAngle -= TANKSPEED * 5;
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
 		smokeIDBuffer[smokeIndex] = Time;

@@ -167,6 +167,10 @@ float destructionTimeBuffer[24][14];
 #define SHELLSTORAGE 25
 #define BOUNCETHRESH 0.1
 
+float AbramLastShot = 0;
+float IS3LastShot = 0;
+#define RELOADTIME 0.015
+
 int AbramShells = SHELLSTORAGE;
 int IS3Shells = SHELLSTORAGE;
 
@@ -1465,13 +1469,13 @@ void Display()
 				glDisable(GL_LIGHTING);
 				// Calculate trajectory:
 				if (
-					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < IS3XY[0] + 2*BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > IS3XY[0] - BODY)) &&
-					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < IS3XY[1] + 2*BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > IS3XY[1] - BODY)) &&
+					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < IS3XY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > IS3XY[0] - BODY)) &&
+					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < IS3XY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > IS3XY[1] - BODY)) &&
 					Shells[i].shooterId == ABRAMID
 				)
 				{
 					//Dammage:
-					IS3HP -= abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
+					IS3HP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
@@ -1530,7 +1534,7 @@ void Display()
 				)
 				{
 					//Dammage:
-					AbramHP -= abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
+					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
@@ -1656,21 +1660,22 @@ void Display()
 
 	glDisable(GL_DEPTH_TEST);
 	// Winner Text:
-	if (AbramHP <= 0 && IS3 <= 0)
+	if (AbramHP <= 0 && IS3HP <= 0)
 	{
 		glColor3f(1., 1., 1.);
-		DoRasterString(0., 1., 0., (char *)"Draw!");
+		DoRasterString(0., 1., -1, (char *)"Draw!");
 	}
-	else {
+	else 
+	{
 		if (AbramHP <= 0)
 		{
 			glColor3f(0, 0, 1.);
-			DoRasterString(0., 1., 0., (char *)"Blue player Wins!");
+			DoRasterString(0., 1., -1, (char *)"Blue player Wins!");
 		}
-		if (IS3 <= 0)
+		if (IS3HP <= 0)
 		{
 			glColor3f(1, 1, 0);
-			DoRasterString(0., 1., 0., (char *)"Yellow player Wins!");
+			DoRasterString(0., 1., -1, (char *)"Yellow player Wins!");
 		}
 	}
 
@@ -2401,8 +2406,9 @@ void Keyboard(unsigned char c, int x, int y)
 		break;
 	case 'f':
 	case 'F':
-		if (AbramShells > 0 && AbramHP > 0)
+		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
 		{
+			AbramLastShot = Time;
 			Shells[shellSize].x = AbramXY[0];
 			Shells[shellSize].y = AbramXY[1];
 			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
@@ -2431,8 +2437,9 @@ void Keyboard(unsigned char c, int x, int y)
 		break;
 	case 'h':
 	case 'H':
-		if (IS3Shells > 0 && IS3HP > 0)
+		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
 		{
+			IS3LastShot = Time;
 			Shells[shellSize].x = IS3XY[0];
 			Shells[shellSize].y = IS3XY[1];
 			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;

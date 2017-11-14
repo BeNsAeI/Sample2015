@@ -143,7 +143,7 @@ float destructionTimeBuffer[24][14];
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
-#define TANKSPEED 0.4
+float TANKSPEED = 0.1;
 #define MAPEDGEX 40
 #define MAPEDGEY 70
 #define BODY 5.0
@@ -189,6 +189,11 @@ float AbramXY[2] = { AbramInitCoord[0],AbramInitCoord[1] };
 float IS3XY[2] = { IS3InitCoord[0],IS3InitCoord[1] };
 float IS3TurretAngle = 0;
 float IS3HullAngle = 0;
+
+float MoveTimeAbram = 0;
+float MoveTimeIS3 = 0;
+
+
 #define ABRAMID 0
 #define IS3ID 1
 bool keyBuffer[256];
@@ -1056,10 +1061,10 @@ void KeyHandler() {
 		smokeIndex++;
 	}
 	if ((keyBuffer['q'] || keyBuffer['Q']) && AbramHP > 0) {
-		AbramTurretAngle += 2;
+		AbramTurretAngle += TANKSPEED*5;
 	}
 	if ((keyBuffer['e'] || keyBuffer['E']) && AbramHP > 0) {
-		AbramTurretAngle -= 2;
+		AbramTurretAngle -= TANKSPEED * 5;
 	}
 
 	if ((keyBuffer['i'] || keyBuffer['I']) && IS3HP > 0) {
@@ -1147,10 +1152,10 @@ void KeyHandler() {
 		smokeIndex++;
 	}
 	if ((keyBuffer['u'] || keyBuffer['U']) && IS3HP > 0) {
-		IS3TurretAngle += 2;
+		IS3TurretAngle += TANKSPEED * 5;
 	}
 	if ((keyBuffer['o'] || keyBuffer['O']) && IS3HP > 0) {
-		IS3TurretAngle -= 2;
+		IS3TurretAngle -= TANKSPEED * 5;
 	}
 	if (keyBuffer['g'] || keyBuffer['G']) {
 		freeze = !freeze;
@@ -2463,6 +2468,16 @@ void Keyboard(unsigned char c, int x, int y)
 				smokeIndex++;
 			}
 		}
+		break;
+	case '=':
+	case '+':
+		TANKSPEED *= 2.0;
+		std::cout << "Speed set to:" << TANKSPEED << std::endl;
+		break;
+	case '-':
+	case '_':
+		TANKSPEED /= 2.0;
+		std::cout << "Speed set to:" << TANKSPEED << std::endl;
 		break;
 	}
 }

@@ -1122,7 +1122,7 @@ void KeyHandler() {
 		smokeIndex++;
 	}
 	if ((keyBuffer['j'] || keyBuffer['J'] || keyBuffer['4']) && IS3HP > 0) {
-		if (keyBuffer['k'] || keyBuffer['K'])
+		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
 			IS3HullAngle -= TANKSPEED * 5;
 		else
 			IS3HullAngle += TANKSPEED * 5;
@@ -1138,7 +1138,7 @@ void KeyHandler() {
 		smokeIndex++;
 	}
 	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
-		if (keyBuffer['k'] || keyBuffer['K'])
+		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
 			IS3HullAngle += TANKSPEED * 5;
 		else
 			IS3HullAngle -= TANKSPEED * 5;

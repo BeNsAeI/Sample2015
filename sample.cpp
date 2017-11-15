@@ -30,6 +30,8 @@ const char *GLUITITLE = { "Tanks" };
 const int GLUITRUE = { true };
 const int GLUIFALSE = { false };
 #define ESCAPE		0x1b
+#define SPACEBAR	32
+#define ENTER 13
 const int INIT_WINDOW_SIZE = { 600 };
 const float BOXSIZE = { 2.f };
 const float ANGFACT = { 1. };
@@ -978,7 +980,7 @@ void KeyHandler() {
 	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
 	if ((keyBuffer['w'] || keyBuffer['W']) && AbramHP > 0) {
 		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY,(-1))) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1))) &&
 			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
@@ -1061,13 +1063,13 @@ void KeyHandler() {
 		smokeIndex++;
 	}
 	if ((keyBuffer['q'] || keyBuffer['Q']) && AbramHP > 0) {
-		AbramTurretAngle += TANKSPEED*5;
+		AbramTurretAngle += TANKSPEED * 5;
 	}
 	if ((keyBuffer['e'] || keyBuffer['E']) && AbramHP > 0) {
 		AbramTurretAngle -= TANKSPEED * 5;
 	}
 
-	if ((keyBuffer['i'] || keyBuffer['I']) && IS3HP > 0) {
+	if ((keyBuffer['i'] || keyBuffer['I'] || keyBuffer['8']) && IS3HP > 0) {
 		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
 			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1))) &&
 			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
@@ -1093,7 +1095,7 @@ void KeyHandler() {
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
 	}
-	if ((keyBuffer['k'] || keyBuffer['K']) && IS3HP > 0) {
+	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
 		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
 			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1))) &&
 			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
@@ -1119,8 +1121,8 @@ void KeyHandler() {
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
 	}
-	if ((keyBuffer['j'] || keyBuffer['J']) && IS3HP > 0) {
-		if(keyBuffer['k'] || keyBuffer['K'])
+	if ((keyBuffer['j'] || keyBuffer['J'] || keyBuffer['4']) && IS3HP > 0) {
+		if (keyBuffer['k'] || keyBuffer['K'])
 			IS3HullAngle -= TANKSPEED * 5;
 		else
 			IS3HullAngle += TANKSPEED * 5;
@@ -1135,7 +1137,7 @@ void KeyHandler() {
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
 	}
-	if ((keyBuffer['l'] || keyBuffer['L']) && IS3HP > 0) {
+	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
 		if (keyBuffer['k'] || keyBuffer['K'])
 			IS3HullAngle += TANKSPEED * 5;
 		else
@@ -1151,10 +1153,10 @@ void KeyHandler() {
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
 	}
-	if ((keyBuffer['u'] || keyBuffer['U']) && IS3HP > 0) {
+	if ((keyBuffer['u'] || keyBuffer['U'] || keyBuffer['7']) && IS3HP > 0) {
 		IS3TurretAngle += TANKSPEED * 5;
 	}
-	if ((keyBuffer['o'] || keyBuffer['O']) && IS3HP > 0) {
+	if ((keyBuffer['o'] || keyBuffer['O'] || keyBuffer['9']) && IS3HP > 0) {
 		IS3TurretAngle -= TANKSPEED * 5;
 	}
 	if (keyBuffer['g'] || keyBuffer['G']) {
@@ -1162,6 +1164,66 @@ void KeyHandler() {
 	}
 	if (keyBuffer[ESCAPE] || keyBuffer['t'] || keyBuffer['T']) {
 		DoMainMenu(QUIT);	// will not return here
+	}
+	if ((keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR]))
+	{
+		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
+		{
+			AbramLastShot = Time;
+			Shells[shellSize].x = AbramXY[0];
+			Shells[shellSize].y = AbramXY[1];
+			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
+			Shells[shellSize].shooterId = ABRAMID;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			AbramShells--;
+			if (smokeIndex >= 1000)
+				smokeIndex = 0;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+			}
+		}
+	}
+	if ((keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER]))
+	{
+		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
+		{
+			IS3LastShot = Time;
+			Shells[shellSize].x = IS3XY[0];
+			Shells[shellSize].y = IS3XY[1];
+			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;
+			Shells[shellSize].shooterId = IS3ID;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			IS3Shells--;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+			}
+		}
 	}
 	// force a call to :
 	//glutSetWindow(MainWindow);
@@ -2380,6 +2442,7 @@ void Keyboard(unsigned char c, int x, int y)
 			}
 		}
 		break;
+	case '.':
 	case 'n':
 	case 'N':
 		if (IS3Smoke > 0 && IS3HP > 0) {
@@ -2402,66 +2465,6 @@ void Keyboard(unsigned char c, int x, int y)
 				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] + 10 * (sin(i *  PI / 6));
 				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] + 10 * (cos(i *  PI / 6));
 				smokeDurBuffer[smokeIndex] = 0.09;
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
-			}
-		}
-		break;
-	case 'f':
-	case 'F':
-		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
-		{
-			AbramLastShot = Time;
-			Shells[shellSize].x = AbramXY[0];
-			Shells[shellSize].y = AbramXY[1];
-			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
-			Shells[shellSize].shooterId = ABRAMID;
-			Shells[shellSize].startTime = Time;
-			Shells[shellSize].active = true;
-			if (shellSize < SHELLMAX - 1)
-				shellSize++;
-			else
-				shellSize = 0;
-			AbramShells--;
-			if (smokeIndex >= 1000)
-				smokeIndex = 0;
-			for (int i = 0; i < 20; i++)
-			{
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180);
-				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180);
-				smokeDurBuffer[smokeIndex] = 0.015;
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
-			}
-		}
-		break;
-	case 'h':
-	case 'H':
-		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
-		{
-			IS3LastShot = Time;
-			Shells[shellSize].x = IS3XY[0];
-			Shells[shellSize].y = IS3XY[1];
-			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;
-			Shells[shellSize].shooterId = IS3ID;
-			Shells[shellSize].startTime = Time;
-			Shells[shellSize].active = true;
-			if (shellSize < SHELLMAX - 1)
-				shellSize++;
-			else
-				shellSize = 0;
-			IS3Shells--;
-			for (int i = 0; i < 20; i++)
-			{
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180);
-				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180);
-				smokeDurBuffer[smokeIndex] = 0.015;
 				smokeAngleBuffer[smokeIndex] = rand() % 360;
 				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 				smokeActive[smokeIndex] = true;

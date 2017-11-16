@@ -22,6 +22,23 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <al.h>
+#include <alc.h>
+#include <alut.h>
+
+ALCdevice *device;
+ALboolean enumeration;
+ALCcontext *context;
+ALuint mainMusic;
+ALuint tankShellFire;
+ALuint tankShellBounce;
+ALuint tankExplode;
+
+ALuint buffer;
+ALsizei size, freq;
+ALenum format;
+ALvoid *data;
+ALboolean loop = AL_FALSE;
 
 #define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
@@ -298,6 +315,15 @@ int main(int argc, char *argv[])
 	for(int i = 0; i < NUMMODEL; i++)
 		glDeleteBuffers(1, &ModelIDList[i]);
 	//glDeleteBuffers(1, &VertexVBOID);
+	alDeleteSources(1, &mainMusic);
+	alDeleteSources(1, &tankShellFire);
+	alDeleteSources(1, &tankShellBounce);
+	alDeleteSources(1, &tankExplode);
+	alDeleteBuffers(1, &buffer);
+	device = alcGetContextsDevice(context);
+	alcMakeContextCurrent(NULL);
+	alcDestroyContext(context);
+	alcCloseDevice(device);
 	return 0;
 }
 void Animate()
@@ -1677,7 +1703,7 @@ void Display()
 
 
 	// since we are using glScalef( ), be sure normals get unitized:
-
+	
 	Pattern->Use();
 	Pattern->SetUniformVariable((char *)"uKa", (float)0.05);
 	Pattern->SetUniformVariable((char *)"uKd", (float)1);
@@ -1711,6 +1737,7 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 		KeyHandler();
+		
 		if (shake)
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
@@ -2524,14 +2551,106 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 	glBufferData(target, size, data, usage);
 	glBindBuffer(target, 0);
 }
+static void list_audio_devices(const ALCchar *devices)
+{
+	const ALCchar *device = devices, *next = devices + 1;
+	size_t len = 0;
+
+	fprintf(stdout, "Devices list:\n");
+	fprintf(stdout, "----------\n");
+	while (device && *device != '\0' && next && *next != '\0') {
+		fprintf(stdout, "%s\n", device);
+		len = strlen(device);
+		device += (len + 1);
+		next += (len + 2);
+	}
+	fprintf(stdout, "----------\n");
+}
 void InitLists()
 {
 	float dx = BOXSIZE / 2.f;
 	float dy = BOXSIZE / 2.f;
 	float dz = BOXSIZE / 2.f;
 	glutSetWindow(MainWindow);
+	device = alcOpenDevice(NULL);
+	if (!device)
+		exit(0);
+	else
+		std::cout << "Audio device was created." << std::endl;
+	enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+	if (enumeration == AL_FALSE)
+		std::cout << "enumeration not supported." << std::endl; // enumeration not supported
+	else
+		std::cout << "enumeration supported." << std::endl;// enumeration supported
+	list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+	context = alcCreateContext(device, NULL);
+	if (!alcMakeContextCurrent(context))
+		exit(0);
+	else
+		std::cout << "Context was created." << std::endl;
+	alGenSources((ALuint)1, &mainMusic);
+	alGenSources((ALuint)1, &tankShellFire);
+	alGenSources((ALuint)1, &tankShellBounce);
+	alGenSources((ALuint)1, &tankExplode);
+	// check for errors
+
+	alSourcef(mainMusic, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(tankShellFire, AL_PITCH, 1);
+	// check for errors
+	alSourcef(tankShellFire, AL_GAIN, 1);
+	// check for errors
+	alSource3f(tankShellFire, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(tankShellFire, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(tankShellFire, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(tankShellBounce, AL_PITCH, 1);
+	// check for errors
+	alSourcef(tankShellBounce, AL_GAIN, 1);
+	// check for errors
+	alSource3f(tankShellBounce, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(tankShellBounce, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(tankShellBounce, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(tankExplode, AL_PITCH, 1);
+	// check for errors
+	alSourcef(tankExplode, AL_GAIN, 1);
+	// check for errors
+	alSource3f(tankExplode, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(tankExplode, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(tankExplode, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alGenBuffers((ALuint)1, &buffer);
+	alutLoadWAVFile("sound/song.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(buffer, format, data, size, freq);
+	alSourcei(mainMusic, AL_BUFFER, buffer);
+	//add more
+
+
+	//load graphics
 	loadMap();
 	loadAll();
+	alSourcePlay(mainMusic);
+	//add more
+	// load audio
 	// create the object:
 	BoxList = glGenLists(1);
 	glNewList(BoxList, GL_COMPILE);

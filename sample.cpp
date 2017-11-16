@@ -34,7 +34,27 @@ ALuint tankShellFire;
 ALuint tankShellBounce;
 ALuint tankExplode;
 
-ALuint buffer;
+#define NUM_BUFFERS 4
+#define NUM_SOURCES 4
+ALuint Buffers[NUM_BUFFERS];
+ALuint Sources[NUM_SOURCES];
+
+// Position of the source sounds.
+ALfloat SourcesPos[NUM_SOURCES][3];
+
+// Velocity of the source sounds.
+ALfloat SourcesVel[NUM_SOURCES][3];
+
+
+// Position of the listener.
+ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };
+
+// Velocity of the listener.
+ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
+
+// Orientation of the listener. (first 3 elements are "at", second 3 are "up")
+ALfloat ListenerOri[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
+
 ALsizei size, freq;
 ALenum format;
 ALvoid *data;
@@ -319,7 +339,8 @@ int main(int argc, char *argv[])
 	alDeleteSources(1, &tankShellFire);
 	alDeleteSources(1, &tankShellBounce);
 	alDeleteSources(1, &tankExplode);
-	alDeleteBuffers(1, &buffer);
+	alDeleteBuffers(1, Buffers);
+
 	device = alcGetContextsDevice(context);
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(context);
@@ -1540,6 +1561,7 @@ void KeyHandler() {
 	{
 		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
 		{
+			alSourcePlay(Sources[1]);
 			AbramLastShot = Time;
 			Shells[shellSize].x = AbramXY[0];
 			Shells[shellSize].y = AbramXY[1];
@@ -1571,6 +1593,7 @@ void KeyHandler() {
 	{
 		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
 		{
+			alSourcePlay(Sources[1]);
 			IS3LastShot = Time;
 			Shells[shellSize].x = IS3XY[0];
 			Shells[shellSize].y = IS3XY[1];
@@ -1742,6 +1765,7 @@ void Display()
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
 			{
+				alSourcePlay(Sources[3]);
 				eyex += sin((Time - shakeStartTime) * 5000) / 2;
 				eyey += sin((Time - shakeStartTime) * 5000) / 2;
 				if (AbramHP <= 0)
@@ -2021,6 +2045,7 @@ void Display()
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
+						alSourcePlay(Sources[2]);
 						if (IS3XY[0] > Shells[i].x)
 						{
 							if (IS3XY[1] > Shells[i].y)
@@ -2080,6 +2105,7 @@ void Display()
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
+						alSourcePlay(Sources[2]);
 						if (AbramXY[0] > Shells[i].x)
 						{
 							if (AbramXY[1] > Shells[i].y)
@@ -2638,19 +2664,63 @@ void InitLists()
 	alSourcei(tankExplode, AL_LOOPING, AL_FALSE);
 	// check for errros
 
-	alGenBuffers((ALuint)1, &buffer);
+	alGenBuffers(NUM_BUFFERS, Buffers);
+
 	alutLoadWAVFile("sound/song.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(buffer, format, data, size, freq);
-	alSourcei(mainMusic, AL_BUFFER, buffer);
-	//add more
+	alBufferData(Buffers[0], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[1], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[2], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[3], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	// Bind buffers into audio sources.
+
+	alGenSources(NUM_SOURCES, Sources);
+
+	alSourcei(Sources[0], AL_BUFFER, Buffers[0]);
+	alSourcef(Sources[0], AL_PITCH, 1.0);
+	alSourcef(Sources[0], AL_GAIN, 1.0);
+	alSource3f(Sources[0], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[0], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[0], AL_LOOPING, AL_TRUE);
+
+	alSourcei(Sources[1], AL_BUFFER, Buffers[1]);
+	alSourcef(Sources[1], AL_PITCH, 1.0);
+	alSourcef(Sources[1], AL_GAIN, 1.0);
+	alSource3f(Sources[1], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[1], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[1], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[2], AL_BUFFER, Buffers[2]);
+	alSourcef(Sources[2], AL_PITCH, 1.0);
+	alSourcef(Sources[2], AL_GAIN, 1.0);
+	alSource3f(Sources[2], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[2], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[2], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[3], AL_BUFFER, Buffers[3]);
+	alSourcef(Sources[3], AL_PITCH, 1.0);
+	alSourcef(Sources[3], AL_GAIN, 1.0);
+	alSource3f(Sources[3], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[3], AL_LOOPING, AL_FALSE);
 
 
 	//load graphics
 	loadMap();
 	loadAll();
-	alSourcePlay(mainMusic);
-	//add more
+
 	// load audio
+	alSourcePlay(Sources[0]);
 	// create the object:
 	BoxList = glGenLists(1);
 	glNewList(BoxList, GL_COMPILE);

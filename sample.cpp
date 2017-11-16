@@ -104,9 +104,11 @@ int		Xmouse, Ymouse;			// mouse values
 float	Xrot, Yrot;				// rotation angles in degrees
 bool freeze = false;
 float Time;
+#define CAMX -45;
+#define CAMY 80;
 float factor = 0;
-float eyex = -45;
-float eyey = 80;
+float eyex = CAMX;
+float eyey = CAMY;
 float eyez = 0;
 float targetx = 0;
 float targety = 0;
@@ -168,6 +170,13 @@ float TANKSPEED = 0.1;
 #define SHELLMAX 50
 #define SHELLSTORAGE 25
 #define BOUNCETHRESH 0.1
+
+//explosion and fire
+bool shake = false;
+bool shakeOnce = false;
+float shakeDuration = 0.005;
+float shakeStartTime = 0;
+
 
 float AbramLastShot = 0;
 float IS3LastShot = 0;
@@ -302,6 +311,314 @@ void Animate()
 
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
+}
+void loadMap()
+{
+	// Shell test
+	/*	Shells[0].x = 0;
+	Shells[0].y = 0;
+	Shells[0].angle = 45;
+	Shells[0].id = shellSize;
+	Shells[0].startTime = 0.08;
+	if (shellSize < 100)
+	shellSize++;
+	else
+	shellSize = 0;
+	*/
+	std::string mapName = " ";
+	srand(time(NULL));
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			myMap.color[i][j][0] = 0;
+			myMap.color[i][j][1] = 0;
+			myMap.color[i][j][2] = 0;
+			myMap.coord[i][j][0] = 0;
+			myMap.coord[i][j][1] = 0;
+			myMap.coord[i][j][2] = 0;
+			myMap.MCM[i][j] = false;
+			myMap.isSolid[i][j] = false;
+			destructionTimeBuffer[i][j] = -1;
+		}
+	}
+	std::cout << "Enter map directory: " << std::endl;
+	std::cin >> mapName;
+	std::string folder = "Maps/";
+	std::string ext = ".txt";
+	switch (mapName[0])
+	{
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		mapName = folder + mapName[0] + ext;
+		break;
+	case'r':
+	case'R':
+		mapName = "RANDOM";
+		break;
+	}
+	std::cout << "Loading Map ..." << std::endl;
+	if (mapName == "RANDOM")
+	{
+		int AX = 0;
+		int AY = 0;
+		int TX = 0;
+		int TY = 0;
+
+		while (AX == TX)
+		{
+			AX = rand() % 24;
+			AY = rand() % 14;
+			TX = rand() % 24;
+			TY = rand() % 14;
+		}
+
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				char e = '_';
+				if (i == AX && j == AY)
+				{
+					e = 'A';
+				}
+				if (i == TX && j == TY)
+				{
+					e = 'T';
+				}
+				if ((!(i == AX && j == AY)) && (!(i == TX && j == TY)))
+				{
+					int element = rand() % 16;
+					switch (element)
+					{
+					case 0:
+						e = '#';
+						break;
+					case 10:
+					case 5:
+					case 1:
+						e = '$';
+						break;
+					}
+				}
+				MapRaw[j * 24 + i] = e;
+			}
+		}
+	}
+	else
+	{
+		std::ifstream mapFile(mapName.c_str());
+		char tmp;
+		int k = 0;
+		while (mapFile.get(tmp))
+		{
+			MapRaw[k] = tmp;
+			k++;
+		}
+		mapFile.close();
+	}
+	int rockCount = 0;
+	int rowRockCount = 0;
+	for (int j = 0; j < 14; j++)
+	{
+		rowRockCount = 0;
+		for (int i = 0; i < 24; i++)
+		{
+			std::cout << MapRaw[j * 25 + i];
+			if (MapRaw[j * 25 + i] == 'A')
+			{
+				AbramInitCoord[0] = AbramXY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				AbramInitCoord[1] = AbramXY[1] = -MAPEDGEY + i * CUBESIZE;
+				if (i <= 12)
+					AbramHullAngle = 180;
+				else
+					AbramHullAngle = 0;
+			}
+			if (MapRaw[j * 25 + i] == 'T')
+			{
+				IS3InitCoord[0] = IS3XY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				IS3InitCoord[1] = IS3XY[1] = -MAPEDGEY + i * CUBESIZE;
+				if (i <= 12)
+					IS3HullAngle = 180;
+				else
+					IS3HullAngle = 0;
+			}
+			if (MapRaw[j * 25 + i] == '#')
+			{
+				myMap.color[i][j][0] = 0.35;
+				myMap.color[i][j][1] = 0.25;
+				myMap.color[i][j][2] = 0.18;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+				myMap.HP[i][j] = BRICKHP;
+				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = true;
+			}
+			if (MapRaw[j * 25 + i] == '+')
+			{
+				myMap.color[i][j][0] = 7;
+				myMap.color[i][j][1] = 0.5;
+				myMap.color[i][j][2] = 0;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = true;
+			}
+			if (MapRaw[j * 25 + i] == '$')
+			{
+				if (rockCount < ROCKTHRESH)
+				{
+					int selector = rand() % (8 - rowRockCount);
+					if (selector == 7)
+					{
+						if (rand() % 2 == 0)
+							selector = rand() % 7;
+					}
+					myMap.color[i][j][0] = selector;
+					myMap.color[i][j][1] = 0.5;
+					myMap.color[i][j][2] = 0;
+					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+					myMap.angle[i][j] = rand() % 360;
+					myMap.MCM[i][j] = true;
+					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
+					if (myMap.color[i][j][0] == 7)
+					{
+						rockCount++;
+						rowRockCount++;
+					}
+				}
+				else
+				{
+					myMap.color[i][j][0] = rand() % 7;
+					myMap.color[i][j][1] = 0.5;
+					myMap.color[i][j][2] = 0;
+					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+					myMap.MCM[i][j] = true;
+					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
+				}
+			}
+			if (MapRaw[j * 25 + i] == 'B')
+			{
+				myMap.color[i][j][0] = 0.50;
+				myMap.color[i][j][1] = 0.50;
+				myMap.color[i][j][2] = 0.00;
+				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
+				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
+				myMap.MCM[i][j] = true;
+				myMap.isSolid[i][j] = true;
+			}
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	for (int j = 0; j < 14; j++)
+	{
+		for (int i = 0; i < 24; i++)
+		{
+			std::cout << myMap.color[i][j][0] << ", ";
+			std::cout << myMap.color[i][j][1] << ", ";
+			std::cout << myMap.color[i][j][2] << ", ";
+			std::cout << myMap.coord[i][j][0] << ", ";
+			std::cout << myMap.coord[i][j][1] << ", ";
+			std::cout << myMap.MCM[i][j];
+			std::cout << std::endl;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	for (int i = 0; i < 1000; i++)
+	{
+		smokeIDBufferSet[i] = false;
+	}
+}
+void loadAll()
+{
+	std::cout << "Loading Abrams ..." << std::endl;
+
+	Abram[0][START] = vertices.size();
+	res = loadOBJ("models/abram-turret.obj", vertices, uvs, normals);
+	Abram[0][END] = vertices.size();
+
+	Abram[1][START] = vertices.size();
+	res = loadOBJ("models/abram-hull.obj", vertices, uvs, normals);
+	Abram[1][END] = vertices.size();
+
+	IS3[0][START] = vertices.size();
+	res = loadOBJ("models/IS-3-turret.obj", vertices, uvs, normals);
+	IS3[0][END] = vertices.size();
+
+	IS3[1][START] = vertices.size();
+	res = loadOBJ("models/IS-3-upper-hull.obj", vertices, uvs, normals);
+	IS3[1][END] = vertices.size();
+
+	IS3[2][START] = vertices.size();
+	res = loadOBJ("models/IS-3-lower-hull.obj", vertices, uvs, normals);
+	IS3[2][END] = vertices.size();
+
+	Track[0][START] = vertices.size();
+	res = loadOBJ("models/l-track.obj", vertices, uvs, normals);
+	Track[0][END] = vertices.size();
+
+	Track[1][START] = vertices.size();
+	res = loadOBJ("models/r-track.obj", vertices, uvs, normals);
+	Track[1][END] = vertices.size();
+
+	cube[START] = vertices.size();
+	res = loadOBJ("models/cube.obj", vertices, uvs, normals);
+	cube[END] = vertices.size();
+
+	trees[0][START] = vertices.size();
+	res = loadOBJ("models/tree1.obj", vertices, uvs, normals);
+	trees[0][END] = vertices.size();
+
+	trees[1][START] = vertices.size();
+	res = loadOBJ("models/tree2.obj", vertices, uvs, normals);
+	trees[1][END] = vertices.size();
+
+	trees[2][START] = vertices.size();
+	res = loadOBJ("models/tree3.obj", vertices, uvs, normals);
+	trees[2][END] = vertices.size();
+
+	trees[3][START] = vertices.size();
+	res = loadOBJ("models/tree4.obj", vertices, uvs, normals);
+	trees[3][END] = vertices.size();
+
+	trees[4][START] = vertices.size();
+	res = loadOBJ("models/tree5.obj", vertices, uvs, normals);
+	trees[4][END] = vertices.size();
+
+	trees[5][START] = vertices.size();
+	res = loadOBJ("models/tree6.obj", vertices, uvs, normals);
+	trees[5][END] = vertices.size();
+
+	trees[6][START] = vertices.size();
+	res = loadOBJ("models/tree7.obj", vertices, uvs, normals);
+	trees[6][END] = vertices.size();
+
+	trees[7][START] = vertices.size();
+	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
+	trees[7][END] = vertices.size();
+
+	shell[START] = vertices.size();
+	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
+	shell[END] = vertices.size();
+
+	if (res)
+	{
+		glGenBuffers(1, &VertexVBOID);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+	}
 }
 float White[4] = { 1,1,1,1 };
 float *Array3(float a, float b, float c)
@@ -724,7 +1041,6 @@ void drawCube(float X, float Y, float Z,float r,float g, float b)
 
 	glPopMatrix();				// 0
 }
-
 void drawTreeCube(float X, float Y,float angle, int index)
 {
 	int beginPoint;
@@ -1350,6 +1666,20 @@ void Display()
 	glPopMatrix();
 	glEnd();
 	Pattern->Use(0);
+	if (shake)
+	{
+		if ((Time - shakeStartTime) < shakeDuration)
+		{
+			eyex += sin((Time - shakeStartTime)*5000)/2;
+			eyey += sin((Time - shakeStartTime)*5000)/2;
+		}
+		else
+		{
+			eyex = CAMX;
+			eyey = CAMY;
+			shake = false;
+		}
+	}
 	// draw the current object:
 	//glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
@@ -1381,11 +1711,29 @@ void Display()
 		if(AbramHP > 0)
 			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		else
+		{
 			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			if (!shakeOnce)
+			{
+				shake = true;
+				shakeOnce = true;
+				shakeStartTime = Time;
+			}
+		}
 		if (IS3HP > 0)
 			drawIS3  (IS3XY[0]  , -0.25, IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
 		else
+		{
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			if (!shakeOnce)
+			{
+				shake = true;
+				shakeOnce = true;
+				shakeStartTime = Time;
+			}
+			
+		}
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -2075,314 +2423,6 @@ void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, cons
 	glBindBuffer(target, theBuffer);
 	glBufferData(target, size, data, usage);
 	glBindBuffer(target, 0);
-}
-void loadMap()
-{
-	// Shell test
-/*	Shells[0].x = 0;
-	Shells[0].y = 0;
-	Shells[0].angle = 45;
-	Shells[0].id = shellSize;
-	Shells[0].startTime = 0.08;
-	if (shellSize < 100)
-		shellSize++;
-	else
-		shellSize = 0;
-		*/
-	std::string mapName = " ";
-	srand(time(NULL));
-	for (int j = 0; j < 14; j++)
-	{
-		for (int i = 0; i < 24; i++)
-		{
-			myMap.color[i][j][0] = 0;
-			myMap.color[i][j][1] = 0;
-			myMap.color[i][j][2] = 0;
-			myMap.coord[i][j][0] = 0;
-			myMap.coord[i][j][1] = 0;
-			myMap.coord[i][j][2] = 0;
-			myMap.MCM[i][j] = false;
-			myMap.isSolid[i][j] = false;
-			destructionTimeBuffer[i][j] = -1;
-		}
-	}
-	std::cout << "Enter map directory: " << std::endl;
-	std::cin  >> mapName;
-	std::string folder = "Maps/";
-	std::string ext = ".txt";
-	switch (mapName[0])
-	{
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
-		mapName = folder + mapName[0] + ext;
-		break;
-	case'r':
-	case'R':
-		mapName = "RANDOM";
-		break;
-	}
-	std::cout << "Loading Map ..." << std::endl;
-	if (mapName == "RANDOM")
-	{
-		int AX=0;
-		int AY=0;
-		int TX=0;
-		int TY=0;
-
-		while (AX == TX)
-		{
-			AX = rand() % 24;
-			AY = rand() % 14;
-			TX = rand() % 24;
-			TY = rand() % 14;
-		}
-
-		for (int j = 0; j < 14; j++)
-		{
-			for (int i = 0; i < 24; i++)
-			{
-				char e = '_';
-				if (i == AX && j == AY)
-				{
-					e = 'A';
-				}
-				if (i == TX && j == TY)
-				{
-					e = 'T';
-				}
-				if ((!(i == AX && j == AY)) && (!(i == TX && j == TY)))
-				{
-					int element = rand() % 16;
-					switch (element)
-					{
-					case 0:
-						e = '#';
-						break;
-					case 10:
-					case 5:
-					case 1:
-						e = '$';
-						break;
-					}
-				}
-				MapRaw[j * 24 + i] = e;
-			}
-		}
-	}
-	else
-	{
-		std::ifstream mapFile(mapName.c_str());
-		char tmp;
-		int k = 0;
-		while (mapFile.get(tmp))
-		{
-			MapRaw[k] = tmp;
-			k++;
-		}
-		mapFile.close();
-	}
-	int rockCount = 0;
-	int rowRockCount = 0;
-	for (int j = 0; j < 14; j++)
-	{
-		rowRockCount = 0;
-		for (int i = 0; i < 24; i++)
-		{
-			std::cout << MapRaw[j * 25 + i];
-			if (MapRaw[j * 25 + i] == 'A')
-			{
-				AbramInitCoord[0] = AbramXY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-				AbramInitCoord[1] = AbramXY[1] = -MAPEDGEY + i * CUBESIZE;
-				if (i <= 12)
-					AbramHullAngle = 180;
-				else
-					AbramHullAngle = 0;
-			}
-			if (MapRaw[j * 25 + i] == 'T')
-			{
-				IS3InitCoord[0] = IS3XY[0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-				IS3InitCoord[1]  = IS3XY[1] = -MAPEDGEY + i * CUBESIZE;
-				if (i <= 12)
-					IS3HullAngle = 180;
-				else
-					IS3HullAngle = 0;
-			}
-			if (MapRaw[j * 25 + i] == '#')
-			{
-				myMap.color[i][j][0] = 0.35;
-				myMap.color[i][j][1] = 0.25;
-				myMap.color[i][j][2] = 0.18;
-				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
-				myMap.HP[i][j] = BRICKHP;
-				myMap.MCM[i][j] = true;
-				myMap.isSolid[i][j] = true;
-			}
-			if (MapRaw[j * 25 + i] == '+')
-			{
-				myMap.color[i][j][0] = 7;
-				myMap.color[i][j][1] = 0.5;
-				myMap.color[i][j][2] = 0;
-				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
-				myMap.MCM[i][j] = true;
-				myMap.isSolid[i][j] = true;
-			}
-			if (MapRaw[j * 25 + i] == '$')
-			{
-				if (rockCount < ROCKTHRESH)
-				{
-					int selector = rand() % (8-rowRockCount);
-					if (selector == 7)
-					{
-						if(rand() % 2 == 0)
-							selector = rand() % 7;
-					}
-					myMap.color[i][j][0] = selector;
-					myMap.color[i][j][1] = 0.5;
-					myMap.color[i][j][2] = 0;
-					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
-					myMap.angle[i][j] = rand() % 360;
-					myMap.MCM[i][j] = true;
-					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
-					if (myMap.color[i][j][0] == 7)
-					{
-						rockCount++;
-						rowRockCount++;
-					}
-				}
-				else
-				{
-					myMap.color[i][j][0] = rand() % 7;
-					myMap.color[i][j][1] = 0.5;
-					myMap.color[i][j][2] = 0;
-					myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-					myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
-					myMap.MCM[i][j] = true;
-					myMap.isSolid[i][j] = myMap.color[i][j][0] == 7;
-				}
-			}
-			if (MapRaw[j * 25 + i] == 'B')
-			{
-				myMap.color[i][j][0] = 0.50;
-				myMap.color[i][j][1] = 0.50;
-				myMap.color[i][j][2] = 0.00;
-				myMap.coord[i][j][0] = REFLECT*(-MAPEDGEX - CUBESIZE / 4 + j * CUBESIZE + 2);
-				myMap.coord[i][j][1] = -MAPEDGEY + i * CUBESIZE;
-				myMap.MCM[i][j] = true;
-				myMap.isSolid[i][j] = true;
-			}
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-	for (int j = 0; j < 14; j++)
-	{
-		for (int i = 0; i < 24; i++)
-		{
-			std::cout << myMap.color[i][j][0] << ", ";
-			std::cout << myMap.color[i][j][1] << ", ";
-			std::cout << myMap.color[i][j][2] << ", ";
-			std::cout << myMap.coord[i][j][0] << ", ";
-			std::cout << myMap.coord[i][j][1] << ", ";
-			std::cout << myMap.MCM[i][j];
-			std::cout << std::endl;
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
-	for (int i = 0; i < 1000; i++)
-	{
-		smokeIDBufferSet[i] = false;
-	}
-}
-void loadAll() 
-{
-	std::cout << "Loading Abrams ..." << std::endl;
-
-	Abram[0][START] = vertices.size();
-	res = loadOBJ("models/abram-turret.obj", vertices, uvs, normals);
-	Abram[0][END] = vertices.size();
-
-	Abram[1][START] = vertices.size();
-	res = loadOBJ("models/abram-hull.obj", vertices, uvs, normals);
-	Abram[1][END] = vertices.size();
-
-	IS3[0][START] = vertices.size();
-	res = loadOBJ("models/IS-3-turret.obj", vertices, uvs, normals);
-	IS3[0][END] = vertices.size();
-
-	IS3[1][START] = vertices.size();
-	res = loadOBJ("models/IS-3-upper-hull.obj", vertices, uvs, normals);
-	IS3[1][END] = vertices.size();
-
-	IS3[2][START] = vertices.size();
-	res = loadOBJ("models/IS-3-lower-hull.obj", vertices, uvs, normals);
-	IS3[2][END] = vertices.size();
-
-	Track[0][START] = vertices.size();
-	res = loadOBJ("models/l-track.obj", vertices, uvs, normals);
-	Track[0][END] = vertices.size();
-
-	Track[1][START] = vertices.size();
-	res = loadOBJ("models/r-track.obj", vertices, uvs, normals);
-	Track[1][END] = vertices.size();
-
-	cube[START] = vertices.size();
-	res = loadOBJ("models/cube.obj", vertices, uvs, normals);
-	cube[END] = vertices.size();
-
-	trees[0][START] = vertices.size();
-	res = loadOBJ("models/tree1.obj", vertices, uvs, normals);
-	trees[0][END] = vertices.size();
-
-	trees[1][START] = vertices.size();
-	res = loadOBJ("models/tree2.obj", vertices, uvs, normals);
-	trees[1][END] = vertices.size();
-
-	trees[2][START] = vertices.size();
-	res = loadOBJ("models/tree3.obj", vertices, uvs, normals);
-	trees[2][END] = vertices.size();
-
-	trees[3][START] = vertices.size();
-	res = loadOBJ("models/tree4.obj", vertices, uvs, normals);
-	trees[3][END] = vertices.size();
-
-	trees[4][START] = vertices.size();
-	res = loadOBJ("models/tree5.obj", vertices, uvs, normals);
-	trees[4][END] = vertices.size();
-
-	trees[5][START] = vertices.size();
-	res = loadOBJ("models/tree6.obj", vertices, uvs, normals);
-	trees[5][END] = vertices.size();
-
-	trees[6][START] = vertices.size();
-	res = loadOBJ("models/tree7.obj", vertices, uvs, normals);
-	trees[6][END] = vertices.size();
-
-	trees[7][START] = vertices.size();
-	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
-	trees[7][END] = vertices.size();
-
-	shell[START] = vertices.size();
-	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
-	shell[END] = vertices.size();
-
-	if (res)
-	{
-		glGenBuffers(1, &VertexVBOID);
-		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
-	}
 }
 void InitLists()
 {

@@ -159,7 +159,7 @@ float TANKSPEED = 0.1;
 #define ROCKTHRESH 25
 #define REFLECT -1
 #define SMOKECOUNT 3
-#define TANKHP 5
+#define TANKHP 3
 #define BRICKHP 1
 #define FRONTARMOR 0.75
 #define SIDEARMOR 0.5
@@ -176,7 +176,8 @@ bool shake = false;
 bool shakeOnce = false;
 float shakeDuration = 0.005;
 float shakeStartTime = 0;
-
+bool fireAbram = false;
+bool fireIS3 = false;
 
 float AbramLastShot = 0;
 float IS3LastShot = 0;
@@ -696,6 +697,34 @@ void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, floa
 		glPushMatrix();
 		glTranslatef(0.5, 0, 0.5);
 		SetMaterial(r-0.10, g - 0.10, b - 0.10, 1);
+		glColor3f(r, g, b);
+		glRotatef(270, 1, 0, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+		glPopMatrix();
+
+	}
+}
+void drawExplosion(float X, float Y, float Z, float angle, float scale, float r, float g, float b, float beginTime, float duration)
+{
+	int beginPoint;
+	int endPoint;
+	if ((Time - beginTime) >= 0 && (Time - beginTime) <= duration)
+	{
+		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
+		glPushMatrix();
+		glTranslatef(X, Z + 3 + (Time - beginTime) * 100, Y);
+		glScalef(1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
+		glRotatef(angle, 0, 1, 0);
+		glPushMatrix();
+		glScalef(scale, scale, scale);
+		glTranslatef(0.5, 0, 0.25);
+		beginPoint = trees[7][START];
+		endPoint = trees[7][END] - trees[7][START];
+		glPushMatrix();
+		glTranslatef(0.5, 0, 0.5);
+		SetMaterial(r - 0.10, g - 0.10, b - 0.10, 1);
 		glColor3f(r, g, b);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1231,8 +1260,8 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		beginPoint = trees[7][START];
 		endPoint = trees[7][END] - trees[7][START];
 		glPushMatrix();
-		SetMaterial(0.5, 0.5, 0.5, 1);
-		glColor3f(0.75, 0.75, 0.75);
+		SetMaterial(0.125, 0.125, 0.125, 1);
+		glColor3f(0.25, 0.25, 0.25);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 		glPopMatrix();
@@ -1666,20 +1695,6 @@ void Display()
 	glPopMatrix();
 	glEnd();
 	Pattern->Use(0);
-	if (shake)
-	{
-		if ((Time - shakeStartTime) < shakeDuration)
-		{
-			eyex += sin((Time - shakeStartTime)*5000)/2;
-			eyey += sin((Time - shakeStartTime)*5000)/2;
-		}
-		else
-		{
-			eyex = CAMX;
-			eyey = CAMY;
-			shake = false;
-		}
-	}
 	// draw the current object:
 	//glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
@@ -1696,6 +1711,91 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 		KeyHandler();
+		if (shake)
+		{
+			if ((Time - shakeStartTime) < shakeDuration)
+			{
+				eyex += sin((Time - shakeStartTime) * 5000) / 2;
+				eyey += sin((Time - shakeStartTime) * 5000) / 2;
+				if (AbramHP <= 0)
+				{
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(3.0f);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					drawExplosion(AbramXY[0], AbramXY[1],0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3*abs(sin((Time - shakeStartTime) * 500))/4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1],0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3*abs(sin((Time - shakeStartTime) * 500))/4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0,120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0,180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0,240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					// Set the polygon mode to be filled triangles 
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					glEnable(GL_LIGHTING);
+					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					glPopAttrib();
+					glDisable(GL_LIGHT1);
+					glDisable(GL_LIGHTING);
+					
+				}
+				if (IS3HP <= 0)
+				{
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(3.0f);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					// Set the polygon mode to be filled triangles 
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					glEnable(GL_LIGHTING);
+					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					glPopAttrib();
+					glDisable(GL_LIGHT1);
+					glDisable(GL_LIGHTING);
+				}
+			}
+			else
+			{
+				eyex = CAMX;
+				eyey = CAMY;
+				shake = false;
+			}
+		}
 		// Draw Tanks
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);

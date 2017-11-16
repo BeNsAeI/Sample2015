@@ -184,7 +184,7 @@ float destructionTimeBuffer[24][14];
 #define START 0
 #define END 1
 #define TANKSCALE 0.175
-float TANKSPEED = 0.1;
+float TANKSPEED = 0.4;
 #define MAPEDGEX 40
 #define MAPEDGEY 70
 #define BODY 5.0
@@ -241,6 +241,7 @@ float IS3HullAngle = 0;
 
 float MoveTimeAbram = 0;
 float MoveTimeIS3 = 0;
+std::string mapName = " ";
 
 
 #define ABRAMID 0
@@ -373,7 +374,7 @@ void loadMap()
 	else
 	shellSize = 0;
 	*/
-	std::string mapName = " ";
+	
 	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
 	{
@@ -391,7 +392,8 @@ void loadMap()
 		}
 	}
 	std::cout << "Enter map directory: " << std::endl;
-	std::cin >> mapName;
+	if(mapName == " ")
+		std::cin >> mapName;
 	std::string folder = "Maps/";
 	std::string ext = ".txt";
 	switch (mapName[0])
@@ -2810,6 +2812,21 @@ void Keyboard(unsigned char c, int x, int y)
 	case '_':
 		TANKSPEED /= 2.0;
 		std::cout << "Speed set to:" << TANKSPEED << std::endl;
+		break;
+	case 'g':
+	case 'G':
+		AbramHP = TANKHP;
+		IS3HP = TANKHP;
+		shake = false;
+		smokeIndex = 0;
+		shakeOnce = false;
+		AbramShells = SHELLSTORAGE;
+		IS3Shells = SHELLSTORAGE;
+		AbramSmoke = SMOKECOUNT;
+		IS3Smoke = SMOKECOUNT;
+		AbramTurretAngle = 0;
+		IS3TurretAngle = 0;
+		loadMap();
 		break;
 	}
 }

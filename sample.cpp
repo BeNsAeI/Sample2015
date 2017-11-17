@@ -1569,6 +1569,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR]))
 	{
+		if ((Time - AbramLastShot) < 0)
+			AbramLastShot = 0;
+
 		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
 		{
 			alSourcePlay(Sources[1]);
@@ -1601,6 +1604,9 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER]))
 	{
+		if ((Time - IS3LastShot) < 0)
+			IS3LastShot = 0;
+
 		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
 		{
 			alSourcePlay(Sources[1]);

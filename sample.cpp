@@ -2157,7 +2157,7 @@ void Display()
 				)
 				{
 					//Dammage:
-					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
+					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)));
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180))) < BOUNCETHRESH)
 					{

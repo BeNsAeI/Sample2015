@@ -355,6 +355,14 @@ void Animate()
 	int ms = glutGet(GLUT_ELAPSED_TIME);
 	ms %= TOTAL_MS;
 	Time = (float)ms/180000;
+	if (Time == 0)
+	{
+		std::cout << "Time restarted" <<std::endl;
+		shakeStartTime = 0;
+		smokeBeginTime = 0;
+		AbramLastShot = 0;
+		IS3LastShot = 0;
+	}
 	// animate with time here:
 	// force a call to Display( ) next time it is convenient:
 
@@ -1318,7 +1326,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		break;
 	}
 }
-void drawShell(float X, float Y, float angle)
+void drawShell(float X, float Y, float angle,float scale=1)
 {
 	int beginPoint;
 	int endPoint;
@@ -1327,7 +1335,7 @@ void drawShell(float X, float Y, float angle)
 	glTranslatef(X, 2.75, Y);	//movement
 	glRotatef(angle, 0, 1, 0);
 	glTranslatef(0, 0, -2.5);
-	glScalef(SHELLSCALE, SHELLSCALE, SHELLSCALE);
+	glScalef(SHELLSCALE*scale, SHELLSCALE*scale, SHELLSCALE*scale);
 	beginPoint = shell[START];
 	endPoint = shell[END];
 	glPushMatrix();
@@ -1849,6 +1857,46 @@ void Display()
 				shake = false;
 			}
 		}
+		// Draw shell UI
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(10.0f);
+		// Set the colour to be white
+		glColor3f(.5, .5, .5);
+		// Render the object
+		glBegin(GL_LINE_STRIP);
+		glColor3f(1,1,0);
+		glVertex3f(MAPEDGEX + 15,3, -MAPEDGEY);
+		glVertex3f(MAPEDGEX + 15, 3 ,-MAPEDGEY + AbramShells);
+		glEnd();
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0,0,1);
+		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY);
+		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY - IS3Shells);
+		glEnd();
+		glLineWidth(3.0f);
+		if(AbramShells > 0)
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells, 180,4);
+		if (IS3Shells > 0)
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells, 0,4);
+		// Set the polygon mode to be filled triangles 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glShadeModel(GL_FLAT);
+		glEnable(GL_LIGHTING);
+		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		if (AbramShells > 0)
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells, 180,4);
+		if (IS3Shells > 0)
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells, 0,4);
+		glPopAttrib();
+		glDisable(GL_LIGHT1);
+		glDisable(GL_LIGHTING);
 		// Draw Tanks
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -2248,8 +2296,16 @@ void Display()
 			DoRasterString(0., 1., -1, (char *)"Yellow player Wins!");
 		}
 	}
-
-
+	if (AbramShells == 0)
+	{
+		glColor3f(1-sin(Time*1000), 1 - sin(Time * 1000), 0);
+		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
+	}
+	if (IS3Shells == 0)
+	{
+		glColor3f(0,0, 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
+	}
 	// draw some gratuitous text that is fixed on the screen:
 	//
 	// the projection matrix is reset to define a scene whose
@@ -2826,6 +2882,10 @@ void Keyboard(unsigned char c, int x, int y)
 		IS3Smoke = SMOKECOUNT;
 		AbramTurretAngle = 0;
 		IS3TurretAngle = 0;
+		AbramLastShot = 0;
+		IS3LastShot = 0;
+		for (int i = 0; i < 1000; i++)
+			smokeIDBuffer[i] = 0;
 		loadMap();
 		break;
 	}

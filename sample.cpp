@@ -210,7 +210,7 @@ float TANKSPEED = 0.4;
 #define SHELLBOUNCETHRESH 0.25
 #define SHELLDURATION 0.03
 #define SHELLMAX 50
-#define SHELLSTORAGE 25
+#define SHELLSTORAGE 10
 #define BOUNCETHRESH 0.1
 #define CRATECAP 9
 
@@ -248,6 +248,25 @@ float IS3HullAngle = 0;
 float MoveTimeAbram = 0;
 float MoveTimeIS3 = 0;
 std::string mapName = " ";
+
+// AI knowledge Base
+
+struct AIKB {
+	bool isAI = false;
+	float * playerHP = NULL;
+	float * playerPosX = NULL;
+	float * playerPosY = NULL;
+	int * playerAmmo = NULL;
+	float * playerHullAngle = NULL;
+	float * playerTurretAngle = NULL;
+	float * AIHP = NULL;
+	float * AIPosX = NULL;
+	float * AIPosY = NULL;
+	int * AIAmmo = NULL;
+	float * AIHullAngle = NULL;
+	float * AITurretAngle = NULL;
+};
+struct AIKB myAIKB;
 
 #define AMMOCRATE 0;
 #define SMOKECRATE 1;
@@ -323,6 +342,46 @@ int main(int argc, char *argv[])
 	// pull some command line arguments out)
 	if (argc > 1)
 		mapName = argv[1];
+	if (argc > 2)
+	{
+		myAIKB.isAI = true;
+		switch (argv[2][0])
+		{
+		case 'A':
+		case 'a':
+			myAIKB.playerHP = &IS3HP;
+			myAIKB.playerPosX = &IS3XY[0];
+			myAIKB.playerPosY = &IS3XY[1];
+			myAIKB.playerAmmo = &IS3Shells;
+			myAIKB.playerHullAngle = &IS3HullAngle;
+			myAIKB.playerTurretAngle = &IS3TurretAngle;
+
+			myAIKB.AIHP = &AbramHP;
+			myAIKB.AIPosX = &AbramXY[0];
+			myAIKB.AIPosY = &AbramXY[1];
+			myAIKB.AIAmmo = &AbramShells;
+			myAIKB.AIHullAngle = &AbramHullAngle;
+			myAIKB.AITurretAngle = &AbramTurretAngle;
+			break;
+		case 'T':
+		case 't':
+			myAIKB.playerHP = &AbramHP;
+			myAIKB.playerPosX = &AbramXY[0];
+			myAIKB.playerPosY = &AbramXY[1];
+			myAIKB.playerAmmo = &AbramShells;
+			myAIKB.playerHullAngle = &AbramHullAngle;
+			myAIKB.playerTurretAngle = &AbramTurretAngle;
+
+			myAIKB.AIHP = &IS3HP;
+			myAIKB.AIPosX = &IS3XY[0];
+			myAIKB.AIPosY = &IS3XY[1];
+			myAIKB.AIAmmo = &IS3Shells;
+			myAIKB.AIHullAngle = &IS3HullAngle;
+			myAIKB.AITurretAngle = &IS3TurretAngle;
+			break;
+		}
+		
+	}
 	glutInit(&argc, argv);
 
 
@@ -2159,18 +2218,18 @@ void Display()
 		glBegin(GL_LINE_STRIP);
 		glColor3f(1,1,0);
 		glVertex3f(MAPEDGEX + 15,3, -MAPEDGEY);
-		glVertex3f(MAPEDGEX + 15, 3 ,-MAPEDGEY + AbramShells);
+		glVertex3f(MAPEDGEX + 15, 3 ,-MAPEDGEY + AbramShells * 2);
 		glEnd();
 		glBegin(GL_LINE_STRIP);
 		glColor3f(0,0,1);
 		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY);
-		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY - IS3Shells);
+		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY - IS3Shells * 2);
 		glEnd();
 		glLineWidth(3.0f);
 		if(AbramShells > 0)
-			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells, 180,4);
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
 		if (IS3Shells > 0)
-			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells, 0,4);
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0,4);
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
@@ -2178,9 +2237,9 @@ void Display()
 		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
-			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells, 180,4);
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
 		if (IS3Shells > 0)
-			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells, 0,4);
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0,4);
 		glPopAttrib();
 		glDisable(GL_LIGHT1);
 		glDisable(GL_LIGHTING);

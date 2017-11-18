@@ -33,9 +33,11 @@ ALuint mainMusic;
 ALuint tankShellFire;
 ALuint tankShellBounce;
 ALuint tankExplode;
+ALuint hpRegen;
+ALuint AmmoSmoke;
 
-#define NUM_BUFFERS 4
-#define NUM_SOURCES 4
+#define NUM_BUFFERS 6
+#define NUM_SOURCES 6
 ALuint Buffers[NUM_BUFFERS];
 ALuint Sources[NUM_SOURCES];
 
@@ -1560,12 +1562,15 @@ void KeyHandler() {
 			{
 			case 0:
 				AbramShells = SHELLSTORAGE;
+				alSourcePlay(Sources[5]);
 				break;
 			case 1:
 				AbramSmoke = SMOKECOUNT;
+				alSourcePlay(Sources[5]);
 				break;
 			case 2:
 				AbramHP = TANKHP;
+				alSourcePlay(Sources[4]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1607,12 +1612,15 @@ void KeyHandler() {
 			{
 			case 0:
 				AbramShells = SHELLSTORAGE;
+				alSourcePlay(Sources[5]);
 				break;
 			case 1:
 				AbramSmoke = SMOKECOUNT;
+				alSourcePlay(Sources[5]);
 				break;
 			case 2:
 				AbramHP = TANKHP;
+				alSourcePlay(Sources[4]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1693,12 +1701,15 @@ void KeyHandler() {
 			{
 			case 0:
 				IS3Shells = SHELLSTORAGE;
+				alSourcePlay(Sources[5]);
 				break;
 			case 1:
 				IS3Smoke = SMOKECOUNT;
+				alSourcePlay(Sources[5]);
 				break;
 			case 2:
 				IS3HP = TANKHP;
+				alSourcePlay(Sources[4]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1756,12 +1767,15 @@ void KeyHandler() {
 			{
 			case 0:
 				IS3Shells = SHELLSTORAGE;
+				alSourcePlay(Sources[5]);
 				break;
 			case 1:
 				IS3Smoke = SMOKECOUNT;
+				alSourcePlay(Sources[5]);
 				break;
 			case 2:
 				IS3HP = TANKHP;
+				alSourcePlay(Sources[4]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -3034,6 +3048,8 @@ void InitLists()
 	alGenSources((ALuint)1, &tankShellFire);
 	alGenSources((ALuint)1, &tankShellBounce);
 	alGenSources((ALuint)1, &tankExplode);
+	alGenSources((ALuint)1, &hpRegen);
+	alGenSources((ALuint)1, &AmmoSmoke);
 	// check for errors
 
 	alSourcef(mainMusic, AL_PITCH, 1);
@@ -3080,6 +3096,28 @@ void InitLists()
 	alSourcei(tankExplode, AL_LOOPING, AL_FALSE);
 	// check for errros
 
+	alSourcef(hpRegen, AL_PITCH, 1);
+	// check for errors
+	alSourcef(hpRegen, AL_GAIN, 1);
+	// check for errors
+	alSource3f(hpRegen, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(hpRegen, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(hpRegen, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(AmmoSmoke, AL_PITCH, 1);
+	// check for errors
+	alSourcef(AmmoSmoke, AL_GAIN, 1);
+	// check for errors
+	alSource3f(AmmoSmoke, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(AmmoSmoke, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(AmmoSmoke, AL_LOOPING, AL_FALSE);
+	// check for errros
+
 	alGenBuffers(NUM_BUFFERS, Buffers);
 
 	alutLoadWAVFile("sound/song.wav", &format, &data, &size, &freq, &loop);
@@ -3096,6 +3134,14 @@ void InitLists()
 
 	alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[3], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[4], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[5], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
 	// Bind buffers into audio sources.
@@ -3130,6 +3176,19 @@ void InitLists()
 	alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
 	alSourcei(Sources[3], AL_LOOPING, AL_FALSE);
 
+	alSourcei(Sources[4], AL_BUFFER, Buffers[4]);
+	alSourcef(Sources[4], AL_PITCH, 1.0);
+	alSourcef(Sources[4], AL_GAIN, 1.0);
+	alSource3f(Sources[4], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[4], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[4], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[5], AL_BUFFER, Buffers[5]);
+	alSourcef(Sources[5], AL_PITCH, 1.0);
+	alSourcef(Sources[5], AL_GAIN, 1.0);
+	alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[5], AL_LOOPING, AL_FALSE);
 
 	//load graphics
 	loadMap();

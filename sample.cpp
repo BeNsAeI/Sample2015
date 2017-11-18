@@ -321,7 +321,8 @@ int main(int argc, char *argv[])
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
 	// pull some command line arguments out)
-
+	if (argc > 1)
+		mapName = argv[1];
 	glutInit(&argc, argv);
 
 

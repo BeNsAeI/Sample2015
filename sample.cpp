@@ -171,6 +171,8 @@ int Track[2][2];
 int cube[2];
 int trees[8][2];
 int shell[2];
+int ammo[2];
+int smokeCrate[2][2];
 float smokeBeginTime = 0;
 bool smokeSet = false;
 float smokeIDBuffer[1000];
@@ -243,6 +245,10 @@ float MoveTimeAbram = 0;
 float MoveTimeIS3 = 0;
 std::string mapName = " ";
 
+#define AMMOCRATE 0;
+#define SMOKECRATE 1;
+#define HPCRATE 2;
+
 
 #define ABRAMID 0
 #define IS3ID 1
@@ -267,6 +273,14 @@ struct Shell {
 };
 struct Map myMap;
 struct Shell Shells[SHELLMAX];
+struct Crate {
+	int type;
+	float X;
+	float Y;
+	bool isActive;
+};
+Crate Crates[10];
+int CrateIndex = 0;
 int shellSize = 0;
 void	Animate();
 void	Display();
@@ -670,6 +684,18 @@ void loadAll()
 	shell[START] = vertices.size();
 	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
 	shell[END] = vertices.size();
+
+	smokeCrate[0][START] = vertices.size();
+	res = loadOBJ("models/smoke1.obj", vertices, uvs, normals);
+	smokeCrate[0][END] = vertices.size();
+
+	smokeCrate[1][START] = vertices.size();
+	res = loadOBJ("models/smoke2.obj", vertices, uvs, normals);
+	smokeCrate[1][END] = vertices.size();
+
+	ammo[START] = vertices.size();
+	res = loadOBJ("models/ammo.obj", vertices, uvs, normals);
+	ammo[END] = vertices.size();
 
 	if (res)
 	{
@@ -1346,6 +1372,60 @@ void drawShell(float X, float Y, float angle,float scale=1)
 	glPopMatrix();
 	glPopMatrix();
 }
+void drawAmmo(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+	glTranslatef(X, 1, Y);	//movement
+	glRotatef((int)(Time * 5000) % 360, 0, 1, 0);
+	glTranslatef(0, 0, 0);
+	glScalef(200,200,200);
+	beginPoint = ammo[START];
+	endPoint = ammo[END];
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	SetMaterial(1, 1, 0, 1.0);
+	glColor3f(1, 0.125, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+	glPopMatrix();
+}
+void drawSmokeCrate(float X, float Y, int angle = 0)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1, Y);	//movement
+	glRotatef(angle, 1, 0, 0);
+	glRotatef((int)(Time * 5000) % 360, 0, 1, 0);
+	glScalef(0.5, 0.5, 0.5);
+
+	beginPoint = smokeCrate[1][START];
+	endPoint = smokeCrate[1][END];
+
+	SetMaterial(0.25, 0.25, 0.25, 1.0);
+	glColor3f(0.25, 0.25, 0.25);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = smokeCrate[0][START];
+	endPoint = smokeCrate[0][END];
+
+	SetMaterial(0, 1, 0, 1.0);
+	glColor3f(0, 1, 0);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign,int * ival = NULL, int *jval = NULL)
 {
 	for (int j = 0; j < 14; j++)
@@ -1871,6 +1951,44 @@ void Display()
 		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(3.0f);
+		// Set the colour to be white
+		glColor3f(.5, .5, .5);
+		// Render the object
+		glBegin(GL_LINE_STRIP);
+		glColor3f(1, 1, 0);
+		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY);
+		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY + AbramSmoke * 7);
+		glEnd();
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0, 0, 1);
+		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY);
+		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7 );
+		glEnd();
+		glLineWidth(5.0f);
+		if (AbramSmoke > 0)
+			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
+		if (IS3Smoke > 0)
+			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1,270);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glShadeModel(GL_FLAT);
+		glEnable(GL_LIGHTING);
+		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		if (AbramSmoke > 0)
+			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
+		if (IS3Smoke > 0)
+			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1,270);
+		glPopAttrib();
+		glDisable(GL_LIGHT1);
+		glDisable(GL_LIGHTING);
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glLineWidth(10.0f);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
@@ -1976,7 +2094,10 @@ void Display()
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
 			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE,0, 0.5, 0.5, 0.5);
 		Pattern->Use(0);
-
+		//test ammo power up
+		
+		
+		
 		// Draw Map
 		for (int j = 0; j < 14; j++)
 		{
@@ -2020,17 +2141,7 @@ void Display()
 				}
 			}
 		}
-		//tree test
-	//	drawTreeCube(0, 0, 180, 0);
-	//	drawTreeCube(0, 0, 180, 1);
-	//	drawTreeCube(0, 0, 180, 2);
-	//	drawTreeCube(0, 0, 180, 3);
-	//	drawTreeCube(0, 0, 180, 4);
-	//	drawTreeCube(0, 0, 180, 5);
-	//	drawTreeCube(0, 0, 180, 6);
-	//	drawTreeCube(0, 0, 180, 7);
-
-
+		
 		//Smoke
 		for (int i = 0; i < 1000; i=i+10)
 		{
@@ -2061,7 +2172,52 @@ void Display()
 					smokeActive[i] = false;
 			}
 		}
-
+		//draw crates
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glLineWidth(3.0f);
+		// Set the colour to be white
+		glColor3f(.5, .5, .5);
+		// Render the object
+		for (int i = 0; i < 9; i++)
+		{
+			if (Crates[i].isActive)
+				switch (Crates[i].type)
+				{
+				case 0:
+					drawSmokeCrate(Crates[i].X, Crates[i].Y);
+					break;
+				case 1:
+					drawAmmo(Crates[i].X, Crates[i].Y);
+					break;
+				}
+		}
+		// Set the polygon mode to be filled triangles 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glShadeModel(GL_FLAT);
+		glEnable(GL_LIGHTING);
+		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		for (int i = 0; i < 9; i++)
+		{
+			if (Crates[i].isActive)
+				switch (Crates[i].type)
+				{
+				case 0:
+					drawSmokeCrate(Crates[i].X, Crates[i].Y);
+					break;
+				case 1:
+					drawAmmo(Crates[i].X, Crates[i].Y);
+					break;
+				}
+		}
+		glPopAttrib();
+		glDisable(GL_LIGHT1);
+		glDisable(GL_LIGHTING);
 		// draw shell
 		for (int i = 0; i < SHELLMAX; i++)
 		{
@@ -2229,17 +2385,23 @@ void Display()
 					)
 				)
 				{
-
+					CrateIndex++;
+					if (CrateIndex > 9)
+						CrateIndex = 0;
 					int wallState = rand() % 4;
 					switch (wallState)
 					{
 					case 0:
-						//myMap.isSolid[tmpi][tmpj] = false;
-						//myMap.MCM[tmpi][tmpj] = false;
+						Crates[CrateIndex].type = AMMOCRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0] ;
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
 						break;
 					case 1:
-						//myMap.color[tmpi][tmpj][0] = 7;
-						//myMap.angle[tmpi][tmpj] = (rand() % 360 * (rand() % 3 + 1)) % 360;
+						Crates[CrateIndex].type = SMOKECRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
 						break;
 					case 2:
 						//myMap.isSolid[tmpi][tmpj] = false;
@@ -2311,6 +2473,16 @@ void Display()
 	{
 		glColor3f(0,0, 1 - sin(Time * 1000));
 		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
+	}
+	if (AbramSmoke == 0)
+	{
+		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
+	}
+	if (IS3Smoke == 0)
+	{
+		glColor3f(0, 0, 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
 	}
 	// draw some gratuitous text that is fixed on the screen:
 	//

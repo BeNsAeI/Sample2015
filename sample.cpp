@@ -1809,7 +1809,7 @@ void KeyHandler() {
 	if (keyBuffer[ESCAPE] || keyBuffer['t'] || keyBuffer['T']) {
 		DoMainMenu(QUIT);	// will not return here
 	}
-	if ((keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR]))
+	if (keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR])
 	{
 		if ((Time - AbramLastShot) < 0)
 			AbramLastShot = 0;
@@ -1844,7 +1844,7 @@ void KeyHandler() {
 			}
 		}
 	}
-	if ((keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER]))
+	if (keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER] || keyBuffer['0'])
 	{
 		if ((Time - IS3LastShot) < 0)
 			IS3LastShot = 0;
@@ -3247,6 +3247,7 @@ void Keyboard(unsigned char c, int x, int y)
 		}
 		break;
 	case '.':
+	case '1':
 	case 'n':
 	case 'N':
 		if (IS3Smoke > 0 && IS3HP > 0) {

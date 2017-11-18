@@ -173,6 +173,7 @@ int trees[8][2];
 int shell[2];
 int ammo[2];
 int smokeCrate[2][2];
+int hpCrate[2][2];
 float smokeBeginTime = 0;
 bool smokeSet = false;
 float smokeIDBuffer[1000];
@@ -209,6 +210,7 @@ float TANKSPEED = 0.4;
 #define SHELLMAX 50
 #define SHELLSTORAGE 25
 #define BOUNCETHRESH 0.1
+#define CRATECAP 9
 
 //explosion and fire
 bool shake = false;
@@ -248,6 +250,9 @@ std::string mapName = " ";
 #define AMMOCRATE 0;
 #define SMOKECRATE 1;
 #define HPCRATE 2;
+#define RELOADCRATE 3;
+#define DAMAGECRATE 4;
+#define RAMSPEEDCRATE 5;
 
 
 #define ABRAMID 0
@@ -385,6 +390,8 @@ void Animate()
 }
 void loadMap()
 {
+	for (int i = 0; i < CRATECAP; i++)
+		Crates[i].isActive = false;
 	// Shell test
 	/*	Shells[0].x = 0;
 	Shells[0].y = 0;
@@ -681,6 +688,14 @@ void loadAll()
 	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
 	trees[7][END] = vertices.size();
 
+	hpCrate[0][START] = vertices.size();
+	res = loadOBJ("models/hp1.obj", vertices, uvs, normals);
+	hpCrate[0][END] = vertices.size();
+
+	hpCrate[1][START] = vertices.size();
+	res = loadOBJ("models/hp2.obj", vertices, uvs, normals);
+	hpCrate[1][END] = vertices.size();
+
 	shell[START] = vertices.size();
 	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
 	shell[END] = vertices.size();
@@ -696,6 +711,7 @@ void loadAll()
 	ammo[START] = vertices.size();
 	res = loadOBJ("models/ammo.obj", vertices, uvs, normals);
 	ammo[END] = vertices.size();
+
 
 	if (res)
 	{
@@ -1363,7 +1379,7 @@ void drawShell(float X, float Y, float angle,float scale=1)
 	glTranslatef(0, 0, -2.5);
 	glScalef(SHELLSCALE*scale, SHELLSCALE*scale, SHELLSCALE*scale);
 	beginPoint = shell[START];
-	endPoint = shell[END];
+	endPoint = shell[END]- shell[START];
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	SetMaterial(1, 1, 0, 1.0);
@@ -1383,7 +1399,7 @@ void drawAmmo(float X, float Y)
 	glTranslatef(0, 0, 0);
 	glScalef(200,200,200);
 	beginPoint = ammo[START];
-	endPoint = ammo[END];
+	endPoint = ammo[END]- ammo[START];
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	SetMaterial(1, 1, 0, 1.0);
@@ -1405,7 +1421,7 @@ void drawSmokeCrate(float X, float Y, int angle = 0)
 	glScalef(0.5, 0.5, 0.5);
 
 	beginPoint = smokeCrate[1][START];
-	endPoint = smokeCrate[1][END];
+	endPoint = smokeCrate[1][END]- smokeCrate[1][START];
 
 	SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glColor3f(0.25, 0.25, 0.25);
@@ -1415,10 +1431,43 @@ void drawSmokeCrate(float X, float Y, int angle = 0)
 	glPopMatrix();
 
 	beginPoint = smokeCrate[0][START];
-	endPoint = smokeCrate[0][END];
+	endPoint = smokeCrate[0][END]- smokeCrate[0][START];
 
 	SetMaterial(0, 1, 0, 1.0);
 	glColor3f(0, 1, 0);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawHPCrate(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1, Y);	//movement
+	glRotatef((int)(Time * 5000) % 360, 0, 1, 0);
+	glScalef(0.5, 0.5, 0.5);
+
+	beginPoint = hpCrate[0][START];
+	endPoint = hpCrate[0][END] - hpCrate[0][START];
+
+	SetMaterial(0.25, 0.25, 0.25, 1.0);
+	glColor3f(0.25, 0.25, 0.25);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = hpCrate[1][START];
+	endPoint = hpCrate[1][END] - hpCrate[1][START];
+
+	SetMaterial(1, 0.75, 0, 1.0);
+	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1455,6 +1504,21 @@ bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sig
 	}
 	return false;
 }
+int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
+{
+	for (int i = 0; i < CRATECAP; i++)
+	{
+		if (Crates[i].isActive)
+		{
+			if ((((AX + (Xstride * sign) < Crates[i].X + BODY) && (AX + (Xstride * sign) > Crates[i].X - BODY)) &&
+				((AY + (Ystride * sign) <Crates[i].Y + BODY) && (AY + (Ystride * sign) > Crates[i].Y - BODY))))
+			{
+				return i;
+			}
+		}
+	}
+	return CRATECAP;
+}
 void KeyHandler() {
 	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
 	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
@@ -1485,6 +1549,27 @@ void KeyHandler() {
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
+		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
+			AbramTX,
+			AbramTY,
+			-1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				AbramSmoke = SMOKECOUNT;
+				break;
+			case 1:
+				AbramShells = SHELLSTORAGE;
+				break;
+			case 2:
+				AbramHP = TANKHP;
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+		}
 	}
 	if ((keyBuffer['s'] || keyBuffer['S']) && AbramHP > 0) {
 		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
@@ -1511,6 +1596,27 @@ void KeyHandler() {
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
+		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
+			AbramTX,
+			AbramTY,
+			1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				AbramSmoke = SMOKECOUNT;
+				break;
+			case 1:
+				AbramShells = SHELLSTORAGE;
+				break;
+			case 2:
+				AbramHP = TANKHP;
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+		}
 	}
 	if ((keyBuffer['a'] || keyBuffer['A']) && AbramHP > 0) {
 		if (keyBuffer['s'] || keyBuffer['S'])
@@ -1576,6 +1682,27 @@ void KeyHandler() {
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
+		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
+			IS3TX,
+			IS3TX,
+			-1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				IS3Smoke = SMOKECOUNT;
+				break;
+			case 1:
+				IS3Shells = SHELLSTORAGE;
+				break;
+			case 2:
+				IS3HP = TANKHP;
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+		}
 	}
 	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
 		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
@@ -1618,6 +1745,27 @@ void KeyHandler() {
 		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
 		smokeActive[smokeIndex] = true;
 		smokeIndex++;
+		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
+			IS3TX,
+			IS3TX,
+			1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				IS3Smoke = SMOKECOUNT;
+				break;
+			case 1:
+				IS3Shells = SHELLSTORAGE;
+				break;
+			case 2:
+				IS3HP = TANKHP;
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+		}
 	}
 	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
 		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
@@ -2183,7 +2331,7 @@ void Display()
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < CRATECAP; i++)
 		{
 			if (Crates[i].isActive)
 				switch (Crates[i].type)
@@ -2193,6 +2341,9 @@ void Display()
 					break;
 				case 1:
 					drawAmmo(Crates[i].X, Crates[i].Y);
+					break;
+				case 2:
+					drawHPCrate(Crates[i].X, Crates[i].Y);
 					break;
 				}
 		}
@@ -2212,6 +2363,9 @@ void Display()
 					break;
 				case 1:
 					drawAmmo(Crates[i].X, Crates[i].Y);
+					break;
+				case 2:
+					drawHPCrate(Crates[i].X, Crates[i].Y);
 					break;
 				}
 		}
@@ -2375,6 +2529,14 @@ void Display()
 					Shells[i].active = false;
 				int tmpi;
 				int tmpj;
+				//CrateCollisionModel
+				int cratecheck = CrateCollisionModel(Shells[i].x, Shells[i].y,
+					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
+					(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
+					-1
+				);
+				if (cratecheck != CRATECAP)
+					Crates[cratecheck].isActive = false;
 				if (
 					MapCollisionModel(Shells[i].x, Shells[i].y,
 					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
@@ -2385,31 +2547,49 @@ void Display()
 					)
 				)
 				{
-					CrateIndex++;
-					if (CrateIndex > 9)
+					CrateIndex++;	// randomly generate crates
+					if (CrateIndex > CRATECAP)
 						CrateIndex = 0;
-					int wallState = rand() % 4;
+					int wallState = rand() % 12;
 					switch (wallState)
 					{
 					case 0:
+					case 1:
+					case 2:
 						Crates[CrateIndex].type = AMMOCRATE;
 						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0] ;
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
-					case 1:
+					case 3:
 						Crates[CrateIndex].type = SMOKECRATE;
 						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
-					case 2:
-						//myMap.isSolid[tmpi][tmpj] = false;
-						//myMap.MCM[tmpi][tmpj] = false;
+					case 4:
+						Crates[CrateIndex].type = HPCRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
 						break;
-					case 3:
-						//myMap.isSolid[tmpi][tmpj] = false;
-						//myMap.MCM[tmpi][tmpj] = false;
+					case 5:
+						Crates[CrateIndex].type = HPCRATE;// RELOADCRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
+						break;
+					case 6:
+						Crates[CrateIndex].type = HPCRATE;// DAMAGECRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
+						break;
+					case 7:
+						Crates[CrateIndex].type = HPCRATE;// RAMSPEEDCRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
 						break;
 					}
 					for (int i = 0; i < 50; i++)

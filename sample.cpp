@@ -1559,10 +1559,10 @@ void KeyHandler() {
 			switch (Crates[cratecheck].type)
 			{
 			case 0:
-				AbramSmoke = SMOKECOUNT;
+				AbramShells = SHELLSTORAGE;
 				break;
 			case 1:
-				AbramShells = SHELLSTORAGE;
+				AbramSmoke = SMOKECOUNT;
 				break;
 			case 2:
 				AbramHP = TANKHP;
@@ -1606,10 +1606,10 @@ void KeyHandler() {
 			switch (Crates[cratecheck].type)
 			{
 			case 0:
-				AbramSmoke = SMOKECOUNT;
+				AbramShells = SHELLSTORAGE;
 				break;
 			case 1:
-				AbramShells = SHELLSTORAGE;
+				AbramSmoke = SMOKECOUNT;
 				break;
 			case 2:
 				AbramHP = TANKHP;
@@ -1692,10 +1692,10 @@ void KeyHandler() {
 			switch (Crates[cratecheck].type)
 			{
 			case 0:
-				IS3Smoke = SMOKECOUNT;
+				IS3Shells = SHELLSTORAGE;
 				break;
 			case 1:
-				IS3Shells = SHELLSTORAGE;
+				IS3Smoke = SMOKECOUNT;
 				break;
 			case 2:
 				IS3HP = TANKHP;
@@ -1755,10 +1755,10 @@ void KeyHandler() {
 			switch (Crates[cratecheck].type)
 			{
 			case 0:
-				IS3Smoke = SMOKECOUNT;
+				IS3Shells = SHELLSTORAGE;
 				break;
 			case 1:
-				IS3Shells = SHELLSTORAGE;
+				IS3Smoke = SMOKECOUNT;
 				break;
 			case 2:
 				IS3HP = TANKHP;
@@ -2337,10 +2337,10 @@ void Display()
 				switch (Crates[i].type)
 				{
 				case 0:
-					drawSmokeCrate(Crates[i].X, Crates[i].Y);
+					drawAmmo(Crates[i].X, Crates[i].Y);
 					break;
 				case 1:
-					drawAmmo(Crates[i].X, Crates[i].Y);
+					drawSmokeCrate(Crates[i].X, Crates[i].Y);
 					break;
 				case 2:
 					drawHPCrate(Crates[i].X, Crates[i].Y);
@@ -2359,10 +2359,10 @@ void Display()
 				switch (Crates[i].type)
 				{
 				case 0:
-					drawSmokeCrate(Crates[i].X, Crates[i].Y);
+					drawAmmo(Crates[i].X, Crates[i].Y);
 					break;
 				case 1:
-					drawAmmo(Crates[i].X, Crates[i].Y);
+					drawSmokeCrate(Crates[i].X, Crates[i].Y);
 					break;
 				case 2:
 					drawHPCrate(Crates[i].X, Crates[i].Y);
@@ -2550,7 +2550,7 @@ void Display()
 					CrateIndex++;	// randomly generate crates
 					if (CrateIndex > CRATECAP)
 						CrateIndex = 0;
-					int wallState = rand() % 12;
+					int wallState = rand() % 8;
 					switch (wallState)
 					{
 					case 0:
@@ -2573,7 +2573,7 @@ void Display()
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
-					case 5:
+					/*case 5:
 						Crates[CrateIndex].type = HPCRATE;// RELOADCRATE;
 						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
@@ -2590,7 +2590,7 @@ void Display()
 						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
-						break;
+						break;*/
 					}
 					for (int i = 0; i < 50; i++)
 					{

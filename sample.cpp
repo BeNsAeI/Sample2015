@@ -1,9 +1,9 @@
+#include "const.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <iostream>
 #include <vector>
-#define _USE_MATH_DEFINES
 #include <math.h>
 #ifdef WIN32
 #include <windows.h>
@@ -41,8 +41,6 @@ ALuint tankExplode;
 ALuint hpRegen;
 ALuint AmmoSmoke;
 
-#define NUM_BUFFERS 6
-#define NUM_SOURCES 6
 ALuint Buffers[NUM_BUFFERS];
 ALuint Sources[NUM_SOURCES];
 
@@ -66,14 +64,10 @@ ALsizei size, freq;
 ALenum format;
 ALvoid *data;
 ALboolean loop = AL_FALSE;
-#define BUFFER_OFFSET(i) ((void*)(i))
+
 const char *WINDOWTITLE = { "Tanks 2017" };
 const char *GLUITITLE = { "Tanks" };
 const int GLUITRUE = { true };
-const int GLUIFALSE = { false };
-#define ESCAPE		0x1b
-#define SPACEBAR	32
-#define ENTER 13
 const int INIT_WINDOW_SIZE = { 600 };
 const float BOXSIZE = { 2.f };
 const float ANGFACT = { 1. };
@@ -146,8 +140,7 @@ int		Xmouse, Ymouse;			// mouse values
 float	Xrot, Yrot;				// rotation angles in degrees
 bool freeze = false;
 float Time;
-#define CAMX -45;
-#define CAMY 80;
+
 float factor = 0;
 float eyex = CAMX;
 float eyey = CAMY;
@@ -160,7 +153,7 @@ float upy = 0;
 float upz = 0;
 int camState = 0;
 bool res;
-#define NUMMODEL 1
+
 bool resArray[NUMMODEL];
 std::vector< glm::vec3 > vertices;
 std::vector< glm::vec2 > uvs;
@@ -189,33 +182,8 @@ bool  smokeIDBufferSet[1000];
 bool  smokeActive[1000];
 int smokeIndex = 0;
 float destructionTimeBuffer[24][14];
-#define START 0
-#define END 1
-#define TANKSCALE 0.175
+
 float TANKSPEED = 0.4;
-#define MAPEDGEX 40
-#define MAPEDGEY 70
-#define BODY 4.5
-#define CUBESIZE 6.0
-#define SPAWN 45
-#define TREESCALE 25
-#define SHELLSCALE 0.0625
-#define SHELLSPEED 40000
-#define ROCKTHRESH 25
-#define REFLECT -1
-#define SMOKECOUNT 3
-#define TANKHP 3
-#define BRICKHP 1
-#define FRONTARMOR 0.75
-#define SIDEARMOR 0.5
-#define BACKARMOR 0.25
-#define SHELLDAMAGE 1
-#define SHELLBOUNCETHRESH 0.25
-#define SHELLDURATION 0.03
-#define SHELLMAX 50
-#define SHELLSTORAGE 10
-#define BOUNCETHRESH 0.1
-#define CRATECAP 9
 
 //explosion and fire
 bool shake = false;
@@ -227,7 +195,6 @@ bool fireIS3 = false;
 
 float AbramLastShot = 0;
 float IS3LastShot = 0;
-#define RELOADTIME 0.015
 
 int AbramShells = SHELLSTORAGE;
 int IS3Shells = SHELLSTORAGE;
@@ -252,19 +219,9 @@ float MoveTimeAbram = 0;
 float MoveTimeIS3 = 0;
 std::string mapName = " ";
 
-#define AMMOCRATE 0;
-#define SMOKECRATE 1;
-#define HPCRATE 2;
-#define RELOADCRATE 3;
-#define DAMAGECRATE 4;
-#define RAMSPEEDCRATE 5;
-
-
-#define ABRAMID 0
-#define IS3ID 1
 bool keyBuffer[256];
 char MapRaw[25 * 14];
-#define TOTAL_MS (180 * 1000)
+
 struct Shell {
 	float x;
 	float y;
@@ -279,6 +236,8 @@ struct Crate {
 	int type;
 	float X;
 	float Y;
+	int i;
+	int j;
 	bool isActive;
 };
 // AI knowledge Base
@@ -467,7 +426,10 @@ void Animate()
 void loadMap()
 {
 	for (int i = 0; i < CRATECAP; i++)
+	{
 		Crates[i].isActive = false;
+		myMap.isCrate[Crates[i].i][Crates[i].j] = false;
+	}
 	// Shell test
 	/*	Shells[0].x = 0;
 	Shells[0].y = 0;
@@ -493,6 +455,7 @@ void loadMap()
 			myMap.coord[i][j][2] = 0;
 			myMap.MCM[i][j] = false;
 			myMap.isSolid[i][j] = false;
+			myMap.isCrate[i][j] = false;
 			destructionTimeBuffer[i][j] = -1;
 		}
 	}
@@ -1649,6 +1612,7 @@ void KeyHandler() {
 				break;
 			}
 			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
 		}
 	}
 	if ((keyBuffer['s'] || keyBuffer['S']) && AbramHP > 0) {
@@ -1699,6 +1663,7 @@ void KeyHandler() {
 				break;
 			}
 			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
 		}
 	}
 	if ((keyBuffer['a'] || keyBuffer['A']) && AbramHP > 0) {
@@ -1788,6 +1753,7 @@ void KeyHandler() {
 				break;
 			}
 			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
 		}
 	}
 	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
@@ -1854,6 +1820,7 @@ void KeyHandler() {
 				break;
 			}
 			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
 		}
 	}
 	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
@@ -2629,7 +2596,10 @@ void Display()
 					-1
 				);
 				if (cratecheck != CRATECAP)
+				{
 					Crates[cratecheck].isActive = false;
+					myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
+				}
 				if (
 					MapCollisionModel(Shells[i].x, Shells[i].y,
 					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
@@ -2644,6 +2614,7 @@ void Display()
 					if (CrateIndex > CRATECAP)
 						CrateIndex = 0;
 					int wallState = rand() % 8;
+					myMap.isCrate[tmpi][tmpj] = true;
 					switch (wallState)
 					{
 					case 0:

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <string>
+#include "const.h"
 SimpleAI::SimpleAI() {
 	myMap = NULL;
 }
@@ -33,14 +34,65 @@ void SimpleAI::getMove(char AIID, bool*keyBuffer) {
 	}
 	float AITurretAngle = *env->AITurretAngle;
 	float AIHullAngle = *env->AIHullAngle;
-	float xdist = (env->playerPos[0]) - (env->AIPos[0]);
-	float ydist = (env->playerPos[1]) - (env->AIPos[1]);
+	bool isClear = false;
+	targetPos[0] = (env->playerPos[0]);
+	targetPos[1] = (env->playerPos[1]);
+	if (*env->AIAmmo < SHELLSTORAGE / 2 || *env->AIHP < TANKHP / 4)
+	{
+		float minx = 100;
+		float miny = 100;
+		for (int i = 0; i < 24; i++)
+		{
+			for (int j = 0; j < 14; j++)
+			{
+				if (myMap->isSolid[i][j] && myMap->color[i][j][0] < 5)
+				{
+					if (sqrt(pow(myMap->coord[i][j][0] - (env->AIPos[0]), 2) + pow(myMap->coord[i][j][1] - (env->AIPos[1]), 2)) < sqrt(pow(minx - env->AIPos[0], 2) + pow(miny - env->AIPos[1], 2)))
+					{
+						minx = myMap->coord[i][j][0];
+						miny = myMap->coord[i][j][1];
+					}
+				}
+			}
+		}
+		if (sqrt(pow(minx - env->AIPos[0], 2) + pow(miny - env->AIPos[1], 2)) < sqrt(pow(targetPos[0] - env->AIPos[0], 2) + pow(targetPos[1] - env->AIPos[1], 2)) && minx < 100)
+		{
+			targetPos[0] = minx;
+			targetPos[1] = miny;
+			isClear = true;
+		}
+		else
+			isClear = false;
+	}
+	if(sqrt(pow(targetPos[0] - env->AIPos[0], 2) + pow(targetPos[1] - env->AIPos[1], 2)) < AIENGAGE && *env->playerHP > 0)
+		isClear = true;
+
+	float xdist = targetPos[0] - (env->AIPos[0]);
+	float ydist = targetPos[1] - (env->AIPos[1]);
 	float angleSine = -xdist / sqrt(pow(xdist, 2) + pow(ydist, 2));
 	float angleCosine = -ydist / sqrt(pow(xdist, 2) + pow(ydist, 2));
 	float current = (float)((int)(AITurretAngle + AIHullAngle) % 360) * PI / 180;
 	float angle = asin(angleSine);
 	if (angleCosine < 0)
 		angle = PI - angle;
+	if(current <= angle + AIMTHRESH * PI / 180 && current >= angle - AIMTHRESH * PI / 180 && isClear)
+		if (AIID == 'a' || AIID == 'A')
+		{
+			keyBuffer['f'] = true;
+		}
+		else {
+			keyBuffer['0'] = true;
+
+		}
+	else
+		if (AIID == 'a' || AIID == 'A')
+		{
+			keyBuffer['f'] = false;
+		}
+		else {
+			keyBuffer['0'] = false;
+
+		}
 	if (current > angle + AIMTHRESH * PI / 180)
 	{
 		if (AIID == 'a' || AIID == 'A')

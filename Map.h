@@ -9,5 +9,6 @@ struct Map {
 	float HP[24][14];
 	bool isSolid[24][14];
 	bool MCM[24][14];
+	bool isCrate[24][14];
 };
 #endif

@@ -2,9 +2,8 @@
 #ifndef SIMPLEAI_H
 #define SIMPLEAI_H
 #include <iostream>
+#include"const.h"
 #include "Map.h"
-#define PLANSIZE 3
-#define AIMTHRESH 1
 class SimpleAI {
 public:
 	SimpleAI();
@@ -31,6 +30,8 @@ private:
 	float synaptic_weights;
 	std::string plan[PLANSIZE];
 	struct Map * myMap;
+	float targetPos[2];
+	float wayPoint[2];
 };
 
 #endif

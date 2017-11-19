@@ -24,12 +24,33 @@
     <ClCompile Include="glslprogram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="neuron.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleAI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loader.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="glslprogram.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AI.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="neuron.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleAI.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

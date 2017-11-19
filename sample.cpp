@@ -26,6 +26,11 @@
 #include <alc.h>
 #include <alut.h>
 
+#include "Map.h"
+#include "AI.h"
+#include "SimpleAI.h"
+#include "neuron.h"
+
 ALCdevice *device;
 ALboolean enumeration;
 ALCcontext *context;
@@ -61,8 +66,6 @@ ALsizei size, freq;
 ALenum format;
 ALvoid *data;
 ALboolean loop = AL_FALSE;
-
-#define PI 3.14159265
 #define BUFFER_OFFSET(i) ((void*)(i))
 const char *WINDOWTITLE = { "Tanks 2017" };
 const char *GLUITITLE = { "Tanks" };
@@ -192,7 +195,7 @@ float destructionTimeBuffer[24][14];
 float TANKSPEED = 0.4;
 #define MAPEDGEX 40
 #define MAPEDGEY 70
-#define BODY 5.0
+#define BODY 4.5
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
@@ -249,25 +252,6 @@ float MoveTimeAbram = 0;
 float MoveTimeIS3 = 0;
 std::string mapName = " ";
 
-// AI knowledge Base
-
-struct AIKB {
-	bool isAI = false;
-	float * playerHP = NULL;
-	float * playerPosX = NULL;
-	float * playerPosY = NULL;
-	int * playerAmmo = NULL;
-	float * playerHullAngle = NULL;
-	float * playerTurretAngle = NULL;
-	float * AIHP = NULL;
-	float * AIPosX = NULL;
-	float * AIPosY = NULL;
-	int * AIAmmo = NULL;
-	float * AIHullAngle = NULL;
-	float * AITurretAngle = NULL;
-};
-struct AIKB myAIKB;
-
 #define AMMOCRATE 0;
 #define SMOKECRATE 1;
 #define HPCRATE 2;
@@ -281,14 +265,6 @@ struct AIKB myAIKB;
 bool keyBuffer[256];
 char MapRaw[25 * 14];
 #define TOTAL_MS (180 * 1000)
-struct Map {
-	float coord[24][14][3];
-	float color[24][14][3];
-	float angle[24][14];
-	float HP[24][14];
-	bool isSolid[24][14];
-	bool MCM[24][14];
-};
 struct Shell {
 	float x;
 	float y;
@@ -305,6 +281,23 @@ struct Crate {
 	float Y;
 	bool isActive;
 };
+// AI knowledge Base
+struct AIKB {
+	bool isAI = false;
+	char AIID = NULL;
+	float * playerHP = NULL;
+	float * playerPos = NULL;
+	int * playerAmmo = NULL;
+	float * playerHullAngle = NULL;
+	float * playerTurretAngle = NULL;
+	float * AIHP = NULL;
+	float * AIPos = NULL;
+	int * AIAmmo = NULL;
+	float * AIHullAngle = NULL;
+	float * AITurretAngle = NULL;
+	SimpleAI * agent = new SimpleAI(&myMap);
+};
+struct AIKB myAIKB;
 Crate Crates[10];
 int CrateIndex = 0;
 int shellSize = 0;
@@ -342,23 +335,41 @@ int main(int argc, char *argv[])
 	// pull some command line arguments out)
 	if (argc > 1)
 		mapName = argv[1];
+	if (argc < 2)
+	{
+		std::cout << "Would you like an AI?(a/t/n)" << std::endl;
+		std::string ans = "no";
+		std::cin >> ans;
+		switch(ans[0])
+		{
+		case 'a':
+		case 'A':
+		case 't':
+		case 'T':
+			myAIKB.isAI = true;
+			myAIKB.AIID = ans[0];
+			break;
+		}
+	}
 	if (argc > 2)
 	{
 		myAIKB.isAI = true;
-		switch (argv[2][0])
+		myAIKB.AIID = argv[2][0];
+	}
+	if (myAIKB.isAI)
+	{
+		switch (myAIKB.AIID)
 		{
 		case 'A':
 		case 'a':
 			myAIKB.playerHP = &IS3HP;
-			myAIKB.playerPosX = &IS3XY[0];
-			myAIKB.playerPosY = &IS3XY[1];
+			myAIKB.playerPos = IS3XY;
 			myAIKB.playerAmmo = &IS3Shells;
 			myAIKB.playerHullAngle = &IS3HullAngle;
 			myAIKB.playerTurretAngle = &IS3TurretAngle;
 
 			myAIKB.AIHP = &AbramHP;
-			myAIKB.AIPosX = &AbramXY[0];
-			myAIKB.AIPosY = &AbramXY[1];
+			myAIKB.AIPos = AbramXY;
 			myAIKB.AIAmmo = &AbramShells;
 			myAIKB.AIHullAngle = &AbramHullAngle;
 			myAIKB.AITurretAngle = &AbramTurretAngle;
@@ -366,21 +377,19 @@ int main(int argc, char *argv[])
 		case 'T':
 		case 't':
 			myAIKB.playerHP = &AbramHP;
-			myAIKB.playerPosX = &AbramXY[0];
-			myAIKB.playerPosY = &AbramXY[1];
+			myAIKB.playerPos = AbramXY;
 			myAIKB.playerAmmo = &AbramShells;
 			myAIKB.playerHullAngle = &AbramHullAngle;
 			myAIKB.playerTurretAngle = &AbramTurretAngle;
 
 			myAIKB.AIHP = &IS3HP;
-			myAIKB.AIPosX = &IS3XY[0];
-			myAIKB.AIPosY = &IS3XY[1];
+			myAIKB.AIPos = IS3XY;
 			myAIKB.AIAmmo = &IS3Shells;
 			myAIKB.AIHullAngle = &IS3HullAngle;
 			myAIKB.AITurretAngle = &IS3TurretAngle;
 			break;
 		}
-		
+		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
 	}
 	glutInit(&argc, argv);
 
@@ -423,6 +432,11 @@ int main(int argc, char *argv[])
 	alDeleteSources(1, &tankExplode);
 	alDeleteBuffers(1, Buffers);
 
+	if (myAIKB.isAI)
+	{
+		delete(myAIKB.agent);
+		myAIKB.agent = NULL;
+	}
 	device = alcGetContextsDevice(context);
 	alcMakeContextCurrent(NULL);
 	alcDestroyContext(context);
@@ -1582,6 +1596,7 @@ int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int si
 	return CRATECAP;
 }
 void KeyHandler() {
+	
 	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
 	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
 	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
@@ -2077,6 +2092,10 @@ void Display()
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
+		if (myAIKB.isAI)
+		{
+			myAIKB.agent->getMove(myAIKB.AIID, keyBuffer);
+		}
 		KeyHandler();
 		
 		if (shake)

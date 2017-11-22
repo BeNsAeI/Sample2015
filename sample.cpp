@@ -1930,7 +1930,7 @@ void Display()
 		fprintf(stderr, "Display\n");
 	}
 
-
+	glutSetCursor(GLUT_CURSOR_NONE);
 	// set which window we want to do the graphics into:
 
 	glutSetWindow(MainWindow);

@@ -3405,7 +3405,7 @@ void MouseButton(int button, int state, int x, int y)
 }
 void MouseMotion(int x, int y)
 {
-	if (DebugOn != 0)
+/*	if (DebugOn != 0)
 		fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
 
 
@@ -3431,7 +3431,7 @@ void MouseMotion(int x, int y)
 
 	Xmouse = x;			// new current position
 	Ymouse = y;
-
+	*/
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }

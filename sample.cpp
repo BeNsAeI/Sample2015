@@ -192,7 +192,8 @@ float shakeDuration = 0.005;
 float shakeStartTime = 0;
 bool fireAbram = false;
 bool fireIS3 = false;
-
+bool clicked = false;
+bool loading = false;
 float AbramLastShot = 0;
 float IS3LastShot = 0;
 
@@ -277,6 +278,7 @@ float	ElapsedSeconds();
 void	InitGraphics();
 void	InitLists();
 void	InitMenus();
+//void	keySpecial(int key, int x, int y);
 void	Keyboard(unsigned char, int, int);
 void	keyUp(unsigned char, int, int);
 void	MouseButton(int, int, int, int);
@@ -286,6 +288,35 @@ void	Resize(int, int);
 void	Visibility(int);
 void	Axes(float);
 void	HsvRgb(float[3], float[3]);
+int main(int argc, char *argv[]);
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	PSTR lpCmdLine, INT nCmdShow)
+{
+	int w_argc = 0;
+	LPWSTR* w_argv = CommandLineToArgvW(GetCommandLineW(), &w_argc);
+	if (w_argv)
+	{
+		char** my_argv = new char*[w_argc];
+		int my_argc = 0;
+
+		for (int i = 0; i < w_argc; ++i)
+		{
+			int w_len = lstrlenW(w_argv[i]);
+			int len = WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, NULL, 0, NULL, NULL);
+			my_argv[my_argc] = new char[len + 1];
+			WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, my_argv[my_argc], len + 1, NULL, NULL);
+			++my_argc;
+		}
+
+		main(my_argc, my_argv);
+
+		for (int i = 0; i < my_argc; ++i)
+			delete[] my_argv[i];
+		delete[] my_argv;
+
+		LocalFree(w_argv);
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -889,6 +920,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0, 0.75);
 	SetMaterial(0, 0, 0.5, 1.0);
+	//glColor3f(0, 0.75, 0);
+	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -902,6 +935,8 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0, 0.75);
 	SetMaterial(0, 0, 0.5, 1.0);
+	//glColor3f(0, 0.75, 0);
+	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -1044,6 +1079,8 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glTranslatef(1.75, 0, 0.25);
 	SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0.25, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -1057,6 +1094,8 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glTranslatef(-1,0,0.25);
 	SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0.25, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -1925,6 +1964,29 @@ void KeyHandler() {
 }
 void Display()
 {
+	if (!clicked && Time > 0.05)
+	{
+		INPUT Inputs[3] = { 0 };
+
+		Inputs[0].type = INPUT_MOUSE;
+		Inputs[0].mi.dx = 0; // desired X coordinate
+		Inputs[0].mi.dy = 0; // desired Y coordinate
+		Inputs[0].mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+
+		Inputs[1].type = INPUT_MOUSE;
+		Inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+
+		Inputs[2].type = INPUT_MOUSE;
+		Inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+
+		SendInput(3, Inputs, sizeof(INPUT));
+		clicked = true;
+		loading = false;
+	}
+	else {
+		if(!clicked)
+			loading = true;
+	}
 	if (DebugOn != 0)
 	{
 		fprintf(stderr, "Display\n");
@@ -2081,7 +2143,7 @@ void Display()
 					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glLineWidth(3.0f);
+					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
@@ -2117,7 +2179,7 @@ void Display()
 					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glLineWidth(3.0f);
+					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
@@ -2159,7 +2221,7 @@ void Display()
 		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(3.0f);
+		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
@@ -2173,7 +2235,7 @@ void Display()
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY);
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7 );
 		glEnd();
-		glLineWidth(5.0f);
+		glLineWidth(OUTLINE);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
 		if (IS3Smoke > 0)
@@ -2211,7 +2273,7 @@ void Display()
 		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY);
 		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY - IS3Shells * 2);
 		glEnd();
-		glLineWidth(3.0f);
+		glLineWidth(OUTLINE);
 		if(AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
 		if (IS3Shells > 0)
@@ -2229,6 +2291,8 @@ void Display()
 		glPopAttrib();
 		glDisable(GL_LIGHT1);
 		glDisable(GL_LIGHTING);
+
+
 		// Draw Tanks
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -2237,7 +2301,7 @@ void Display()
 		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(3.0f);
+		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
@@ -2331,7 +2395,7 @@ void Display()
 					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					glLineWidth(3.0f);
+					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
@@ -2361,7 +2425,7 @@ void Display()
 				glPolygonOffset(-2.5f, -2.5f);
 				// Set the render mode to be line rendering with a thick line width
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glLineWidth(3.0f);
+				glLineWidth(OUTLINE);
 				// Set the colour to be white
 				glColor3f(.5, .5, .5);
 				// Render the object
@@ -2387,7 +2451,7 @@ void Display()
 		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glLineWidth(3.0f);
+		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
@@ -2444,7 +2508,7 @@ void Display()
 				glPolygonOffset(-2.5f, -2.5f);
 				// Set the render mode to be line rendering with a thick line width
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glLineWidth(3.0f);
+				glLineWidth(OUTLINE);
 				// Set the colour to be white
 				glColor3f(.5, .5, .5);
 				// Render the object
@@ -2727,6 +2791,11 @@ void Display()
 	{
 		glColor3f(0, 0, 1 - sin(Time * 1000));
 		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
+	}
+	if (loading)
+	{
+		glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
+		DoRasterString(0, 10, 0, (char *)"Loading");
 	}
 	// draw some gratuitous text that is fixed on the screen:
 	//

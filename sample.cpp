@@ -207,6 +207,7 @@ float AbramSmoke = SMOKECOUNT;
 float IS3Smoke = SMOKECOUNT;
 
 GLSLProgram *Pattern;
+GLSLProgram *PatternGrass;
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramInitCoord[2] = { 0,-SPAWN };
@@ -2089,23 +2090,57 @@ void Display()
 
 	// since we are using glScalef( ), be sure normals get unitized:
 	
-	Pattern->Use();
+	
 	Pattern->SetUniformVariable((char *)"uKa", (float)0.05);
 	Pattern->SetUniformVariable((char *)"uKd", (float)1);
 	Pattern->SetUniformVariable((char *)"uKs", (float)1);
 	Pattern->SetUniformVariable((char *)"uShininess", (float)80);
+	PatternGrass->Use();
+	PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
+	PatternGrass->SetUniformVariable((char *)"uKd", (float)1);
+	PatternGrass->SetUniformVariable((char *)"uKs", (float)1);
+	PatternGrass->SetUniformVariable((char *)"uShininess", (float)80);
+	PatternGrass->SetUniformVariable((char *)"uDist", (float)1);
+	PatternGrass->SetUniformVariable((char *)"uTime", (float)Time);
+	PatternGrass->SetUniformVariable((char *)"uX", (float)0);
+	PatternGrass->SetUniformVariable((char *)"uY", (float)5);
+	PatternGrass->SetUniformVariable((char *)"uZ", (float)0);
+	float startx = MAPEDGEX + CUBESIZE;
+	float startz = MAPEDGEY + CUBESIZE;
+	float endx = (-MAPEDGEX - CUBESIZE);
+	float endz = (-MAPEDGEY - CUBESIZE);
+	float lengthx = startx - endx;
+	float lengthz = startz - endz;
+	int grain = 100;
 	glEnable(GL_NORMALIZE);
 	glBegin(GL_QUADS);
 	glPushMatrix();
 	//SetMaterial(0.05, 0.05, 0, 1.0);
-	glColor3f(0.05, 0.05, 0.0);
-	glVertex3f(MAPEDGEX + CUBESIZE,0, MAPEDGEY + CUBESIZE);
-	glVertex3f(MAPEDGEX + CUBESIZE, 0, -MAPEDGEY - CUBESIZE);
-	glVertex3f(-MAPEDGEX - CUBESIZE, 0, -MAPEDGEY - CUBESIZE);
-	glVertex3f(-MAPEDGEX - CUBESIZE, 0, MAPEDGEY + CUBESIZE);
+	glColor3f(0.1, 0.1, 0.0);
+	for (int i = 0; i < grain; i++)
+	{
+		for (int j = 0; j < grain; j++)
+		{
+			glVertex3f(startx - i*(lengthx)/grain         ,0, startz - j*(lengthz) / grain);
+			glVertex3f(startx - i*(lengthx) / grain       ,0, startz - (j + 1)*(lengthz) / grain);
+			glVertex3f(startx - (i + 1)*(lengthx) / grain ,0, startz - (j + 1)*(lengthz) / grain);
+			glVertex3f(startx - (i + 1)*(lengthx) / grain ,0, startz - j*(lengthz) / grain);
+		}
+	}
+	glColor3f(0.1, 0.1, 0.0);
+	for (int i = 0; i < grain; i++)
+	{
+		for (int j = 0; j < grain; j++)
+		{
+			glVertex3f(startx - i*(lengthx) / grain, 0, startz - j*(lengthz) / grain);
+			glVertex3f(startx - i*(lengthx) / grain, 0, startz - (j + 1)*(lengthz) / grain);
+			glVertex3f(startx - (i + 1)*(lengthx) / grain, 0, startz - (j + 1)*(lengthz) / grain);
+			glVertex3f(startx - (i + 1)*(lengthx) / grain, 0, startz - j*(lengthz) / grain);
+		}
+	}
 	glPopMatrix();
 	glEnd();
-	Pattern->Use(0);
+	PatternGrass->Use(0);
 	// draw the current object:
 	//glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
@@ -3106,6 +3141,7 @@ void InitGraphics()
 	fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #endif
 	Pattern = new GLSLProgram();
+	PatternGrass = new GLSLProgram();
 	bool valid = Pattern->Create((char *)"shaders/lighting2.vert", (char *)"shaders/lighting2.frag");
 	if (!valid)
 	{
@@ -3117,6 +3153,18 @@ void InitGraphics()
 		fprintf(stderr, "Shader created.\n");
 	}
 	Pattern->SetVerbose(false);
+
+	bool validGrass = PatternGrass->Create((char *)"shaders/grass.vert", (char *)"shaders/grass.frag");
+	if (!validGrass)
+	{
+		fprintf(stderr, "Shader cannot be created!\n");
+		DoMainMenu(QUIT);
+	}
+	else
+	{
+		fprintf(stderr, "Shader created.\n");
+	}
+	PatternGrass->SetVerbose(false);
 
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)

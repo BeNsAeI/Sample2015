@@ -2105,8 +2105,8 @@ void Display()
 	PatternGrass->SetUniformVariable((char *)"uDist", (float)1);
 	PatternGrass->SetUniformVariable((char *)"uTime", (float)Time);
 	PatternGrass->SetUniformVariable((char *)"uX", (float)0);
-	PatternGrass->SetUniformVariable((char *)"uY", (float)5);
-	PatternGrass->SetUniformVariable((char *)"uZ", (float)0);
+	PatternGrass->SetUniformVariable((char *)"uY", (float)50);
+	PatternGrass->SetUniformVariable((char *)"uZ", (float)90);
 	float startx = MAPEDGEX + CUBESIZE;
 	float startz = MAPEDGEY + CUBESIZE;
 	float endx = (-MAPEDGEX - CUBESIZE);

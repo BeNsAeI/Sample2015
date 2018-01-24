@@ -1215,11 +1215,13 @@ void drawCube(float X, float Y, float Z,float r,float g, float b)
 	glScalef(.9, .9, .9);
 	//SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glColor3f(0.25, 0.25, 0.25);
+	SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 2
 
 	//SetMaterial(r, g, b, 1.0);
 	glColor3f(r, g, b);
+	SetMaterial(r, g, b, 1.0);
 	glPushMatrix();				// 3
 	glTranslatef(-0.55, -0.55, 0);
 	glScalef(0.48, 0.48,.95);
@@ -2127,17 +2129,6 @@ void Display()
 			glVertex3f(startx - (i + 1)*(lengthx) / grain ,0, startz - j*(lengthz) / grain);
 		}
 	}
-	glColor3f(0.1, 0.1, 0.0);
-	for (int i = 0; i < grain; i++)
-	{
-		for (int j = 0; j < grain; j++)
-		{
-			glVertex3f(startx - i*(lengthx) / grain, 0, startz - j*(lengthz) / grain);
-			glVertex3f(startx - i*(lengthx) / grain, 0, startz - (j + 1)*(lengthz) / grain);
-			glVertex3f(startx - (i + 1)*(lengthx) / grain, 0, startz - (j + 1)*(lengthz) / grain);
-			glVertex3f(startx - (i + 1)*(lengthx) / grain, 0, startz - j*(lengthz) / grain);
-		}
-	}
 	glPopMatrix();
 	glEnd();
 	PatternGrass->Use(0);
@@ -2192,7 +2183,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2228,7 +2219,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2278,7 +2269,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
@@ -2317,7 +2308,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
@@ -2391,7 +2382,6 @@ void Display()
 		glDisable(GL_LIGHTING);
 
 		Pattern->Use();
-		// draw map border
 		for(int i = 0; i < (2*MAPEDGEX)/CUBESIZE + 2; i++)
 			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0,0.5,0.5,0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
@@ -2419,7 +2409,28 @@ void Display()
 						myMap.MCM[i][j] = false;
 						myMap.isSolid[i][j] = false;
 					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					glEnable(GL_LIGHTING);
+					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.65, 0.5, 0.5);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					glDisable(GL_LIGHT1);
+					glDisable(GL_LIGHTING);
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -2469,7 +2480,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+				SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 				glPopAttrib();
@@ -2510,7 +2521,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < 9; i++)
 		{
@@ -2552,7 +2563,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+				SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
 				glPopAttrib();

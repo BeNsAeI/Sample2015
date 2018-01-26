@@ -208,6 +208,8 @@ float IS3Smoke = SMOKECOUNT;
 
 GLSLProgram *Pattern;
 GLSLProgram *PatternGrass;
+GLSLProgram *PatternTree;
+
 float AbramTurretAngle = 0;
 float AbramHullAngle = 180;
 float AbramInitCoord[2] = { 0,-SPAWN };
@@ -1258,180 +1260,187 @@ void drawTreeCube(float X, float Y,float angle, int index)
 	{
 	case 0:
 		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(-8.5, -0.5, 6);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[0][START];
-		endPoint = 3960 - 2250;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(-8.5, -0.5, 6);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[0][START];
+			endPoint = 3960 - 2250;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 
-		beginPoint = trees[0][START] + 3960 - 2250;
-		endPoint = 2250;
-		glPushMatrix();
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			beginPoint = trees[0][START] + 3960 - 2250;
+			endPoint = 2250;
+			glPushMatrix();
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 1:
-		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(1, -0.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[1][START];
-		endPoint = 5688 - 2022;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
 
-		beginPoint = trees[1][START] + 5688 - 2022;
-		endPoint = 2022;
 		glPushMatrix();
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(1, -0.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[1][START];
+			endPoint = 5688 - 2022;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+				glPopMatrix();
+				beginPoint = trees[1][START] + 5688 - 2022;
+				endPoint = 2022;
+			glPushMatrix();
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 2:
-		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(5.5, -0.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[2][START];
-		endPoint = 4398 - 3525;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
 
-		beginPoint = trees[2][START] + 4398 - 3525;
-		endPoint = 3525;
 		glPushMatrix();
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(5.5, -0.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[2][START];
+			endPoint = 4398 - 3525;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
+
+			beginPoint = trees[2][START] + 4398 - 3525;
+			endPoint = 3525;
+			glPushMatrix();
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 3:
-		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(8.5, -0.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[3][START];
-		endPoint = 3522 - 3000;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
 
-		beginPoint = trees[3][START] + 3522 - 3000;
-		endPoint = 3000;
 		glPushMatrix();
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(8.5, -0.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[3][START];
+			endPoint = 3522 - 3000;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
+
+			beginPoint = trees[3][START] + 3522 - 3000;
+			endPoint = 3000;
+			glPushMatrix();
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 4:
-		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(-6, 10.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[4][START];
-		endPoint = 4752 - 3816;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
 
-		beginPoint = trees[4][START] + 4752 - 3816;
-		endPoint = 3816;
 		glPushMatrix();
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(-6, 10.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[4][START];
+			endPoint = 4752 - 3816;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
+
+			beginPoint = trees[4][START] + 4752 - 3816;
+			endPoint = 3816;
+			glPushMatrix();
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 5:
-		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(0, 10.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[5][START];
-		endPoint = 6105 - 4668;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
 
-		beginPoint = trees[5][START] + 6105 - 4668;
-		endPoint = 4668;
 		glPushMatrix();
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0, 10.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[5][START];
+			endPoint = 6105 - 4668;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
+
+			beginPoint = trees[5][START] + 6105 - 4668;
+			endPoint = 4668;
+			glPushMatrix();
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 6:
 		glPushMatrix();
-		glTranslatef(X, 0, Y);	//movement
-		glRotatef(angle, 0, 1, 0);
-		glTranslatef(6, 10.5, 4);
-		glScalef(TREESCALE, TREESCALE, TREESCALE);
-		beginPoint = trees[6][START];
-		endPoint = 6030 - 4944;
-		glPushMatrix();
-		glRotatef(270, 1, 0, 0);
-		SetMaterial(0.4, 0.2, 0, 1.0);
-		glColor3f(0.4, 0.2, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			glTranslatef(X, 0, Y);	//movement
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(6, 10.5, 4);
+			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			beginPoint = trees[6][START];
+			endPoint = 6030 - 4944;
+			glPushMatrix();
+				glRotatef(270, 1, 0, 0);
+				SetMaterial(0.4, 0.2, 0, 1.0);
+				glColor3f(0.4, 0.2, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 
-		beginPoint = trees[6][START] + 6030 - 4944;
-		endPoint = 4944;
-		glPushMatrix();
-		SetMaterial(0, 0.75, 0, 1.0);
-		glColor3f(0, 0.75, 0);
-		glRotatef(270, 1, 0, 0);
-		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-		glPopMatrix();
+			beginPoint = trees[6][START] + 6030 - 4944;
+			endPoint = 4944;
+			glPushMatrix();
+				SetMaterial(0, 0.75, 0, 1.0);
+				glColor3f(0, 0.75, 0);
+				glRotatef(270, 1, 0, 0);
+				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+			glPopMatrix();
 		glPopMatrix();
 		break;
 	case 7:
+		PatternTree->SetUniformVariable((char *)"uMultR", (float)2);
+		PatternTree->SetUniformVariable((char *)"uMultG", (float)2);
+		PatternTree->SetUniformVariable((char *)"uMultB", (float)2);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
 		glRotatef(angle, 0, 1, 0);
@@ -2097,6 +2106,12 @@ void Display()
 	Pattern->SetUniformVariable((char *)"uKd", (float)1);
 	Pattern->SetUniformVariable((char *)"uKs", (float)1);
 	Pattern->SetUniformVariable((char *)"uShininess", (float)80);
+
+	PatternTree->SetUniformVariable((char *)"uKa", (float)0.5);
+	PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
+	PatternTree->SetUniformVariable((char *)"uKs", (float)0.5);
+	PatternTree->SetUniformVariable((char *)"uDist", (float)1);
+
 	PatternGrass->Use();
 	PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
 	PatternGrass->SetUniformVariable((char *)"uKd", (float)1);
@@ -2107,6 +2122,7 @@ void Display()
 	PatternGrass->SetUniformVariable((char *)"uX", (float)0);
 	PatternGrass->SetUniformVariable((char *)"uY", (float)50);
 	PatternGrass->SetUniformVariable((char *)"uZ", (float)90);
+
 	float startx = MAPEDGEX + CUBESIZE;
 	float startz = MAPEDGEY + CUBESIZE;
 	float endx = (-MAPEDGEX - CUBESIZE);
@@ -2434,6 +2450,7 @@ void Display()
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
+					
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
@@ -2445,17 +2462,25 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
+					
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.angle[i][j], myMap.color[i][j][0]);
-					// Set the polygon mode to be filled triangles 
+					
+					// Set the polygon mode to be filled triangles
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
 					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
+					PatternTree->SetUniformVariable((char *)"uMultG", (float)3);
+					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
 					glPopAttrib();
 					glDisable(GL_LIGHT1);
 					glDisable(GL_LIGHTING);
+					
 				}
 			}
 		}
@@ -3153,6 +3178,7 @@ void InitGraphics()
 #endif
 	Pattern = new GLSLProgram();
 	PatternGrass = new GLSLProgram();
+	PatternTree = new GLSLProgram();
 	bool valid = Pattern->Create((char *)"shaders/lighting2.vert", (char *)"shaders/lighting2.frag");
 	if (!valid)
 	{
@@ -3176,6 +3202,18 @@ void InitGraphics()
 		fprintf(stderr, "Shader created.\n");
 	}
 	PatternGrass->SetVerbose(false);
+
+	bool validTree = PatternTree->Create((char *)"shaders/tree.vert", (char *)"shaders/tree.frag");
+	if (!validTree)
+	{
+		fprintf(stderr, "Shader cannot be created!\n");
+		DoMainMenu(QUIT);
+	}
+	else
+	{
+		fprintf(stderr, "Shader created.\n");
+	}
+	PatternTree->SetVerbose(false);
 
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)

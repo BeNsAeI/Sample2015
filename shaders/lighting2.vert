@@ -6,9 +6,7 @@ out vec3 vL; // vector from point to light
 out vec3 vE; // vector from point to eye
 out vec4 color;
 const vec3 LIGHTPOSITION = vec3( 0., 5., -10. );
-const float PI =        3.14159265;
-const float AMP =       0.2;
-const float W =         2.;
+
 
 void
 main( )

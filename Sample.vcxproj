@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="AI.h" />
     <ClInclude Include="const.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="glslprogram.h" />
     <ClInclude Include="loader.h" />
     <ClInclude Include="Map.h" />

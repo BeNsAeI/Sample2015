@@ -31,295 +31,7 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 
-ALCdevice *device;
-ALboolean enumeration;
-ALCcontext *context;
-ALuint mainMusic;
-ALuint tankShellFire;
-ALuint tankShellBounce;
-ALuint tankExplode;
-ALuint hpRegen;
-ALuint AmmoSmoke;
-
-ALuint Buffers[NUM_BUFFERS];
-ALuint Sources[NUM_SOURCES];
-
-// Position of the source sounds.
-ALfloat SourcesPos[NUM_SOURCES][3];
-
-// Velocity of the source sounds.
-ALfloat SourcesVel[NUM_SOURCES][3];
-
-
-// Position of the listener.
-ALfloat ListenerPos[] = { 0.0, 0.0, 0.0 };
-
-// Velocity of the listener.
-ALfloat ListenerVel[] = { 0.0, 0.0, 0.0 };
-
-// Orientation of the listener. (first 3 elements are "at", second 3 are "up")
-ALfloat ListenerOri[] = { 0.0, 0.0, -1.0, 0.0, 1.0, 0.0 };
-
-ALsizei size, freq;
-ALenum format;
-ALvoid *data;
-ALboolean loop = AL_FALSE;
-
-const char *WINDOWTITLE = { "Tanks 2017" };
-const char *GLUITITLE = { "Tanks" };
-const int GLUITRUE = { true };
-const int INIT_WINDOW_SIZE = { 600 };
-const float BOXSIZE = { 2.f };
-const float ANGFACT = { 1. };
-const float SCLFACT = { 0.005f };
-const float MINSCALE = { 0.05f };
-const int LEFT = { 4 };
-const int MIDDLE = { 2 };
-const int RIGHT = { 1 };
-enum Projections
-{
-	ORTHO,
-	PERSP
-};
-enum ButtonVals
-{
-	RESET,
-	QUIT
-};
-const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
-const GLfloat AXES_WIDTH = { 3. };
-enum Colors
-{
-	RED,
-	YELLOW,
-	GREEN,
-	CYAN,
-	BLUE,
-	MAGENTA,
-	WHITE,
-	BLACK
-};
-char * ColorNames[] = {
-	(char *)"Red",
-	(char *)"Yellow",
-	(char *)"Green",
-	(char *)"Cyan",
-	(char *)"Blue",
-	(char *)"Magenta",
-	(char *)"White",
-	(char *)"Black"
-};
-const GLfloat Colors[][3] = {
-	{ 1., 0., 0. },		// red
-	{ 1., 1., 0. },		// yellow
-	{ 0., 1., 0. },		// green
-	{ 0., 1., 1. },		// cyan
-	{ 0., 0., 1. },		// blue
-	{ 1., 0., 1. },		// magenta
-	{ 1., 1., 1. },		// white
-	{ 0., 0., 0. },		// black
-};
-const GLfloat FOGCOLOR[4] = { .0, .0, .0, 1. };
-const GLenum  FOGMODE = { GL_LINEAR };
-const GLfloat FOGDENSITY = { 0.30f };
-const GLfloat FOGSTART = { 1.5 };
-const GLfloat FOGEND = { 4. };
-int		ActiveButton;			// current button that is down
-GLuint	AxesList;				// list to hold the axes
-int		AxesOn;					// != 0 means to draw the axes
-int		DebugOn;				// != 0 means to print debugging info
-int		DepthCueOn;				// != 0 means to use intensity depth cueing
-int		DepthBufferOn;			// != 0 means to use the z-buffer
-int		DepthFightingOn;		// != 0 means to use the z-buffer
-GLuint	BoxList;				// object display list
-int		MainWindow;				// window id for main graphics window
-float	Scale;					// scaling factor
-int		WhichColor;				// index into Colors[ ]
-int		WhichProjection;		// ORTHO or PERSP
-int		Xmouse, Ymouse;			// mouse values
-float	Xrot, Yrot;				// rotation angles in degrees
-bool freeze = false;
-float Time;
-
-float factor = 0;
-float eyex = CAMX;
-float eyey = CAMY;
-float eyez = 0;
-float targetx = 0;
-float targety = 0;
-float targetz = 0;
-float upx = 1;
-float upy = 0;
-float upz = 0;
-int camState = 0;
-bool res;
-
-bool resArray[NUMMODEL];
-std::vector< glm::vec3 > vertices;
-std::vector< glm::vec2 > uvs;
-std::vector< glm::vec3 > normals; // Won't be used at the moment.
-std::vector< glm::vec3 > verticesArray[NUMMODEL];
-std::vector< glm::vec2 > uvsArray[NUMMODEL];
-std::vector< glm::vec3 > normalsArray[NUMMODEL]; // Won't be used at the moment.
-GLuint VertexVBOID = 0;
-GLuint ModelIDList[NUMMODEL];
-int Abram[2][2];
-int IS3[3][2];
-int Track[2][2];
-int cube[2];
-int trees[8][2];
-int shell[2];
-int ammo[2];
-int smokeCrate[2][2];
-int hpCrate[2][2];
-float smokeBeginTime = 0;
-bool smokeSet = false;
-float smokeIDBuffer[1000];
-float smokeCoordBuffer[1000][2];
-float smokeDurBuffer[1000];
-float smokeAngleBuffer[1000];
-bool  smokeIDBufferSet[1000];
-bool  smokeActive[1000];
-int smokeIndex = 0;
-float destructionTimeBuffer[24][14];
-
-float TANKSPEED = 0.4;
-
-//explosion and fire
-bool shake = false;
-bool shakeOnce = false;
-float shakeDuration = 0.005;
-float shakeStartTime = 0;
-bool fireAbram = false;
-bool fireIS3 = false;
-bool clicked = false;
-bool loading = false;
-float AbramLastShot = 0;
-float IS3LastShot = 0;
-
-int AbramShells = SHELLSTORAGE;
-int IS3Shells = SHELLSTORAGE;
-
-float AbramHP = TANKHP;
-float IS3HP = TANKHP;
-
-float AbramSmoke = SMOKECOUNT;
-float IS3Smoke = SMOKECOUNT;
-
-GLSLProgram *Pattern;
-GLSLProgram *PatternGrass;
-GLSLProgram *PatternTree;
-
-float AbramTurretAngle = 0;
-float AbramHullAngle = 180;
-float AbramInitCoord[2] = { 0,-SPAWN };
-float IS3InitCoord[2] = { 0,SPAWN };
-float AbramXY[2] = { AbramInitCoord[0],AbramInitCoord[1] };
-float IS3XY[2] = { IS3InitCoord[0],IS3InitCoord[1] };
-float IS3TurretAngle = 0;
-float IS3HullAngle = 0;
-
-float MoveTimeAbram = 0;
-float MoveTimeIS3 = 0;
-std::string mapName = " ";
-
-bool keyBuffer[256];
-char MapRaw[25 * 14];
-
-struct Shell {
-	float x;
-	float y;
-	float angle;
-	float startTime;
-	int shooterId;
-	bool active;
-};
-struct Map myMap;
-struct Shell Shells[SHELLMAX];
-struct Crate {
-	int type;
-	float X;
-	float Y;
-	int i;
-	int j;
-	bool isActive;
-};
-// AI knowledge Base
-struct AIKB {
-	bool isAI = false;
-	char AIID = NULL;
-	float * playerHP = NULL;
-	float * playerPos = NULL;
-	int * playerAmmo = NULL;
-	float * playerHullAngle = NULL;
-	float * playerTurretAngle = NULL;
-	float * AIHP = NULL;
-	float * AIPos = NULL;
-	int * AIAmmo = NULL;
-	float * AIHullAngle = NULL;
-	float * AITurretAngle = NULL;
-	SimpleAI * agent = new SimpleAI(&myMap);
-};
-struct AIKB myAIKB;
-Crate Crates[10];
-int CrateIndex = 0;
-int shellSize = 0;
-void	Animate();
-void	Display();
-void	DoAxesMenu(int);
-void	DoColorMenu(int);
-void	DoDepthBufferMenu(int);
-void	DoDepthFightingMenu(int);
-void	DoDepthMenu(int);
-void	DoCameraMenu(int);
-void	DoDebugMenu(int);
-void	DoMainMenu(int);
-void	DoProjectMenu(int);
-void	DoRasterString(float, float, float, char *);
-void	DoStrokeString(float, float, float, float, char *);
-float	ElapsedSeconds();
-void	InitGraphics();
-void	InitLists();
-void	InitMenus();
-//void	keySpecial(int key, int x, int y);
-void	Keyboard(unsigned char, int, int);
-void	keyUp(unsigned char, int, int);
-void	MouseButton(int, int, int, int);
-void	MouseMotion(int, int);
-void	Reset();
-void	Resize(int, int);
-void	Visibility(int);
-void	Axes(float);
-void	HsvRgb(float[3], float[3]);
-int main(int argc, char *argv[]);
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	PSTR lpCmdLine, INT nCmdShow)
-{
-	int w_argc = 0;
-	LPWSTR* w_argv = CommandLineToArgvW(GetCommandLineW(), &w_argc);
-	if (w_argv)
-	{
-		char** my_argv = new char*[w_argc];
-		int my_argc = 0;
-
-		for (int i = 0; i < w_argc; ++i)
-		{
-			int w_len = lstrlenW(w_argv[i]);
-			int len = WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, NULL, 0, NULL, NULL);
-			my_argv[my_argc] = new char[len + 1];
-			WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, my_argv[my_argc], len + 1, NULL, NULL);
-			++my_argc;
-		}
-
-		main(my_argc, my_argv);
-
-		for (int i = 0; i < my_argc; ++i)
-			delete[] my_argv[i];
-		delete[] my_argv;
-
-		LocalFree(w_argv);
-	}
-}
+#include "Globals.h"
 
 int main(int argc, char *argv[])
 {
@@ -693,98 +405,287 @@ void loadMap()
 		smokeIDBufferSet[i] = false;
 	}
 }
+void loadingText(char * Text,float percent)
+{
+	glutSetCursor(GLUT_CURSOR_NONE);
+	// set which window we want to do the graphics into:
+
+	glutSetWindow(MainWindow);
+
+
+	// erase the background:
+
+	glDrawBuffer(GL_BACK);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (DepthBufferOn != 0)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+
+
+	// specify shading to be flat:
+
+	glShadeModel(GL_FLAT);
+
+
+	// set the viewport to a square centered in the window:
+
+	GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
+	GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
+	GLsizei v = vx < vy ? vx : vy;			// minimum dimension
+	v = vx > vy ? vx : vy;
+	GLint xl = (vx - v) / 2;
+	GLint yb = (vy - v) / 2;
+	glViewport(xl, yb, v, v);
+
+	// set the viewing volume:
+	// remember that the Z clipping  values are actually
+	// given as DISTANCES IN FRONT OF THE EYE
+	// USE gluOrtho2D( ) IF YOU ARE DOING 2D !
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if (WhichProjection == ORTHO)
+		glOrtho(-3., 3., -3., 3., 0.1, 1000.);
+	else
+		gluPerspective(90., 1., 0.1, 1000.);
+
+
+	// place the objects into the scene:
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	// set the eye position, look-at position, and up-vector:
+
+	gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
+	//gluLookAt( -0.4, 1.85, -4.85,     0., 0., -20.,     0., 1., 0. );
+
+	// rotate the scene:
+
+	glRotatef((GLfloat)Yrot, 0., 1., 0.);
+	glRotatef((GLfloat)Xrot, 1., 0., 0.);
+
+
+	// uniformly scale the scene:
+
+	if (Scale < MINSCALE)
+		Scale = MINSCALE;
+	glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
+
+
+	// set the fog parameters:
+
+	if (DepthCueOn != 0)
+	{
+		glFogi(GL_FOG_MODE, FOGMODE);
+		glFogfv(GL_FOG_COLOR, FOGCOLOR);
+		glFogf(GL_FOG_DENSITY, FOGDENSITY);
+		glFogf(GL_FOG_START, FOGSTART);
+		glFogf(GL_FOG_END, FOGEND);
+		glEnable(GL_FOG);
+	}
+	else
+	{
+		glDisable(GL_FOG);
+	}
+
+
+	// possibly draw the axes:
+
+	if (AxesOn == 0)
+	{
+		glColor3fv(&Colors[WhichColor][0]);
+		glCallList(AxesList);
+	}
+	// -> put a text here
+	if (DepthFightingOn != 0)
+	{
+		glPushMatrix();
+		glRotatef(90., 0., 1., 0.);
+		glCallList(BoxList);
+		glPopMatrix();
+	}
+
+	// draw some gratuitous text that just rotates on top of the scene:
+
+	glDisable(GL_DEPTH_TEST);
+
+	glLineWidth(10);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1, 1, 1);
+	glVertex3f(0, 0, -50.5);
+	glVertex3f(0, 0, 50.5);
+	glEnd();
+
+	glLineWidth(8);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1-percent/100, percent / 100,0);
+	glVertex3f(0, 0, -50);
+	glVertex3f(0, 0, -50 + percent);
+	glEnd();
+
+	glColor3f(1, 1, 1);
+	DoRasterString(0, 10, -20, Text);
+	// draw some gratuitous text that is fixed on the screen:
+	//
+	// the projection matrix is reset to define a scene whose
+	// world coordinate system goes from 0-100 in each axis
+	//
+	// this is called "percent units", and is just a convenience
+	//
+	// the modelview matrix is reset to identity as we don't
+	// want to transform these coordinates
+
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0., 100., 0., 100.);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1., 1., 1.);
+	//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
+
+
+	// swap the double-buffered framebuffers:
+
+	glutSwapBuffers();
+
+
+	// be sure the graphics buffer has been sent:
+	// note: be sure to use glFlush( ) here, not glFinish( ) !
+
+	glFlush();
+}
 void loadAll()
 {
-	std::cout << "Loading Abrams ..." << std::endl;
-
+	float item = 0;
+	float percent = 1;
+	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
+	item++;
 	Abram[0][START] = vertices.size();
 	res = loadOBJ("models/abram-turret.obj", vertices, uvs, normals);
 	Abram[0][END] = vertices.size();
 
+	loadingText("Loading Abrams Hull ...", percent * item); // each step is 4.5%
+	item++;
 	Abram[1][START] = vertices.size();
 	res = loadOBJ("models/abram-hull.obj", vertices, uvs, normals);
 	Abram[1][END] = vertices.size();
 
+	loadingText("Loading IS3 Turret ...", percent * item); // each step is 4.5%
+	item++;
 	IS3[0][START] = vertices.size();
 	res = loadOBJ("models/IS-3-turret.obj", vertices, uvs, normals);
 	IS3[0][END] = vertices.size();
 
+	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
+	item++;
 	IS3[1][START] = vertices.size();
 	res = loadOBJ("models/IS-3-upper-hull.obj", vertices, uvs, normals);
 	IS3[1][END] = vertices.size();
 
+	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
+	item++;
 	IS3[2][START] = vertices.size();
 	res = loadOBJ("models/IS-3-lower-hull.obj", vertices, uvs, normals);
 	IS3[2][END] = vertices.size();
 
+	loadingText("Loading Left Track ...", percent * item); // each step is 4.5%
+	item++;
 	Track[0][START] = vertices.size();
 	res = loadOBJ("models/l-track.obj", vertices, uvs, normals);
 	Track[0][END] = vertices.size();
 
+	loadingText("Loading Right Track ...", percent * item); // each step is 4.5%
+	item++;
 	Track[1][START] = vertices.size();
 	res = loadOBJ("models/r-track.obj", vertices, uvs, normals);
 	Track[1][END] = vertices.size();
 
+	loadingText("Loading Walls ...", percent * item); // each step is 4.5%
+	item++;
 	cube[START] = vertices.size();
 	res = loadOBJ("models/cube.obj", vertices, uvs, normals);
 	cube[END] = vertices.size();
 
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[0][START] = vertices.size();
 	res = loadOBJ("models/tree1.obj", vertices, uvs, normals);
 	trees[0][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[1][START] = vertices.size();
 	res = loadOBJ("models/tree2.obj", vertices, uvs, normals);
 	trees[1][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[2][START] = vertices.size();
 	res = loadOBJ("models/tree3.obj", vertices, uvs, normals);
 	trees[2][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[3][START] = vertices.size();
 	res = loadOBJ("models/tree4.obj", vertices, uvs, normals);
 	trees[3][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[4][START] = vertices.size();
 	res = loadOBJ("models/tree5.obj", vertices, uvs, normals);
 	trees[4][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[5][START] = vertices.size();
 	res = loadOBJ("models/tree6.obj", vertices, uvs, normals);
 	trees[5][END] = vertices.size();
-
+	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	item++;
 	trees[6][START] = vertices.size();
 	res = loadOBJ("models/tree7.obj", vertices, uvs, normals);
 	trees[6][END] = vertices.size();
-
+	loadingText("Loading Particles ...", percent * item); // each step is 4.5%
+	item++;
 	trees[7][START] = vertices.size();
 	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
 	trees[7][END] = vertices.size();
 
+	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
+	item++;
 	hpCrate[0][START] = vertices.size();
 	res = loadOBJ("models/hp1.obj", vertices, uvs, normals);
 	hpCrate[0][END] = vertices.size();
-
+	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
+	item++;
 	hpCrate[1][START] = vertices.size();
 	res = loadOBJ("models/hp2.obj", vertices, uvs, normals);
 	hpCrate[1][END] = vertices.size();
-
+	loadingText("Loading Ammunition ...", percent * item); // each step is 4.5%
+	item++;
 	shell[START] = vertices.size();
 	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
 	shell[END] = vertices.size();
 
+	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
+	item++;
 	smokeCrate[0][START] = vertices.size();
 	res = loadOBJ("models/smoke1.obj", vertices, uvs, normals);
 	smokeCrate[0][END] = vertices.size();
-
+	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
+	item++;
 	smokeCrate[1][START] = vertices.size();
 	res = loadOBJ("models/smoke2.obj", vertices, uvs, normals);
 	smokeCrate[1][END] = vertices.size();
-
+	loadingText("Loading Explosives ...", percent * item); // each step is 4.5%
+	item++;
 	ammo[START] = vertices.size();
 	res = loadOBJ("models/ammo.obj", vertices, uvs, normals);
 	ammo[END] = vertices.size();
+	loadingText("Loading Finished ...", 100); // each step is 4.5%
 
+	//Texture needs to be loaded here
 
 	if (res)
 	{
@@ -792,6 +693,9 @@ void loadAll()
 		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 	}
+
+
+
 }
 float White[4] = { 1,1,1,1 };
 float *Array3(float a, float b, float c)
@@ -2383,6 +2287,15 @@ void Display()
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
+		/*PatternCamo->Use();
+		PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
+		PatternCamo->SetUniformVariable((char *)"uR1", (float)1);
+		PatternCamo->SetUniformVariable((char *)"uG1", (float)1);
+		PatternCamo->SetUniformVariable((char *)"uB1", (float)1);
+		PatternCamo->SetUniformVariable((char *)"uR2", (float)0.125);
+		PatternCamo->SetUniformVariable((char *)"uG2", (float)0.125);
+		PatternCamo->SetUniformVariable((char *)"uB2", (float)0.125);
+		//PatternCamo->SetUniformVariable((char *)"Noise3", (float));*/
 		if (AbramHP > 0)
 			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		else
@@ -2391,6 +2304,7 @@ void Display()
 			drawIS3  (IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		else
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		//PatternCamo->Use(0);
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
@@ -3179,6 +3093,7 @@ void InitGraphics()
 	Pattern = new GLSLProgram();
 	PatternGrass = new GLSLProgram();
 	PatternTree = new GLSLProgram();
+	PatternCamo = new GLSLProgram();
 	bool valid = Pattern->Create((char *)"shaders/lighting2.vert", (char *)"shaders/lighting2.frag");
 	if (!valid)
 	{
@@ -3214,7 +3129,22 @@ void InitGraphics()
 		fprintf(stderr, "Shader created.\n");
 	}
 	PatternTree->SetVerbose(false);
+	
+	bool validCamo = PatternCamo->Create((char *)"shaders/camo.vert", (char *)"shaders/camo.frag");
+	if (!validCamo)
+	{
+		fprintf(stderr, "Shader cannot be created!\n");
+		DoMainMenu(QUIT);
+	}
+	else
+	{
+		fprintf(stderr, "Shader created.\n");
+	}
+	PatternCamo->SetVerbose(false);
 
+	//load graphics
+	loadMap();
+	loadAll();
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)
 {
@@ -3405,10 +3335,6 @@ void InitLists()
 	alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
 	alSourcei(Sources[5], AL_LOOPING, AL_FALSE);
-
-	//load graphics
-	loadMap();
-	loadAll();
 
 	// load audio
 	alSourcePlay(Sources[0]);

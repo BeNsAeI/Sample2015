@@ -2033,7 +2033,7 @@ void Display()
 	float endz = (-MAPEDGEY - CUBESIZE);
 	float lengthx = startx - endx;
 	float lengthz = startz - endz;
-	int grain = 100;
+	int grain = 150;
 	glEnable(GL_NORMALIZE);
 	glBegin(GL_QUADS);
 	glPushMatrix();
@@ -3497,7 +3497,8 @@ void MouseButton(int button, int state, int x, int y)
 }
 void MouseMotion(int x, int y)
 {
-/*	if (DebugOn != 0)
+	/*
+	if (DebugOn != 0)
 		fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
 
 

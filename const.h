@@ -18,7 +18,7 @@ const int GLUIFALSE = { false };
 #define CUBESIZE 6.0
 #define SPAWN 45
 #define TREESCALE 25
-#define SHELLSCALE 0.0625
+#define SHELLSCALE 0.045
 #define SHELLSPEED 40000
 #define ROCKTHRESH 25
 #define REFLECT -1

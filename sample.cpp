@@ -35,6 +35,7 @@
 
 int main(int argc, char *argv[])
 {
+	srand(time(NULL));
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
 	// pull some command line arguments out)
@@ -188,7 +189,6 @@ void loadMap()
 	shellSize = 0;
 	*/
 	
-	srand(time(NULL));
 	for (int j = 0; j < 14; j++)
 	{
 		for (int i = 0; i < 24; i++)
@@ -566,122 +566,122 @@ void loadAll()
 	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
 	item++;
 	Abram[0][START] = vertices.size();
-	res = loadOBJ("models/abram-turret.obj", vertices, uvs, normals);
+	res = loadOBJ("models/abram-turret.vbo", vertices, uvs, normals);
 	Abram[0][END] = vertices.size();
 
 	loadingText("Loading Abrams Hull ...", percent * item); // each step is 4.5%
 	item++;
 	Abram[1][START] = vertices.size();
-	res = loadOBJ("models/abram-hull.obj", vertices, uvs, normals);
+	res = loadOBJ("models/abram-hull.vbo", vertices, uvs, normals);
 	Abram[1][END] = vertices.size();
 
 	loadingText("Loading IS3 Turret ...", percent * item); // each step is 4.5%
 	item++;
 	IS3[0][START] = vertices.size();
-	res = loadOBJ("models/IS-3-turret.obj", vertices, uvs, normals);
+	res = loadOBJ("models/IS-3-turret.vbo", vertices, uvs, normals);
 	IS3[0][END] = vertices.size();
 
 	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
 	item++;
 	IS3[1][START] = vertices.size();
-	res = loadOBJ("models/IS-3-upper-hull.obj", vertices, uvs, normals);
+	res = loadOBJ("models/IS-3-upper-hull.vbo", vertices, uvs, normals);
 	IS3[1][END] = vertices.size();
 
 	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
 	item++;
 	IS3[2][START] = vertices.size();
-	res = loadOBJ("models/IS-3-lower-hull.obj", vertices, uvs, normals);
+	res = loadOBJ("models/IS-3-lower-hull.vbo", vertices, uvs, normals);
 	IS3[2][END] = vertices.size();
 
 	loadingText("Loading Left Track ...", percent * item); // each step is 4.5%
 	item++;
 	Track[0][START] = vertices.size();
-	res = loadOBJ("models/l-track.obj", vertices, uvs, normals);
+	res = loadOBJ("models/l-track.vbo", vertices, uvs, normals);
 	Track[0][END] = vertices.size();
 
 	loadingText("Loading Right Track ...", percent * item); // each step is 4.5%
 	item++;
 	Track[1][START] = vertices.size();
-	res = loadOBJ("models/r-track.obj", vertices, uvs, normals);
+	res = loadOBJ("models/r-track.vbo", vertices, uvs, normals);
 	Track[1][END] = vertices.size();
 
 	loadingText("Loading Walls ...", percent * item); // each step is 4.5%
 	item++;
 	cube[START] = vertices.size();
-	res = loadOBJ("models/cube.obj", vertices, uvs, normals);
+	res = loadOBJ("models/cube.vbo", vertices, uvs, normals);
 	cube[END] = vertices.size();
 
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[0][START] = vertices.size();
-	res = loadOBJ("models/tree1.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree1.vbo", vertices, uvs, normals);
 	trees[0][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[1][START] = vertices.size();
-	res = loadOBJ("models/tree2.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree2.vbo", vertices, uvs, normals);
 	trees[1][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[2][START] = vertices.size();
-	res = loadOBJ("models/tree3.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree3.vbo", vertices, uvs, normals);
 	trees[2][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[3][START] = vertices.size();
-	res = loadOBJ("models/tree4.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree4.vbo", vertices, uvs, normals);
 	trees[3][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[4][START] = vertices.size();
-	res = loadOBJ("models/tree5.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree5.vbo", vertices, uvs, normals);
 	trees[4][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[5][START] = vertices.size();
-	res = loadOBJ("models/tree6.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree6.vbo", vertices, uvs, normals);
 	trees[5][END] = vertices.size();
 	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
 	item++;
 	trees[6][START] = vertices.size();
-	res = loadOBJ("models/tree7.obj", vertices, uvs, normals);
+	res = loadOBJ("models/tree7.vbo", vertices, uvs, normals);
 	trees[6][END] = vertices.size();
 	loadingText("Loading Particles ...", percent * item); // each step is 4.5%
 	item++;
 	trees[7][START] = vertices.size();
-	res = loadOBJ("models/rock.obj", vertices, uvs, normals);
+	res = loadOBJ("models/rock.vbo", vertices, uvs, normals);
 	trees[7][END] = vertices.size();
 
 	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
 	item++;
 	hpCrate[0][START] = vertices.size();
-	res = loadOBJ("models/hp1.obj", vertices, uvs, normals);
+	res = loadOBJ("models/hp1.vbo", vertices, uvs, normals);
 	hpCrate[0][END] = vertices.size();
 	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
 	item++;
 	hpCrate[1][START] = vertices.size();
-	res = loadOBJ("models/hp2.obj", vertices, uvs, normals);
+	res = loadOBJ("models/hp2.vbo", vertices, uvs, normals);
 	hpCrate[1][END] = vertices.size();
 	loadingText("Loading Ammunition ...", percent * item); // each step is 4.5%
 	item++;
 	shell[START] = vertices.size();
-	res = loadOBJ("models/shell.obj", vertices, uvs, normals);
+	res = loadOBJ("models/shell.vbo", vertices, uvs, normals);
 	shell[END] = vertices.size();
 
 	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
 	item++;
 	smokeCrate[0][START] = vertices.size();
-	res = loadOBJ("models/smoke1.obj", vertices, uvs, normals);
+	res = loadOBJ("models/smoke1.vbo", vertices, uvs, normals);
 	smokeCrate[0][END] = vertices.size();
 	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
 	item++;
 	smokeCrate[1][START] = vertices.size();
-	res = loadOBJ("models/smoke2.obj", vertices, uvs, normals);
+	res = loadOBJ("models/smoke2.vbo", vertices, uvs, normals);
 	smokeCrate[1][END] = vertices.size();
 	loadingText("Loading Explosives ...", percent * item); // each step is 4.5%
 	item++;
 	ammo[START] = vertices.size();
-	res = loadOBJ("models/ammo.obj", vertices, uvs, normals);
+	res = loadOBJ("models/ammo.vbo", vertices, uvs, normals);
 	ammo[END] = vertices.size();
 	loadingText("Loading Finished ...", 100); // each step is 4.5%
 
@@ -1370,7 +1370,7 @@ void drawShell(float X, float Y, float angle,float scale=1)
 	glPushMatrix();
 	glTranslatef(X, 2.75, Y);	//movement
 	glRotatef(angle, 0, 1, 0);
-	glTranslatef(0, 0, -2.5);
+	glTranslatef(0, 0, -3);
 	glScalef(SHELLSCALE*scale, SHELLSCALE*scale, SHELLSCALE*scale);
 	beginPoint = shell[START];
 	endPoint = shell[END]- shell[START];
@@ -1468,6 +1468,15 @@ void drawHPCrate(float X, float Y)
 	glPopMatrix();
 
 	glPopMatrix();
+}
+void drawSpark(float X, float Y, float angle,float timeIndex)
+{
+	glLineWidth(1);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1, 1, 1 - timeIndex*20);
+	glVertex3f(0, 10, 5);
+	glVertex3f(0, 10, timeIndex*100);
+	glEnd();
 }
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign,int * ival = NULL, int *jval = NULL)
 {
@@ -2001,8 +2010,6 @@ void Display()
 		glColor3fv(&Colors[WhichColor][0]);
 		glCallList(AxesList);
 	}
-
-
 	// since we are using glScalef( ), be sure normals get unitized:
 	
 	
@@ -2103,7 +2110,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2139,7 +2146,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2189,7 +2196,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
@@ -2228,7 +2235,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
@@ -2355,7 +2362,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 15, 90, 0.65, 0.5, 0.5);
+					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
@@ -2419,7 +2426,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+				SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 				glPopAttrib();
@@ -2460,7 +2467,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < 9; i++)
 		{
@@ -2502,7 +2509,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 15, 90, 0.75, 0.75, 0.75);
+				SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
 				glPopAttrib();
@@ -2515,6 +2522,7 @@ void Display()
 					Shells[i].shooterId == ABRAMID
 				)
 				{
+					//spark
 					//Dammage:
 					IS3HP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
 					// Bounce!
@@ -2575,6 +2583,7 @@ void Display()
 					Shells[i].shooterId == IS3ID
 				)
 				{
+					//spark
 					//Dammage:
 					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)));
 					// Bounce!
@@ -3265,8 +3274,42 @@ void InitLists()
 	// check for errros
 
 	alGenBuffers(NUM_BUFFERS, Buffers);
-
-	alutLoadWAVFile("sound/song.wav", &format, &data, &size, &freq, &loop);
+	int musicID = rand() % 14;
+	switch (musicID)
+	{
+	case 0:
+	case 1:
+		alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 2:
+	case 3:
+		alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 4:
+		alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 5:
+	case 6:
+	case 7:
+		alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 8:
+	case 9:
+		alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 10:
+		alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 11:
+	case 12:
+		alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
+		break;
+	case 13:
+		alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
+		break;
+	default:
+		break;
+	}
 	alBufferData(Buffers[0], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 

@@ -152,7 +152,7 @@
 	int smokeIndex = 0;
 	float destructionTimeBuffer[24][14];
 
-	float TANKSPEED = 0.4;
+	float TANKSPEED = 0.3;
 
 	//explosion and fire
 	bool shake = false;
@@ -265,32 +265,33 @@
 	void	Axes(float);
 	void	HsvRgb(float[3], float[3]);
 	int main(int argc, char *argv[]);
-	int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-		PSTR lpCmdLine, INT nCmdShow)
-	{
-		int w_argc = 0;
-		LPWSTR* w_argv = CommandLineToArgvW(GetCommandLineW(), &w_argc);
-		if (w_argv)
-		{
-			char** my_argv = new char*[w_argc];
-			int my_argc = 0;
-
-			for (int i = 0; i < w_argc; ++i)
-			{
-				int w_len = lstrlenW(w_argv[i]);
-				int len = WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, NULL, 0, NULL, NULL);
-				my_argv[my_argc] = new char[len + 1];
-				WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, my_argv[my_argc], len + 1, NULL, NULL);
-				++my_argc;
-			}
-
-			main(my_argc, my_argv);
-
-			for (int i = 0; i < my_argc; ++i)
-				delete[] my_argv[i];
-			delete[] my_argv;
-
-			LocalFree(w_argv);
-		}
-	}
+	const float LENFRAC = 0.10f;
+	const float BASEFRAC = 1.10f;
+	static float xx[] = {
+		0.f, 1.f, 0.f, 1.f
+	};
+	static float xy[] = {
+		-.5f, .5f, .5f, -.5f
+	};
+	static int xorder[] = {
+		1, 2, -3, 4
+	};
+	static float yx[] = {
+		0.f, 0.f, -.5f, .5f
+	};
+	static float yy[] = {
+		0.f, .6f, 1.f, 1.f
+	};
+	static int yorder[] = {
+		1, 2, 3, -2, 4
+	};
+	static float zx[] = {
+		1.f, 0.f, 1.f, 0.f, .25f, .75f
+	};
+	static float zy[] = {
+		.5f, .5f, -.5f, -.5f, 0.f, 0.f
+	};
+	static int zorder[] = {
+		1, 2, 3, 4, -5, 6
+	};
 #endif

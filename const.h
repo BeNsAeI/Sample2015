@@ -53,4 +53,5 @@ const int GLUIFALSE = { false };
 #define PLANSIZE 3
 #define AIMTHRESH 1
 #define AIENGAGE 30
+#define WIN32
 #endif

@@ -1,5 +1,4 @@
 
-0(19) : error C0000: syntax error, unexpected ',', expecting identifier or template identifier or type identifier at token ","
-0(30) : warning C7533: global function texture3D is deprecated after version 120
-0(68) : warning C7533: global variable gl_FragColor is deprecated after version 120
+0(32) : warning C7533: global variable gl_FragColor is deprecated after version 120
+0(32) : error C1008: undefined variable "a"
 

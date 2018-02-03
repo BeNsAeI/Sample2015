@@ -33,6 +33,33 @@
 
 #include "Globals.h"
 
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
+{
+	int w_argc = 0;
+	LPWSTR* w_argv = CommandLineToArgvW(GetCommandLineW(), &w_argc);
+	if (w_argv)
+	{
+		char** my_argv = new char*[w_argc];
+		int my_argc = 0;
+
+		for (int i = 0; i < w_argc; ++i)
+		{
+			int w_len = lstrlenW(w_argv[i]);
+			int len = WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, NULL, 0, NULL, NULL);
+			my_argv[my_argc] = new char[len + 1];
+			WideCharToMultiByte(CP_ACP, 0, w_argv[i], w_len, my_argv[my_argc], len + 1, NULL, NULL);
+			++my_argc;
+		}
+
+		main(my_argc, my_argv);
+
+		for (int i = 0; i < my_argc; ++i)
+			delete[] my_argv[i];
+		delete[] my_argv;
+
+		LocalFree(w_argv);
+	}
+}
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
@@ -1478,34 +1505,93 @@ void drawSpark(float X, float Y, float angle,float timeIndex)
 	glVertex3f(0, 10, timeIndex*100);
 	glEnd();
 }
-bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign,int * ival = NULL, int *jval = NULL)
+bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign, int axis,int * ival = NULL, int *jval = NULL)
 {
-	for (int j = 0; j < 14; j++)
+	switch (axis)
 	{
-		for (int i = 0; i < 24; i++)
+	case 0:
+		for (int j = 0; j < 14; j++)
 		{
-			if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+			for (int i = 0; i < 24; i++)
 			{
-				if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
-					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
 				{
-					if (ival != NULL && jval != NULL)
+					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
+						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
 					{
-						*ival = i;
-						*jval = j;
+						if (ival != NULL && jval != NULL)
+						{
+							*ival = i;
+							*jval = j;
+						}
+						return true;
 					}
-					return true;
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 2) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 2)) &&
+						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 2) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 2))))
+						return true;
 				}
 			}
-			if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+		}
+		return false;
+	case 1:
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
 			{
-				if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY/2) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY/2)) &&
-					((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY/2) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY/2))))
-					return true;
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				{
+					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY &&
+						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY &&
+						AY + (0 * sign) < myMap.coord[i][j][1] + BODY && 
+						AY + (0 * sign) > myMap.coord[i][j][1] - BODY)
+					{
+						return true;
+					}
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
+						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
+						return true;
+				}
 			}
 		}
+		return false;
+	case 2:
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				{
+					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY &&
+						AX + (0 * sign) > myMap.coord[i][j][0] - BODY &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY)
+					{
+						return true;
+					}
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
+						AX + (0 * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
+						return true;
+				}
+			}
+		}
+		return false;
+	default:
+		return false;
+		break;
 	}
-	return false;
 }
 int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
 {
@@ -1523,25 +1609,67 @@ int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int si
 	return CRATECAP;
 }
 void KeyHandler() {
-	
 	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
 	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
 	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
 	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
 	if ((keyBuffer['w'] || keyBuffer['W']) && AbramHP > 0) {
 		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1))) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1),1)) &&
 			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] -= AbramTX;
 		}
+		else
+		{
+			//adjust angle
+			if (AbramTX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (AbramTY > 0)
+					AbramHullAngle -= 2;
+				else
+					AbramHullAngle += 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (AbramTY > 0)
+					AbramHullAngle += 2;
+				else
+					AbramHullAngle -= 2;
+			}
+		}
 		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1))) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1),2)) &&
 			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[1] -= AbramTY;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (AbramTX > 0)
+					AbramHullAngle += 2;
+				else
+					AbramHullAngle -= 2;
+				
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (AbramTX > 0)
+					AbramHullAngle -= 2;
+				else
+					AbramHullAngle += 2;
+			}
+			
 		}
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
@@ -1581,18 +1709,60 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['s'] || keyBuffer['S']) && AbramHP > 0) {
 		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1))) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1),1)) &&
 			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[0] += AbramTX;
 		}
+		else
+		{
+			//adjust angle
+			if (AbramTX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (AbramTY > 0)
+					AbramHullAngle -= 2;
+				else
+					AbramHullAngle += 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (AbramTY > 0)
+					AbramHullAngle += 2;
+				else
+					AbramHullAngle -= 2;
+			}
+		}
 		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1))) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1),2)) &&
 			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
 			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
 		{
 			AbramXY[1] += AbramTY;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (AbramTX > 0)
+					AbramHullAngle += 2;
+				else
+					AbramHullAngle -= 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (AbramTX > 0)
+					AbramHullAngle -= 2;
+				else
+					AbramHullAngle += 2;
+			}
 		}
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
@@ -1671,18 +1841,60 @@ void KeyHandler() {
 
 	if ((keyBuffer['i'] || keyBuffer['I'] || keyBuffer['8']) && IS3HP > 0) {
 		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1))) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1),1)) &&
 			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] -= IS3TX;
 		}
+		else
+		{
+			//adjust angle
+			if (IS3TX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (IS3TY > 0)
+					IS3HullAngle -= 2;
+				else
+					IS3HullAngle += 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (IS3TY > 0)
+					IS3HullAngle += 2;
+				else
+					IS3HullAngle -= 2;
+			}
+		}
 		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1))) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1),2)) &&
 			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[1] -= IS3TY;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (IS3TX > 0)
+					IS3HullAngle += 2;
+				else
+					IS3HullAngle -= 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (IS3TX > 0)
+					IS3HullAngle -= 2;
+				else
+					IS3HullAngle += 2;
+			}
 		}
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
@@ -1722,18 +1934,60 @@ void KeyHandler() {
 	}
 	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
 		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1))) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1),1)) &&
 			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[0] += IS3TX;
 		}
+		else
+		{
+			//adjust angle
+			if (IS3TX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (IS3TY > 0)
+					IS3HullAngle -= 2;
+				else
+					IS3HullAngle += 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (IS3TY > 0)
+					IS3HullAngle += 2;
+				else
+					IS3HullAngle -= 2;
+			}
+		}
 		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1))) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1),2)) &&
 			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
 			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
 		{
 			IS3XY[1] += IS3TY;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (IS3TX > 0)
+					IS3HullAngle += 2;
+				else
+					IS3HullAngle -= 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (IS3TX > 0)
+					IS3HullAngle -= 2;
+				else
+					IS3HullAngle += 2;
+			}
 		}
 		if (smokeIndex >= 1000)
 			smokeIndex = 0;
@@ -2013,26 +2267,16 @@ void Display()
 	// since we are using glScalef( ), be sure normals get unitized:
 	
 	
-	Pattern->SetUniformVariable((char *)"uKa", (float)0.05);
-	Pattern->SetUniformVariable((char *)"uKd", (float)1);
-	Pattern->SetUniformVariable((char *)"uKs", (float)1);
-	Pattern->SetUniformVariable((char *)"uShininess", (float)80);
-
-	PatternTree->SetUniformVariable((char *)"uKa", (float)0.5);
-	PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
-	PatternTree->SetUniformVariable((char *)"uKs", (float)0.5);
-	PatternTree->SetUniformVariable((char *)"uDist", (float)1);
+	Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
+	Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
+	Pattern->SetUniformVariable((char *)"uKs", (float)0.125);
+	Pattern->SetUniformVariable((char *)"uShininess", (float)1);
 
 	PatternGrass->Use();
 	PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
-	PatternGrass->SetUniformVariable((char *)"uKd", (float)1);
-	PatternGrass->SetUniformVariable((char *)"uKs", (float)1);
-	PatternGrass->SetUniformVariable((char *)"uShininess", (float)80);
-	PatternGrass->SetUniformVariable((char *)"uDist", (float)1);
-	PatternGrass->SetUniformVariable((char *)"uTime", (float)Time);
-	PatternGrass->SetUniformVariable((char *)"uX", (float)0);
-	PatternGrass->SetUniformVariable((char *)"uY", (float)50);
-	PatternGrass->SetUniformVariable((char *)"uZ", (float)90);
+	PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
+	PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
+	PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
 
 	float startx = MAPEDGEX + CUBESIZE;
 	float startz = MAPEDGEY + CUBESIZE;
@@ -2040,20 +2284,21 @@ void Display()
 	float endz = (-MAPEDGEY - CUBESIZE);
 	float lengthx = startx - endx;
 	float lengthz = startz - endz;
-	int grain = 150;
+	int grainX = 40;
+	int grainY = 70;
 	glEnable(GL_NORMALIZE);
 	glBegin(GL_QUADS);
 	glPushMatrix();
 	//SetMaterial(0.05, 0.05, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.0);
-	for (int i = 0; i < grain; i++)
+	for (int i = 0; i < grainX; i++)
 	{
-		for (int j = 0; j < grain; j++)
+		for (int j = 0; j < grainY; j++)
 		{
-			glVertex3f(startx - i*(lengthx)/grain         ,0, startz - j*(lengthz) / grain);
-			glVertex3f(startx - i*(lengthx) / grain       ,0, startz - (j + 1)*(lengthz) / grain);
-			glVertex3f(startx - (i + 1)*(lengthx) / grain ,0, startz - (j + 1)*(lengthz) / grain);
-			glVertex3f(startx - (i + 1)*(lengthx) / grain ,0, startz - j*(lengthz) / grain);
+			glVertex3f(startx - i*(lengthx)/ grainX,0, startz - j*(lengthz) / grainY);
+			glVertex3f(startx - i*(lengthx) / grainX,0, startz - (j + 1)*(lengthz) / grainY);
+			glVertex3f(startx - (i + 1)*(lengthx) / grainX,0, startz - (j + 1)*(lengthz) / grainY);
+			glVertex3f(startx - (i + 1)*(lengthx) / grainX,0, startz - j*(lengthz) / grainY);
 		}
 	}
 	glPopMatrix();
@@ -2110,7 +2355,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2146,7 +2391,7 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2196,7 +2441,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
@@ -2235,7 +2480,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
@@ -2290,7 +2535,7 @@ void Display()
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
 
-		SetPointLight(GL_LIGHT0, 0 , 50, 0, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT0, 20 , 50, 35, 0.75, 0.75, 0.75);
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
@@ -2390,12 +2635,16 @@ void Display()
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 50, 0, 0.9, 0.9, 0.9);
+					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					PatternTree->Use();
-					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
-					PatternTree->SetUniformVariable((char *)"uMultG", (float)3);
-					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
+					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
+					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
+					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
+					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
+					PatternTree->SetUniformVariable((char *)"uMultR", (float)2.6);
+					PatternTree->SetUniformVariable((char *)"uMultG", (float)5);
+					PatternTree->SetUniformVariable((char *)"uMultB", (float)6);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
@@ -2426,7 +2675,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+				SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 				glPopAttrib();
@@ -2467,7 +2716,7 @@ void Display()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < 9; i++)
 		{
@@ -2509,7 +2758,7 @@ void Display()
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
 				glEnable(GL_LIGHTING);
-				SetPointLight(GL_LIGHT1, 0, 60, 90, 0.75, 0.75, 0.75);
+				SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
 				glPopAttrib();
@@ -2663,6 +2912,7 @@ void Display()
 					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
 						(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
 						-1,
+						0,
 						&tmpi,
 						&tmpj
 					)
@@ -3464,12 +3714,14 @@ void Keyboard(unsigned char c, int x, int y)
 		break;
 	case '=':
 	case '+':
-		TANKSPEED *= 2.0;
+		if(TANKSPEED < 1.0)
+			TANKSPEED *= 1.5;
 		std::cout << "Speed set to:" << TANKSPEED << std::endl;
 		break;
 	case '-':
 	case '_':
-		TANKSPEED /= 2.0;
+		if (TANKSPEED > 0.1)
+			TANKSPEED /= 1.5;
 		std::cout << "Speed set to:" << TANKSPEED << std::endl;
 		break;
 	case 'g':
@@ -3612,35 +3864,6 @@ void Visibility(int state)
 		// animating or redrawing it ...
 	}
 }
-static float xx[] = {
-	0.f, 1.f, 0.f, 1.f
-};
-static float xy[] = {
-	-.5f, .5f, .5f, -.5f
-};
-static int xorder[] = {
-	1, 2, -3, 4
-};
-static float yx[] = {
-	0.f, 0.f, -.5f, .5f
-};
-static float yy[] = {
-	0.f, .6f, 1.f, 1.f
-};
-static int yorder[] = {
-	1, 2, 3, -2, 4
-};
-static float zx[] = {
-	1.f, 0.f, 1.f, 0.f, .25f, .75f
-};
-static float zy[] = {
-	.5f, .5f, -.5f, -.5f, 0.f, 0.f
-};
-static int zorder[] = {
-	1, 2, 3, 4, -5, 6
-};
-const float LENFRAC = 0.10f;
-const float BASEFRAC = 1.10f;
 void Axes(float length)
 {
 	glBegin(GL_LINE_STRIP);
@@ -3705,11 +3928,6 @@ void Axes(float length)
 	glEnd();
 
 }
-// function to convert HSV to RGB
-// 0.  <=  s, v, r, g, b  <=  1.
-// 0.  <= h  <=  360.
-// when this returns, call:
-//		glColor3fv( rgb );
 void HsvRgb(float hsv[3], float rgb[3])
 {
 	// guarantee valid input:

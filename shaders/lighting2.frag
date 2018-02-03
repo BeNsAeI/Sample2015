@@ -1,6 +1,5 @@
 #version 130
 uniform float uKa, uKd, uKs; // coefficients of each type of lighting
-uniform vec3 uColor; // object color
 uniform float uShininess; // specular exponent
 
 in vec2 vST; // texture cords
@@ -27,6 +26,6 @@ main( )
 		vec3 ref = normalize( reflect( -Light, Normal ) );
 		s = pow( max( dot(Eye,ref),0. ), uShininess );
 	}
-	vec3 specular = uKs * s * vec3(1,1,1);
-	gl_FragColor = vec4( ambient + diffuse + specular, 1. );
+	vec3 specular = uKs * s * vec3(1,1,1);//uSpecularColor;
+	gl_FragColor = vec4( ambient + diffuse + specular, 1 );
 }

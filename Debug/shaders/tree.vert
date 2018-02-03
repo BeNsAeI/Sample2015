@@ -1,11 +1,10 @@
 #version 130
-uniform float	uTime,uDist;		// "Time", from Animate( )
 out vec2 vST; // texture coords
 out vec3 vN; // normal vector
 out vec3 vL; // vector from point to light
 out vec3 vE; // vector from point to eye
 out vec4 color;
-const vec3 LIGHTPOSITION = vec3( 0., 5., -10. );
+const vec3 LIGHTPOSITION = vec3( 20, 15, 35 );
 
 void
 main( )

@@ -3,7 +3,7 @@
 	ALCdevice *device;
 	ALboolean enumeration;
 	ALCcontext *context;
-	ALuint mainMusic;
+	ALuint mainMusic1, mainMusic2, mainMusic3, mainMusic4, mainMusic5, mainMusic6, mainMusic7;
 	ALuint tankShellFire;
 	ALuint tankShellBounce;
 	ALuint tankExplode;
@@ -192,9 +192,17 @@
 	//texture:
 	GLuint noise;
 
+	// Menu
+	bool isInMenu;
+	int backgroundRand = 0;
+	int selectIndex = 0;
+	bool run = false;
+	int musicID = 0;
+
 	float MoveTimeAbram = 0;
 	float MoveTimeIS3 = 0;
 	std::string mapName = " ";
+	std::string lastMap = " ";
 
 	bool keyBuffer[256];
 	char MapRaw[25 * 14];
@@ -256,6 +264,7 @@
 	void	InitMenus();
 	//void	keySpecial(int key, int x, int y);
 	void	Keyboard(unsigned char, int, int);
+	void	keySpecial(int key, int x, int y);
 	void	keyUp(unsigned char, int, int);
 	void	MouseButton(int, int, int, int);
 	void	MouseMotion(int, int);

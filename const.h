@@ -47,11 +47,13 @@ const int GLUIFALSE = { false };
 #define TOTAL_MS (180 * 1000)
 #define NUMMODEL 1
 #define BUFFER_OFFSET(i) ((void*)(i))
-#define NUM_BUFFERS 6
-#define NUM_SOURCES 6
+#define NUM_BUFFERS 13
+#define NUM_SOURCES 13
 #define _USE_MATH_DEFINES
 #define PLANSIZE 3
 #define AIMTHRESH 1
 #define AIENGAGE 30
 #define WIN32
+#define GRASSGRAINX 40
+#define GRASSGRAINY 70
 #endif

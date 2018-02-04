@@ -63,11 +63,16 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
+	// Do main menu:
+	loading = true;
+	isInMenu = true;
+	backgroundRand = rand() % 5;
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
 	// pull some command line arguments out)
 	if (argc > 1)
 		mapName = argv[1];
+	mapName = "M";
 	if (argc < 2)
 	{
 		std::cout << "Would you like an AI?(a/t/n)" << std::endl;
@@ -159,7 +164,13 @@ int main(int argc, char *argv[])
 	for(int i = 0; i < NUMMODEL; i++)
 		glDeleteBuffers(1, &ModelIDList[i]);
 	//glDeleteBuffers(1, &VertexVBOID);
-	alDeleteSources(1, &mainMusic);
+	alDeleteSources(1, &mainMusic1);
+	alDeleteSources(1, &mainMusic2);
+	alDeleteSources(1, &mainMusic3);
+	alDeleteSources(1, &mainMusic4);
+	alDeleteSources(1, &mainMusic5);
+	alDeleteSources(1, &mainMusic6);
+	alDeleteSources(1, &mainMusic7);
 	alDeleteSources(1, &tankShellFire);
 	alDeleteSources(1, &tankShellBounce);
 	alDeleteSources(1, &tankExplode);
@@ -199,22 +210,13 @@ void Animate()
 }
 void loadMap()
 {
+	for (int i = 0; i < 8; i++)
+		alSourceStop(Sources[i]);
 	for (int i = 0; i < CRATECAP; i++)
 	{
 		Crates[i].isActive = false;
 		myMap.isCrate[Crates[i].i][Crates[i].j] = false;
 	}
-	// Shell test
-	/*	Shells[0].x = 0;
-	Shells[0].y = 0;
-	Shells[0].angle = 45;
-	Shells[0].id = shellSize;
-	Shells[0].startTime = 0.08;
-	if (shellSize < 100)
-	shellSize++;
-	else
-	shellSize = 0;
-	*/
 	
 	for (int j = 0; j < 14; j++)
 	{
@@ -254,6 +256,10 @@ void loadMap()
 	case'r':
 	case'R':
 		mapName = "RANDOM";
+		break;
+	case'm':
+	case'M':
+		mapName = folder + "Main" + ext;
 		break;
 	}
 	std::cout << "Loading Map ..." << std::endl;
@@ -431,6 +437,42 @@ void loadMap()
 	{
 		smokeIDBufferSet[i] = false;
 	}
+	musicID = (musicID + rand()) % 14;
+	switch (musicID)
+	{
+	case 0:
+	case 1:
+		alSourcePlay(Sources[0]);
+		break;
+	case 2:
+	case 3:
+		alSourcePlay(Sources[1]);
+		break;
+	case 4:
+		alSourcePlay(Sources[2]);
+		break;
+	case 5:
+	case 6:
+	case 7:
+		alSourcePlay(Sources[3]);
+		break;
+	case 8:
+	case 9:
+		alSourcePlay(Sources[4]);
+		break;
+	case 10:
+		alSourcePlay(Sources[5]);
+		break;
+	case 11:
+	case 12:
+		alSourcePlay(Sources[6]);
+		break;
+	case 13:
+		alSourcePlay(Sources[7]);
+		break;
+	default:
+		break;
+	}
 }
 void loadingText(char * Text,float percent)
 {
@@ -486,9 +528,7 @@ void loadingText(char * Text,float percent)
 
 
 	// set the eye position, look-at position, and up-vector:
-
 	gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
-	//gluLookAt( -0.4, 1.85, -4.85,     0., 0., -20.,     0., 1., 0. );
 
 	// rotate the scene:
 
@@ -720,9 +760,6 @@ void loadAll()
 		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 	}
-
-
-
 }
 float White[4] = { 1,1,1,1 };
 float *Array3(float a, float b, float c)
@@ -747,20 +784,6 @@ void SetPointLight(int ilight, float x, float y, float z, float r, float g, floa
 {
 	glLightfv(ilight, GL_POSITION, Array3(x, y, z));
 	glLightfv(ilight, GL_AMBIENT, Array3(r, g, b));
-	glLightfv(ilight, GL_DIFFUSE, Array3(r, g, b));
-	glLightfv(ilight, GL_SPECULAR, Array3(r, g, b));
-	glLightf(ilight, GL_CONSTANT_ATTENUATION, 1.);
-	glLightf(ilight, GL_LINEAR_ATTENUATION, 0.);
-	glLightf(ilight, GL_QUADRATIC_ATTENUATION, 0.);
-	glEnable(ilight);
-}
-void SetSpotLight(int ilight, float x, float y, float z, float xdir, float ydir, float zdir, float r, float g, float b)
-{
-	glLightfv(ilight, GL_POSITION, Array3(x, y, z));
-	glLightfv(ilight, GL_SPOT_DIRECTION, Array3(xdir, ydir, zdir));
-	glLightf(ilight, GL_SPOT_EXPONENT, 1.);
-	glLightf(ilight, GL_SPOT_CUTOFF, 45.);
-	glLightfv(ilight, GL_AMBIENT, Array3(0., 0., 0.));
 	glLightfv(ilight, GL_DIFFUSE, Array3(r, g, b));
 	glLightfv(ilight, GL_SPECULAR, Array3(r, g, b));
 	glLightf(ilight, GL_CONSTANT_ATTENUATION, 1.);
@@ -827,7 +850,6 @@ void drawExplosion(float X, float Y, float Z, float angle, float scale, float r,
 		endPoint = trees[7][END] - trees[7][START];
 		glPushMatrix();
 		glTranslatef(0.5, 0, 0.5);
-		SetMaterial(r - 0.10, g - 0.10, b - 0.10, 1);
 		glColor3f(r, g, b);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -853,7 +875,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0, 0.75);
-	SetMaterial(0, 0, 0.5, 1.0);
+	//SetMaterial(0, 0, 0.5, 1.0);
 	//glColor3f(0, 0.75, 0);
 	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -868,7 +890,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0, 0.75);
-	SetMaterial(0, 0, 0.5, 1.0);
+	//SetMaterial(0, 0, 0.5, 1.0);
 	//glColor3f(0, 0.75, 0);
 	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -882,7 +904,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	endPoint = IS3[2][END] - IS3[2][START];
 	glPushMatrix();
 	glColor3f(0.2, 0.2, 0.2);
-	SetMaterial(0.1, 0.1, 0.1, 1.0);
+	//SetMaterial(0.1, 0.1, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -895,7 +917,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	SetMaterial(0.3, 0.25, 0.18, 1.0);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -908,7 +930,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	SetMaterial(0.3, 0.25, 0.18, 1.0);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -934,7 +956,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0, 0.1);
-	SetMaterial(0, 0, 0.1, 1.0);
+	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -947,7 +969,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0, 0.1);
-	SetMaterial(0, 0, 0.1, 1.0);
+	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0.25, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -959,7 +981,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	endPoint = IS3[2][END] - IS3[2][START];
 	glPushMatrix();
 	glColor3f(0.2, 0.2, 0.2);
-	SetMaterial(0.1, 0.1, 0.1, 1.0);
+	//SetMaterial(0.1, 0.1, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -972,7 +994,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0, 0, 0.1);
-	SetMaterial(0, 0, 0.1, 1.0);
+	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -985,7 +1007,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0, 0, 0.1);
-	SetMaterial(0, 0, 0.1, 1.0);
+	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
@@ -1011,7 +1033,7 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0.25);
-	SetMaterial(0.5, 0.5, 0, 1.0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
 	//glColor3f(0.6, 0.6, 0.3);
 	//SetMaterial(0.3, 0.3, 0.1, 1.0);
@@ -1026,7 +1048,7 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
 	glTranslatef(-1,0,0.25);
-	SetMaterial(0.5, 0.5, 0, 1.0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
 	//glColor3f(0.6, 0.6, 0.3);
 	//SetMaterial(0.3, 0.3, 0.1, 1.0);
@@ -1041,7 +1063,7 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-12.75, 0, -3);
-	SetMaterial(0.3, 0.25, 0.18, 1.0);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
@@ -1054,7 +1076,7 @@ void drawAbram(float X, float Y, float Z, float hullAngle,float turretAngle)
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(-0.25, 0, -3);
-	SetMaterial(0.3, 0.25, 0.18, 1.0);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
@@ -1081,7 +1103,7 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0.25);
-	SetMaterial(0.15, 0.15, 0, 1.0);
+	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0.25, 0.25, 0);
@@ -1094,7 +1116,7 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
 	glTranslatef(-1, 0, 0.25);
-	SetMaterial(0.15, 0.15, 0, 1.0);
+	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0.25, 0.25, 0);
@@ -1107,7 +1129,7 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-12.75, 0, -3);
-	SetMaterial(0.15, 0.15, 0, 1.0);
+	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
@@ -1120,7 +1142,7 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(-0.25, 0, -3);
-	SetMaterial(0.15, 0.15, 0, 1.0);
+	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	//glColor3f(0, 0, 0);
@@ -1199,7 +1221,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 3960 - 2250;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1207,7 +1229,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[0][START] + 3960 - 2250;
 			endPoint = 2250;
 			glPushMatrix();
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1225,14 +1247,14 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 5688 - 2022;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 				glPopMatrix();
 				beginPoint = trees[1][START] + 5688 - 2022;
 				endPoint = 2022;
 			glPushMatrix();
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1250,7 +1272,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 4398 - 3525;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1258,7 +1280,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[2][START] + 4398 - 3525;
 			endPoint = 3525;
 			glPushMatrix();
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1276,7 +1298,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 3522 - 3000;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1284,7 +1306,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[3][START] + 3522 - 3000;
 			endPoint = 3000;
 			glPushMatrix();
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1302,7 +1324,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 4752 - 3816;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1310,7 +1332,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[4][START] + 4752 - 3816;
 			endPoint = 3816;
 			glPushMatrix();
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1328,7 +1350,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 6105 - 4668;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1336,7 +1358,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[5][START] + 6105 - 4668;
 			endPoint = 4668;
 			glPushMatrix();
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1353,7 +1375,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			endPoint = 6030 - 4944;
 			glPushMatrix();
 				glRotatef(270, 1, 0, 0);
-				SetMaterial(0.4, 0.2, 0, 1.0);
+				//SetMaterial(0.4, 0.2, 0, 1.0);
 				glColor3f(0.4, 0.2, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 			glPopMatrix();
@@ -1361,7 +1383,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 			beginPoint = trees[6][START] + 6030 - 4944;
 			endPoint = 4944;
 			glPushMatrix();
-				SetMaterial(0, 0.75, 0, 1.0);
+				//SetMaterial(0, 0.75, 0, 1.0);
 				glColor3f(0, 0.75, 0);
 				glRotatef(270, 1, 0, 0);
 				glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1380,7 +1402,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		beginPoint = trees[7][START];
 		endPoint = trees[7][END] - trees[7][START];
 		glPushMatrix();
-		SetMaterial(0.125, 0.125, 0.125, 1);
+		//SetMaterial(0.125, 0.125, 0.125, 1);
 		glColor3f(0.25, 0.25, 0.25);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1403,7 +1425,7 @@ void drawShell(float X, float Y, float angle,float scale=1)
 	endPoint = shell[END]- shell[START];
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
-	SetMaterial(1, 1, 0, 1.0);
+	//SetMaterial(1, 1, 0, 1.0);
 	glColor3f(1, 0.125, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
@@ -1423,7 +1445,7 @@ void drawAmmo(float X, float Y)
 	endPoint = ammo[END]- ammo[START];
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
-	SetMaterial(1, 1, 0, 1.0);
+	//SetMaterial(1, 1, 0, 1.0);
 	glColor3f(1, 0.125, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
@@ -1444,7 +1466,7 @@ void drawSmokeCrate(float X, float Y, int angle = 0)
 	beginPoint = smokeCrate[1][START];
 	endPoint = smokeCrate[1][END]- smokeCrate[1][START];
 
-	SetMaterial(0.25, 0.25, 0.25, 1.0);
+	//SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glColor3f(0.25, 0.25, 0.25);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
@@ -1454,7 +1476,7 @@ void drawSmokeCrate(float X, float Y, int angle = 0)
 	beginPoint = smokeCrate[0][START];
 	endPoint = smokeCrate[0][END]- smokeCrate[0][START];
 
-	SetMaterial(0, 1, 0, 1.0);
+	//SetMaterial(0, 1, 0, 1.0);
 	glColor3f(0, 1, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
@@ -1477,7 +1499,7 @@ void drawHPCrate(float X, float Y)
 	beginPoint = hpCrate[0][START];
 	endPoint = hpCrate[0][END] - hpCrate[0][START];
 
-	SetMaterial(0.25, 0.25, 0.25, 1.0);
+	//SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glColor3f(0.25, 0.25, 0.25);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
@@ -1487,7 +1509,7 @@ void drawHPCrate(float X, float Y)
 	beginPoint = hpCrate[1][START];
 	endPoint = hpCrate[1][END] - hpCrate[1][START];
 
-	SetMaterial(1, 0.75, 0, 1.0);
+	//SetMaterial(1, 0.75, 0, 1.0);
 	glColor3f(1, 0, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
@@ -1692,15 +1714,15 @@ void KeyHandler() {
 			{
 			case 0:
 				AbramShells = SHELLSTORAGE;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 1:
 				AbramSmoke = SMOKECOUNT;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 2:
 				AbramHP = TANKHP;
-				alSourcePlay(Sources[4]);
+				alSourcePlay(Sources[11]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1785,15 +1807,15 @@ void KeyHandler() {
 			{
 			case 0:
 				AbramShells = SHELLSTORAGE;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 1:
 				AbramSmoke = SMOKECOUNT;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 2:
 				AbramHP = TANKHP;
-				alSourcePlay(Sources[4]);
+				alSourcePlay(Sources[11]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1917,15 +1939,15 @@ void KeyHandler() {
 			{
 			case 0:
 				IS3Shells = SHELLSTORAGE;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 1:
 				IS3Smoke = SMOKECOUNT;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 2:
 				IS3HP = TANKHP;
-				alSourcePlay(Sources[4]);
+				alSourcePlay(Sources[11]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -2026,15 +2048,15 @@ void KeyHandler() {
 			{
 			case 0:
 				IS3Shells = SHELLSTORAGE;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 1:
 				IS3Smoke = SMOKECOUNT;
-				alSourcePlay(Sources[5]);
+				alSourcePlay(Sources[12]);
 				break;
 			case 2:
 				IS3HP = TANKHP;
-				alSourcePlay(Sources[4]);
+				alSourcePlay(Sources[11]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -2066,8 +2088,13 @@ void KeyHandler() {
 	if (keyBuffer['g'] || keyBuffer['G']) {
 		freeze = !freeze;
 	}
-	if (keyBuffer[ESCAPE] || keyBuffer['t'] || keyBuffer['T']) {
-		DoMainMenu(QUIT);	// will not return here
+	if (keyBuffer[ESCAPE]) {
+		//DoMainMenu(QUIT);	// will not return here
+		mapName = "M";
+		loadMap();
+		isInMenu = true;
+		for (int i = 0; i < 8; i++)
+			alSourceStop(Sources[i]);
 	}
 	if (keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR])
 	{
@@ -2076,7 +2103,7 @@ void KeyHandler() {
 
 		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
 		{
-			alSourcePlay(Sources[1]);
+			alSourcePlay(Sources[8]);
 			AbramLastShot = Time;
 			Shells[shellSize].x = AbramXY[0];
 			Shells[shellSize].y = AbramXY[1];
@@ -2111,7 +2138,7 @@ void KeyHandler() {
 
 		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
 		{
-			alSourcePlay(Sources[1]);
+			alSourcePlay(Sources[8]);
 			IS3LastShot = Time;
 			Shells[shellSize].x = IS3XY[0];
 			Shells[shellSize].y = IS3XY[1];
@@ -2163,7 +2190,7 @@ void Display()
 		loading = false;
 	}
 	else {
-		if(!clicked)
+		if (!clicked)
 			loading = true;
 	}
 	if (DebugOn != 0)
@@ -2223,9 +2250,10 @@ void Display()
 
 
 	// set the eye position, look-at position, and up-vector:
-
-	gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
-	//gluLookAt( -0.4, 1.85, -4.85,     0., 0., -20.,     0., 1., 0. );
+	if (isInMenu)
+		gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
+	else
+		gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
 
 	// rotate the scene:
 
@@ -2265,50 +2293,239 @@ void Display()
 		glCallList(AxesList);
 	}
 	// since we are using glScalef( ), be sure normals get unitized:
-	
-	
-	Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
-	Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-	Pattern->SetUniformVariable((char *)"uKs", (float)0.125);
-	Pattern->SetUniformVariable((char *)"uShininess", (float)1);
 
-	PatternGrass->Use();
-	PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
-	PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
-	PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
-	PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
-
-	float startx = MAPEDGEX + CUBESIZE;
-	float startz = MAPEDGEY + CUBESIZE;
-	float endx = (-MAPEDGEX - CUBESIZE);
-	float endz = (-MAPEDGEY - CUBESIZE);
-	float lengthx = startx - endx;
-	float lengthz = startz - endz;
-	int grainX = 40;
-	int grainY = 70;
-	glEnable(GL_NORMALIZE);
-	glBegin(GL_QUADS);
-	glPushMatrix();
-	//SetMaterial(0.05, 0.05, 0, 1.0);
-	glColor3f(0.1, 0.1, 0.0);
-	for (int i = 0; i < grainX; i++)
-	{
-		for (int j = 0; j < grainY; j++)
-		{
-			glVertex3f(startx - i*(lengthx)/ grainX,0, startz - j*(lengthz) / grainY);
-			glVertex3f(startx - i*(lengthx) / grainX,0, startz - (j + 1)*(lengthz) / grainY);
-			glVertex3f(startx - (i + 1)*(lengthx) / grainX,0, startz - (j + 1)*(lengthz) / grainY);
-			glVertex3f(startx - (i + 1)*(lengthx) / grainX,0, startz - j*(lengthz) / grainY);
-		}
-	}
-	glPopMatrix();
-	glEnd();
-	PatternGrass->Use(0);
 	// draw the current object:
 	//glCallList(BoxList);
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
-	if (res)
+	
+	if (res && isInMenu)
 	{
+		PatternGrass->Use();
+		PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
+		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
+		PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
+		PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
+
+		float startx = 1+MAPEDGEX + CUBESIZE;
+		float startz = MAPEDGEY + CUBESIZE;
+		float endx = (-MAPEDGEX - CUBESIZE);
+		float endz = (-MAPEDGEY - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX;
+		int grainY = GRASSGRAINY;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - i*(lengthx) / grainX, -0.5, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, -0.5, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, -0.5, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, -0.5, startz - j*(lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					glEnable(GL_LIGHTING);
+					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					glDisable(GL_LIGHT1);
+					glDisable(GL_LIGHTING);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
+					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
+					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
+					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
+					PatternTree->SetUniformVariable((char *)"uMultR", (float)2.6);
+					PatternTree->SetUniformVariable((char *)"uMultG", (float)5);
+					PatternTree->SetUniformVariable((char *)"uMultB", (float)6);
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		switch (backgroundRand)
+		{
+		case 0:
+			drawHPCrate(0, 0);
+			break;
+		case 1:
+			drawSmokeCrate(0, 0);
+			break;
+		case 2:
+			drawAmmo(0, 0);
+			break;
+		case 3:
+			drawIS3(0, 0, 0, -45, -45);
+			break;
+		case 4:
+			drawAbram(0, 0, 0, -45, -45);
+			break;
+		}
+		// Set the polygon mode to be filled triangles 
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)1);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+		Pattern->SetUniformVariable((char *)"uX", (float)0);
+		Pattern->SetUniformVariable((char *)"uY", (float)2);
+		Pattern->SetUniformVariable((char *)"uZ", (float)0);
+		Pattern->SetUniformVariable((char *)"uShininess", (float)0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		switch (backgroundRand)
+		{
+		case 0:
+			drawHPCrate(0, 0);
+			break;
+		case 1:
+			drawSmokeCrate(0, 0);
+			break;
+		case 2:
+			drawAmmo(0, 0);
+			break;
+		case 3:
+			drawIS3(0, 0, 0, -45, -45);
+			break;
+		case 4:
+			drawAbram(0, 0, 0, -45, -45);
+			break;
+		}
+		// Pop the state changes off the attribute stack
+		// to set things back how they were
+		glPopAttrib();
+		Pattern->Use(0);
+		//glDisable(GL_LIGHT2);
+		//glDisable(GL_LIGHTING);
+
+		glDisableVertexAttribArray(0);
+	}
+	if (res && !isInMenu)
+	{
+		PatternGrass->Use();
+		PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
+		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
+		PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
+		PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
+
+		float startx = MAPEDGEX + CUBESIZE;
+		float startz = MAPEDGEY + CUBESIZE;
+		float endx = (-MAPEDGEX - CUBESIZE);
+		float endz = (-MAPEDGEY - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX;
+		int grainY = GRASSGRAINY;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		//SetMaterial(0.05, 0.05, 0, 1.0);
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
 		glVertexAttribPointer(
@@ -2324,12 +2541,12 @@ void Display()
 			myAIKB.agent->getMove(myAIKB.AIID, keyBuffer);
 		}
 		KeyHandler();
-		
+
 		if (shake)
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
 			{
-				alSourcePlay(Sources[3]);
+				alSourcePlay(Sources[10]);
 				eyex += sin((Time - shakeStartTime) * 5000) / 2;
 				eyey += sin((Time - shakeStartTime) * 5000) / 2;
 				if (AbramHP <= 0)
@@ -2345,17 +2562,25 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
-					drawExplosion(AbramXY[0], AbramXY[1],0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3*abs(sin((Time - shakeStartTime) * 500))/4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1],0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3*abs(sin((Time - shakeStartTime) * 500))/4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0,120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0,180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0,240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
-					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+					//glEnable(GL_LIGHTING);
+					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+					Pattern->Use();
+					Pattern->SetUniformVariable((char *)"uKa", (float)1);
+					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+					Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+					Pattern->SetUniformVariable((char *)"uX", (float)20);
+					Pattern->SetUniformVariable((char *)"uY", (float)50);
+					Pattern->SetUniformVariable((char *)"uZ", (float)35);
+					Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2364,9 +2589,10 @@ void Display()
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					glPopAttrib();
-					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);
-					
+					Pattern->Use(0);
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
 				}
 				if (IS3HP <= 0)
 				{
@@ -2390,8 +2616,16 @@ void Display()
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
-					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+					//glEnable(GL_LIGHTING);
+					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+					Pattern->Use();
+					Pattern->SetUniformVariable((char *)"uKa", (float)1);
+					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+					Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+					Pattern->SetUniformVariable((char *)"uX", (float)20);
+					Pattern->SetUniformVariable((char *)"uY", (float)50);
+					Pattern->SetUniformVariable((char *)"uZ", (float)35);
+					Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2400,8 +2634,9 @@ void Display()
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					glPopAttrib();
-					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
 				}
 			}
 			else
@@ -2431,25 +2666,34 @@ void Display()
 		glBegin(GL_LINE_STRIP);
 		glColor3f(0, 0, 1);
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY);
-		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7 );
+		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7);
 		glEnd();
 		glLineWidth(OUTLINE);
 		if (AbramSmoke > 0)
-			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
+			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1, 90);
 		if (IS3Smoke > 0)
-			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1,270);
+			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1, 270);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
-		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)1);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
+		Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
-			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1,90);
+			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1, 90);
 		if (IS3Smoke > 0)
-			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1,270);
+			drawSmokeCrate(MAPEDGEX + 22, MAPEDGEY - IS3Smoke * 7 - 1, 270);
 		glPopAttrib();
-		glDisable(GL_LIGHT1);
-		glDisable(GL_LIGHTING);
+		Pattern->Use(0);
+		//glDisable(GL_LIGHT1);
+		//glDisable(GL_LIGHTING);
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
@@ -2462,33 +2706,41 @@ void Display()
 		glColor3f(.5, .5, .5);
 		// Render the object
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1,1,0);
-		glVertex3f(MAPEDGEX + 15,3, -MAPEDGEY);
-		glVertex3f(MAPEDGEX + 15, 3 ,-MAPEDGEY + AbramShells * 2);
+		glColor3f(1, 1, 0);
+		glVertex3f(MAPEDGEX + 15, 3, -MAPEDGEY);
+		glVertex3f(MAPEDGEX + 15, 3, -MAPEDGEY + AbramShells * 2);
 		glEnd();
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0,0,1);
-		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY);
-		glVertex3f(MAPEDGEX + 15,3, MAPEDGEY - IS3Shells * 2);
+		glColor3f(0, 0, 1);
+		glVertex3f(MAPEDGEX + 15, 3, MAPEDGEY);
+		glVertex3f(MAPEDGEX + 15, 3, MAPEDGEY - IS3Shells * 2);
 		glEnd();
 		glLineWidth(OUTLINE);
-		if(AbramShells > 0)
-			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
+		if (AbramShells > 0)
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180, 4);
 		if (IS3Shells > 0)
-			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0,4);
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0, 4);
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
 		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)1);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
-			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180,4);
+			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180, 4);
 		if (IS3Shells > 0)
-			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0,4);
+			drawShell(MAPEDGEX + 15, MAPEDGEY - IS3Shells * 2, 0, 4);
 		glPopAttrib();
-		glDisable(GL_LIGHT1);
-		glDisable(GL_LIGHTING);
+		Pattern->Use(0);
+		//glDisable(GL_LIGHT1);
+		//glDisable(GL_LIGHTING);
 
 
 		// Draw Tanks
@@ -2503,7 +2755,7 @@ void Display()
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
 		// Render the object
-		if(AbramHP > 0)
+		if (AbramHP > 0)
 			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		else
 		{
@@ -2516,7 +2768,7 @@ void Display()
 			}
 		}
 		if (IS3HP > 0)
-			drawIS3  (IS3XY[0]  , -0.25, IS3XY[1]  , IS3HullAngle  , IS3TurretAngle);
+			drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		else
 		{
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
@@ -2527,15 +2779,22 @@ void Display()
 				shakeOnce = true;
 				shakeStartTime = Time;
 			}
-			
+
 		}
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		glShadeModel(GL_FLAT);
-		glEnable(GL_LIGHTING);
+		//glEnable(GL_LIGHTING);
 
-		SetPointLight(GL_LIGHT0, 20 , 50, 35, 0.75, 0.75, 0.75);
+		//SetPointLight(GL_LIGHT0, 20, 50, 35, 0.75, 0.75, 0.75);
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)1);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
@@ -2553,30 +2812,38 @@ void Display()
 		else
 			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		if (IS3HP > 0)
-			drawIS3  (IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+			drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		else
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		//PatternCamo->Use(0);
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
-		glDisable(GL_LIGHT0);
-		glDisable(GL_LIGHTING);
+		Pattern->Use(0);
+		//glDisable(GL_LIGHT0);
+		//glDisable(GL_LIGHTING);
 
 		Pattern->Use();
-		for(int i = 0; i < (2*MAPEDGEX)/CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE,-MAPEDGEY - CUBESIZE,0,0.5,0.5,0.5);
+		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.125);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
+		Pattern->SetUniformVariable((char *)"uShininess", (float)1);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE,0, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube( -MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE,0, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube( MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE,0, 0.5, 0.5, 0.5);
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
 		Pattern->Use(0);
 		//test ammo power up
-		
-		
-		
+
+
+
 		// Draw Map
 		for (int j = 0; j < 14; j++)
 		{
@@ -2616,7 +2883,7 @@ void Display()
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
-					
+
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
@@ -2628,14 +2895,14 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
-					
-					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1],myMap.angle[i][j], myMap.color[i][j][0]);
-					
+
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+
 					// Set the polygon mode to be filled triangles
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
-					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					PatternTree->Use();
 					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
@@ -2648,15 +2915,15 @@ void Display()
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
-					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);
-					
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
 				}
 			}
 		}
-		
+
 		//Smoke
-		for (int i = 0; i < 1000; i=i+10)
+		for (int i = 0; i < 1000; i = i + 10)
 		{
 			if (smokeActive[i]) {
 				// Push the GL attribute bits so that we don't wreck any settings
@@ -2715,8 +2982,15 @@ void Display()
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
-		glEnable(GL_LIGHTING);
-		SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		//glEnable(GL_LIGHTING);
+		//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)1);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < 9; i++)
 		{
@@ -2735,8 +3009,9 @@ void Display()
 				}
 		}
 		glPopAttrib();
-		glDisable(GL_LIGHT1);
-		glDisable(GL_LIGHTING);
+		Pattern->Use(0);
+		//glDisable(GL_LIGHT1);
+		//glDisable(GL_LIGHTING);
 		// draw shell
 		for (int i = 0; i < SHELLMAX; i++)
 		{
@@ -2757,7 +3032,7 @@ void Display()
 				// Set the polygon mode to be filled triangles 
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
-				glEnable(GL_LIGHTING);
+				//glEnable(GL_LIGHTING);
 				SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
 				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
@@ -2769,7 +3044,7 @@ void Display()
 					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < IS3XY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > IS3XY[0] - BODY)) &&
 					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < IS3XY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > IS3XY[1] - BODY)) &&
 					Shells[i].shooterId == ABRAMID
-				)
+					)
 				{
 					//spark
 					//Dammage:
@@ -2777,12 +3052,12 @@ void Display()
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
-						alSourcePlay(Sources[2]);
+						alSourcePlay(Sources[9]);
 						if (IS3XY[0] > Shells[i].x)
 						{
 							if (IS3XY[1] > Shells[i].y)
 								if (IS3XY[0] - Shells[i].x >= IS3XY[1] - Shells[i].y)
-									if(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >=0)
+									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
@@ -2830,7 +3105,7 @@ void Display()
 					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < AbramXY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > AbramXY[0] - BODY)) &&
 					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < AbramXY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > AbramXY[1] - BODY)) &&
 					Shells[i].shooterId == IS3ID
-				)
+					)
 				{
 					//spark
 					//Dammage:
@@ -2838,7 +3113,7 @@ void Display()
 					// Bounce!
 					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180))) < BOUNCETHRESH)
 					{
-						alSourcePlay(Sources[2]);
+						alSourcePlay(Sources[9]);
 						if (AbramXY[0] > Shells[i].x)
 						{
 							if (AbramXY[1] > Shells[i].y)
@@ -2887,12 +3162,12 @@ void Display()
 						Shells[i].active = false;
 					}
 				}
-				if(
+				if (
 					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < -MAPEDGEX) ||
-					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) >  MAPEDGEX) ||
+					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > MAPEDGEX) ||
 					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < -MAPEDGEY) ||
-					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) >  MAPEDGEY)
-				)
+					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > MAPEDGEY)
+					)
 					Shells[i].active = false;
 				int tmpi;
 				int tmpj;
@@ -2916,7 +3191,7 @@ void Display()
 						&tmpi,
 						&tmpj
 					)
-				)
+					)
 				{
 					CrateIndex++;	// randomly generate crates
 					if (CrateIndex > CRATECAP)
@@ -2929,7 +3204,7 @@ void Display()
 					case 1:
 					case 2:
 						Crates[CrateIndex].type = AMMOCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0] ;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
@@ -2945,24 +3220,24 @@ void Display()
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
-					/*case 5:
-						Crates[CrateIndex].type = HPCRATE;// RELOADCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
-					case 6:
-						Crates[CrateIndex].type = HPCRATE;// DAMAGECRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
-					case 7:
-						Crates[CrateIndex].type = HPCRATE;// RAMSPEEDCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;*/
+						/*case 5:
+							Crates[CrateIndex].type = HPCRATE;// RELOADCRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						case 6:
+							Crates[CrateIndex].type = HPCRATE;// DAMAGECRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						case 7:
+							Crates[CrateIndex].type = HPCRATE;// RAMSPEEDCRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;*/
 					}
 					for (int i = 0; i < 50; i++)
 					{
@@ -2997,69 +3272,319 @@ void Display()
 	// draw some gratuitous text that just rotates on top of the scene:
 
 	glDisable(GL_DEPTH_TEST);
-	// Winner Text:
-	if (AbramHP <= 0 && IS3HP <= 0)
+	if (isInMenu)
 	{
+		if (loading)
+		{
+			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
+			DoRasterString(0, 10, 0, (char *)"Loading");
+		}
+		// select level:
+
+		// level list
+
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
 		glColor3f(1., 1., 1.);
-		DoRasterString(0., 1., -1, (char *)"Draw!");
-	}
-	else 
-	{
-		if (AbramHP <= 0)
-		{
-			glColor3f(0, 0, 1.);
-			DoRasterString(0., 1., -1, (char *)"Blue player Wins!");
-		}
-		if (IS3HP <= 0)
-		{
-			glColor3f(1, 1, 0);
-			DoRasterString(0., 1., -1, (char *)"Yellow player Wins!");
-		}
-	}
-	if (AbramShells == 0)
-	{
-		glColor3f(1-sin(Time*1000), 1 - sin(Time * 1000), 0);
-		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
-	}
-	if (IS3Shells == 0)
-	{
-		glColor3f(0,0, 1 - sin(Time * 1000));
-		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
-	}
-	if (AbramSmoke == 0)
-	{
-		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
-		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
-	}
-	if (IS3Smoke == 0)
-	{
-		glColor3f(0, 0, 1 - sin(Time * 1000));
-		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
-	}
-	if (loading)
-	{
-		glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
-		DoRasterString(0, 10, 0, (char *)"Loading");
-	}
-	// draw some gratuitous text that is fixed on the screen:
-	//
-	// the projection matrix is reset to define a scene whose
-	// world coordinate system goes from 0-100 in each axis
-	//
-	// this is called "percent units", and is just a convenience
-	//
-	// the modelview matrix is reset to identity as we don't
-	// want to transform these coordinates
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
 
-	glDisable(GL_DEPTH_TEST);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0., 100., 0., 100.);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glColor3f(1., 1., 1.);
-	//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		DoRasterString(60, y, 0, (char *)"Please select the map:");
 
+		switch (backgroundRand)
+		{
+		case 0:
+			DoRasterString(10, 30, 0, (char *)"Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
+			break;
+		case 1:
+			DoRasterString(10, 30, 0, (char *)"Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
+			break;
+		case 2:
+			DoRasterString(10, 30, 0, (char *)"Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
+			break;
+		case 3:
+			DoRasterString(10, 30, 0, (char *)"This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
+			break;
+		case 4:
+			DoRasterString(10, 30, 0, (char *)"How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
+			break;
+		}
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 0)
+		{
+			glColor3f(1., 1., 0);
+			//if ((ActiveButton & LEFT) != 0) 
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 1");
+				mapName = "1";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand+rand()) % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 2, 0, (char *)"Classic (Medium)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 1)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 2");
+				mapName = "2";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 4, 0, (char *)"Duel (Medium)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 2)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 7");
+				mapName = "7";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 6, 0, (char *)"Field (Easy)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 3)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 9");
+				mapName = "9";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 8, 0, (char *)"aim_map (Easy)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 4)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 5");
+				mapName = "5";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 10, 0, (char *)"Joe Graphics (Hard)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 5)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 8");
+				mapName = "8";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 12, 0, (char *)"Limbo (Medium)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 6)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 3");
+				mapName = "3";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 14, 0, (char *)"Jungle (Hard)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 7)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 6");
+				mapName = "6";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 16, 0, (char *)"Maze (Hard)");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 8)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 4");
+				mapName = "4";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 18, 0, (char *)"Temple (Medium):");
+		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
+			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 9)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" r");
+				mapName = "r";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = rand() % 5;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 20, 0, (char *)"Random (Easy)");
+	}
+	else
+	{
+		// Winner Text:
+		if (AbramHP <= 0 && IS3HP <= 0)
+		{
+			glColor3f(1., 1., 1.);
+			DoRasterString(0., 1., -1, (char *)"Draw!");
+		}
+		else
+		{
+			if (AbramHP <= 0)
+			{
+				glColor3f(0, 0, 1.);
+				DoRasterString(0., 1., -1, (char *)"Blue player Wins!");
+			}
+			if (IS3HP <= 0)
+			{
+				glColor3f(1, 1, 0);
+				DoRasterString(0., 1., -1, (char *)"Yellow player Wins!");
+			}
+		}
+		if (AbramShells == 0)
+		{
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+			DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
+		}
+		if (IS3Shells == 0)
+		{
+			glColor3f(0, 0, 1 - sin(Time * 1000));
+			DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
+		}
+		if (AbramSmoke == 0)
+		{
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+			DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
+		}
+		if (IS3Smoke == 0)
+		{
+			glColor3f(0, 0, 1 - sin(Time * 1000));
+			DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
+		}
+		if (loading)
+		{
+			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
+			DoRasterString(0, 10, 0, (char *)"Loading");
+		}
+		// draw some gratuitous text that is fixed on the screen:
+		//
+		// the projection matrix is reset to define a scene whose
+		// world coordinate system goes from 0-100 in each axis
+		//
+		// this is called "percent units", and is just a convenience
+		//
+		// the modelview matrix is reset to identity as we don't
+		// want to transform these coordinates
+
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
+	}
 
 	// swap the double-buffered framebuffers:
 
@@ -3325,7 +3850,7 @@ void InitGraphics()
 	glutPassiveMotionFunc(NULL);
 	glutVisibilityFunc(Visibility);
 	glutEntryFunc(NULL);
-	glutSpecialFunc(NULL);
+	glutSpecialFunc(keySpecial);
 	glutSpaceballMotionFunc(NULL);
 	glutSpaceballRotateFunc(NULL);
 	glutSpaceballButtonFunc(NULL);
@@ -3402,8 +3927,8 @@ void InitGraphics()
 	PatternCamo->SetVerbose(false);
 
 	//load graphics
-	loadMap();
 	loadAll();
+	loadMap();
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)
 {
@@ -3449,7 +3974,13 @@ void InitLists()
 		exit(0);
 	else
 		std::cout << "Context was created." << std::endl;
-	alGenSources((ALuint)1, &mainMusic);
+	alGenSources((ALuint)1, &mainMusic1);
+	alGenSources((ALuint)1, &mainMusic2);
+	alGenSources((ALuint)1, &mainMusic3);
+	alGenSources((ALuint)1, &mainMusic4);
+	alGenSources((ALuint)1, &mainMusic5);
+	alGenSources((ALuint)1, &mainMusic6);
+	alGenSources((ALuint)1, &mainMusic7);
 	alGenSources((ALuint)1, &tankShellFire);
 	alGenSources((ALuint)1, &tankShellBounce);
 	alGenSources((ALuint)1, &tankExplode);
@@ -3457,16 +3988,84 @@ void InitLists()
 	alGenSources((ALuint)1, &AmmoSmoke);
 	// check for errors
 
-	alSourcef(mainMusic, AL_PITCH, 1);
+	alSourcef(mainMusic1, AL_PITCH, 1);
 	// check for errors
-	alSourcef(mainMusic, AL_GAIN, 1);
+	alSourcef(mainMusic1, AL_GAIN, 1);
 	// check for errors
-	alSource3f(mainMusic, AL_POSITION, 0, 0, 0);
+	alSource3f(mainMusic1, AL_POSITION, 0, 0, 0);
 	// check for errors
-	alSource3f(mainMusic, AL_VELOCITY, 0, 0, 0);
+	alSource3f(mainMusic1, AL_VELOCITY, 0, 0, 0);
 	// check for errors
-	alSourcei(mainMusic, AL_LOOPING, AL_FALSE);
+	alSourcei(mainMusic1, AL_LOOPING, AL_FALSE);
 	// check for errros
+
+	alSourcef(mainMusic2, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic2, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic2, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic2, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic2, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(mainMusic3, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic3, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic3, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic3, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic3, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(mainMusic4, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic4, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic4, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic4, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic4, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(mainMusic5, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic5, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic5, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic5, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic5, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(mainMusic6, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic6, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic6, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic6, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic6, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+	alSourcef(mainMusic7, AL_PITCH, 1);
+	// check for errors
+	alSourcef(mainMusic7, AL_GAIN, 1);
+	// check for errors
+	alSource3f(mainMusic7, AL_POSITION, 0, 0, 0);
+	// check for errors
+	alSource3f(mainMusic7, AL_VELOCITY, 0, 0, 0);
+	// check for errors
+	alSourcei(mainMusic7, AL_LOOPING, AL_FALSE);
+	// check for errros
+
+
 
 	alSourcef(tankShellFire, AL_PITCH, 1);
 	// check for errors
@@ -3524,63 +4123,56 @@ void InitLists()
 	// check for errros
 
 	alGenBuffers(NUM_BUFFERS, Buffers);
-	int musicID = rand() % 14;
-	switch (musicID)
-	{
-	case 0:
-	case 1:
-		alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 2:
-	case 3:
-		alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 4:
-		alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 5:
-	case 6:
-	case 7:
-		alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 8:
-	case 9:
-		alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 10:
-		alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 11:
-	case 12:
-		alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
-		break;
-	case 13:
-		alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
-		break;
-	default:
-		break;
-	}
+	alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[0], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
+	alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[1], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
+	alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[2], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
+	alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[3], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
+	alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[4], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
+	alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
 	alBufferData(Buffers[5], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[6], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[7], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[8], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[9], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[10], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[11], format, data, size, freq);
+	alutUnloadWAV(format, data, size, freq);
+
+	alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
+	alBufferData(Buffers[12], format, data, size, freq);
 	alutUnloadWAV(format, data, size, freq);
 
 	// Bind buffers into audio sources.
@@ -3599,38 +4191,78 @@ void InitLists()
 	alSourcef(Sources[1], AL_GAIN, 1.0);
 	alSource3f(Sources[1], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[1], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[1], AL_LOOPING, AL_FALSE);
+	alSourcei(Sources[1], AL_LOOPING, AL_TRUE);
 
 	alSourcei(Sources[2], AL_BUFFER, Buffers[2]);
 	alSourcef(Sources[2], AL_PITCH, 1.0);
 	alSourcef(Sources[2], AL_GAIN, 1.0);
 	alSource3f(Sources[2], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[2], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[2], AL_LOOPING, AL_FALSE);
+	alSourcei(Sources[2], AL_LOOPING, AL_TRUE);
 
 	alSourcei(Sources[3], AL_BUFFER, Buffers[3]);
 	alSourcef(Sources[3], AL_PITCH, 1.0);
 	alSourcef(Sources[3], AL_GAIN, 1.0);
 	alSource3f(Sources[3], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[3], AL_LOOPING, AL_FALSE);
+	alSourcei(Sources[3], AL_LOOPING, AL_TRUE);
 
 	alSourcei(Sources[4], AL_BUFFER, Buffers[4]);
 	alSourcef(Sources[4], AL_PITCH, 1.0);
 	alSourcef(Sources[4], AL_GAIN, 1.0);
 	alSource3f(Sources[4], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[4], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[4], AL_LOOPING, AL_FALSE);
+	alSourcei(Sources[4], AL_LOOPING, AL_TRUE);
 
 	alSourcei(Sources[5], AL_BUFFER, Buffers[5]);
 	alSourcef(Sources[5], AL_PITCH, 1.0);
 	alSourcef(Sources[5], AL_GAIN, 1.0);
 	alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[5], AL_LOOPING, AL_FALSE);
+	alSourcei(Sources[5], AL_LOOPING, AL_TRUE);
 
-	// load audio
-	alSourcePlay(Sources[0]);
+	alSourcei(Sources[6], AL_BUFFER, Buffers[6]);
+	alSourcef(Sources[6], AL_PITCH, 1.0);
+	alSourcef(Sources[6], AL_GAIN, 1.0);
+	alSource3f(Sources[6], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[6], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[6], AL_LOOPING, AL_TRUE);
+
+	alSourcei(Sources[8], AL_BUFFER, Buffers[8]);
+	alSourcef(Sources[8], AL_PITCH, 1.0);
+	alSourcef(Sources[8], AL_GAIN, 1.0);
+	alSource3f(Sources[8], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[8], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[8], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[9], AL_BUFFER, Buffers[9]);
+	alSourcef(Sources[9], AL_PITCH, 1.0);
+	alSourcef(Sources[9], AL_GAIN, 1.0);
+	alSource3f(Sources[9], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[9], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[9], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[10], AL_BUFFER, Buffers[10]);
+	alSourcef(Sources[10], AL_PITCH, 1.0);
+	alSourcef(Sources[10], AL_GAIN, 1.0);
+	alSource3f(Sources[10], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[10], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[10], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[11], AL_BUFFER, Buffers[11]);
+	alSourcef(Sources[11], AL_PITCH, 1.0);
+	alSourcef(Sources[11], AL_GAIN, 1.0);
+	alSource3f(Sources[11], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[11], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[11], AL_LOOPING, AL_FALSE);
+
+	alSourcei(Sources[12], AL_BUFFER, Buffers[12]);
+	alSourcef(Sources[12], AL_PITCH, 1.0);
+	alSourcef(Sources[12], AL_GAIN, 1.0);
+	alSource3f(Sources[12], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[12], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[12], AL_LOOPING, AL_FALSE);
+
 	// create the object:
 	BoxList = glGenLists(1);
 	glNewList(BoxList, GL_COMPILE);
@@ -3649,101 +4281,168 @@ void InitLists()
 }
 void Keyboard(unsigned char c, int x, int y)
 {
-	keyBuffer[c] = true;
-	switch (c)
+	if (isInMenu)
 	{
-	case 'c':
-	case 'C':
-		if (AbramSmoke > 0 && AbramHP > 0) {
-			AbramSmoke--;
-			if (smokeIndex >= 1000)
-				smokeIndex = 0;
-			smokeIDBuffer[smokeIndex] = Time;
-			smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
-			smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
-			smokeDurBuffer[smokeIndex] = 0.09;
-			smokeAngleBuffer[smokeIndex] = rand() % 360;
-			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-			smokeActive[smokeIndex] = true;
-			smokeIndex++;
-			for (int i = 0; i < 120; i++)
-			{
-				if (smokeIndex >= 1000)
-					smokeIndex = 0;
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] + 10 * (sin(i *  PI / 6));
-				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] + 10 * (cos(i *  PI / 6));
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeDurBuffer[smokeIndex] = 0.09;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
-			}
+		if (DebugOn != 0)
+			fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+		switch (c)
+		{
+		case 'o':
+		case 'O':
+			WhichProjection = ORTHO;
+			break;
+
+		case 'p':
+		case 'P':
+			WhichProjection = PERSP;
+			break;
+		case 'w':
+		case 'W':
+			if (selectIndex >= 1)
+				selectIndex--;
+			else
+				selectIndex = 9;
+			selectIndex = selectIndex % 10;
+			break;
+		case 's':
+		case 'S':
+			selectIndex++;
+			selectIndex = selectIndex % 10;
+			break;
+		case ' ':
+		case 13:
+			run = true;
+			break;
+		case 'q':
+		case 'Q':
+		case ESCAPE:
+			DoMainMenu(QUIT);	// will not return here
+			break;				// happy compiler
+
 		}
-		break;
-	case '.':
-	case '1':
-	case 'n':
-	case 'N':
-		if (IS3Smoke > 0 && IS3HP > 0) {
-			IS3Smoke--;
-			if (smokeIndex >= 1000)
-				smokeIndex = 0;
-			smokeIDBuffer[smokeIndex] = Time;
-			smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
-			smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
-			smokeDurBuffer[smokeIndex] = 0.09;
-			smokeAngleBuffer[smokeIndex] = rand() % 360;
-			smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-			smokeActive[smokeIndex] = true;
-			smokeIndex++;
-			for (int i = 0; i < 120; i++)
-			{
-				if (smokeIndex >= 1000)
-					smokeIndex = 0;
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] + 10 * (sin(i *  PI / 6));
-				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] + 10 * (cos(i *  PI / 6));
-				smokeDurBuffer[smokeIndex] = 0.09;
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
-			}
-		}
-		break;
-	case '=':
-	case '+':
-		if(TANKSPEED < 1.0)
-			TANKSPEED *= 1.5;
-		std::cout << "Speed set to:" << TANKSPEED << std::endl;
-		break;
-	case '-':
-	case '_':
-		if (TANKSPEED > 0.1)
-			TANKSPEED /= 1.5;
-		std::cout << "Speed set to:" << TANKSPEED << std::endl;
-		break;
-	case 'g':
-	case 'G':
-		AbramHP = TANKHP;
-		IS3HP = TANKHP;
-		shake = false;
-		smokeIndex = 0;
-		shakeOnce = false;
-		AbramShells = SHELLSTORAGE;
-		IS3Shells = SHELLSTORAGE;
-		AbramSmoke = SMOKECOUNT;
-		IS3Smoke = SMOKECOUNT;
-		AbramTurretAngle = 0;
-		IS3TurretAngle = 0;
-		AbramLastShot = 0;
-		IS3LastShot = 0;
-		for (int i = 0; i < 1000; i++)
-			smokeIDBuffer[i] = 0;
-		loadMap();
-		break;
+
+		// force a call to Display( ):
+
+		glutSetWindow(MainWindow);
+		glutPostRedisplay();
 	}
+	else
+	{
+		keyBuffer[c] = true;
+		switch (c)
+		{
+		case 'c':
+		case 'C':
+			if (AbramSmoke > 0 && AbramHP > 0) {
+				AbramSmoke--;
+				if (smokeIndex >= 1000)
+					smokeIndex = 0;
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+				smokeDurBuffer[smokeIndex] = 0.09;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+				for (int i = 0; i < 120; i++)
+				{
+					if (smokeIndex >= 1000)
+						smokeIndex = 0;
+					smokeIDBuffer[smokeIndex] = Time;
+					smokeCoordBuffer[smokeIndex][0] = AbramXY[0] + 10 * (sin(i *  PI / 6));
+					smokeCoordBuffer[smokeIndex][1] = AbramXY[1] + 10 * (cos(i *  PI / 6));
+					smokeAngleBuffer[smokeIndex] = rand() % 360;
+					smokeDurBuffer[smokeIndex] = 0.09;
+					smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+					smokeActive[smokeIndex] = true;
+					smokeIndex++;
+				}
+			}
+			break;
+		case '.':
+		case '1':
+		case 'n':
+		case 'N':
+			if (IS3Smoke > 0 && IS3HP > 0) {
+				IS3Smoke--;
+				if (smokeIndex >= 1000)
+					smokeIndex = 0;
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+				smokeDurBuffer[smokeIndex] = 0.09;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+				for (int i = 0; i < 120; i++)
+				{
+					if (smokeIndex >= 1000)
+						smokeIndex = 0;
+					smokeIDBuffer[smokeIndex] = Time;
+					smokeCoordBuffer[smokeIndex][0] = IS3XY[0] + 10 * (sin(i *  PI / 6));
+					smokeCoordBuffer[smokeIndex][1] = IS3XY[1] + 10 * (cos(i *  PI / 6));
+					smokeDurBuffer[smokeIndex] = 0.09;
+					smokeAngleBuffer[smokeIndex] = rand() % 360;
+					smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+					smokeActive[smokeIndex] = true;
+					smokeIndex++;
+				}
+			}
+			break;
+		case '=':
+		case '+':
+			if (TANKSPEED < 1.0)
+				TANKSPEED *= 1.5;
+			std::cout << "Speed set to:" << TANKSPEED << std::endl;
+			break;
+		case '-':
+		case '_':
+			if (TANKSPEED > 0.1)
+				TANKSPEED /= 1.5;
+			std::cout << "Speed set to:" << TANKSPEED << std::endl;
+			break;
+		case 'g':
+		case 'G':
+			AbramHP = TANKHP;
+			IS3HP = TANKHP;
+			shake = false;
+			smokeIndex = 0;
+			shakeOnce = false;
+			AbramShells = SHELLSTORAGE;
+			IS3Shells = SHELLSTORAGE;
+			AbramSmoke = SMOKECOUNT;
+			IS3Smoke = SMOKECOUNT;
+			AbramTurretAngle = 0;
+			IS3TurretAngle = 0;
+			AbramLastShot = 0;
+			IS3LastShot = 0;
+			for (int i = 0; i < 1000; i++)
+				smokeIDBuffer[i] = 0;
+			mapName = lastMap;
+			loadMap();
+			break;
+		}
+	}
+}
+void keySpecial(int key, int x, int y) {
+	if(isInMenu)
+		switch (key)
+		{
+		case GLUT_KEY_UP:
+			if (selectIndex >= 1)
+				selectIndex--;
+			else
+				selectIndex = 9;
+			selectIndex = selectIndex % 10;
+			break;
+		case GLUT_KEY_DOWN:
+			selectIndex++;
+			selectIndex = selectIndex % 10;
+			break;
+		}
 }
 void keyUp(unsigned char c, int x, int y)
 {
@@ -3792,34 +4491,35 @@ void MouseButton(int button, int state, int x, int y)
 }
 void MouseMotion(int x, int y)
 {
-	/*
-	if (DebugOn != 0)
-		fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
-
-
-	int dx = x - Xmouse;		// change in mouse coords
-	int dy = y - Ymouse;
-
-	if ((ActiveButton & LEFT) != 0)
+	if (isInMenu)
 	{
-		Xrot += (ANGFACT*dy);
-		Yrot += (ANGFACT*dx);
+		if (DebugOn != 0)
+			fprintf(stderr, "MouseMotion: %d, %d\n", x, y);
+
+
+		int dx = x - Xmouse;		// change in mouse coords
+		int dy = y - Ymouse;
+
+		if ((ActiveButton & LEFT) != 0)
+		{
+			Xrot += (ANGFACT*dy);
+			Yrot += (ANGFACT*dx);
+		}
+
+
+		if ((ActiveButton & MIDDLE) != 0)
+		{
+			Scale += SCLFACT * (float)(dx - dy);
+
+			// keep object from turning inside-out or disappearing:
+
+			if (Scale < MINSCALE)
+				Scale = MINSCALE;
+		}
+
+		Xmouse = x;			// new current position
+		Ymouse = y;
 	}
-
-
-	if ((ActiveButton & MIDDLE) != 0)
-	{
-		Scale += SCLFACT * (float)(dx - dy);
-
-		// keep object from turning inside-out or disappearing:
-
-		if (Scale < MINSCALE)
-			Scale = MINSCALE;
-	}
-
-	Xmouse = x;			// new current position
-	Ymouse = y;
-	*/
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
 }

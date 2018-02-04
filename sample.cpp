@@ -1628,18 +1628,18 @@ void KeyHandler() {
 			{
 				//hit a wall horizontal wall from top going down
 				if (AbramTY > 0)
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 				else
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall horizontal wall from bottom going up
 				if (AbramTY > 0)
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 				else
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 			}
 		}
 		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
@@ -1656,18 +1656,18 @@ void KeyHandler() {
 			{
 				//hit a wall Vertical wall from right going left
 				if (AbramTX > 0)
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 				else
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 				
 			}
 			else
 			{
 				//hit a wall Vertical wall from left going right
 				if (AbramTX > 0)
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 				else
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 			}
 			
 		}
@@ -1722,18 +1722,18 @@ void KeyHandler() {
 			{
 				//hit a wall horizontal wall from top going down
 				if (AbramTY > 0)
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 				else
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall horizontal wall from bottom going up
 				if (AbramTY > 0)
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 				else
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 			}
 		}
 		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
@@ -1750,18 +1750,18 @@ void KeyHandler() {
 			{
 				//hit a wall Vertical wall from right going left
 				if (AbramTX > 0)
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 				else
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall Vertical wall from left going right
 				if (AbramTX > 0)
-					AbramHullAngle -= 2;
+					AbramHullAngle -=TANKSPEED*5*2;
 				else
-					AbramHullAngle += 2;
+					AbramHullAngle +=TANKSPEED*5*2;
 			}
 		}
 		if (smokeIndex >= 1000)
@@ -1854,18 +1854,18 @@ void KeyHandler() {
 			{
 				//hit a wall horizontal wall from top going down
 				if (IS3TY > 0)
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 				else
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall horizontal wall from bottom going up
 				if (IS3TY > 0)
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 				else
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 			}
 		}
 		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
@@ -1882,18 +1882,18 @@ void KeyHandler() {
 			{
 				//hit a wall Vertical wall from right going left
 				if (IS3TX > 0)
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 				else
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall Vertical wall from left going right
 				if (IS3TX > 0)
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 				else
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 			}
 		}
 		if (smokeIndex >= 1000)
@@ -1947,18 +1947,18 @@ void KeyHandler() {
 			{
 				//hit a wall horizontal wall from top going down
 				if (IS3TY > 0)
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 				else
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall horizontal wall from bottom going up
 				if (IS3TY > 0)
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 				else
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 			}
 		}
 		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
@@ -1975,18 +1975,18 @@ void KeyHandler() {
 			{
 				//hit a wall Vertical wall from right going left
 				if (IS3TX > 0)
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 				else
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 
 			}
 			else
 			{
 				//hit a wall Vertical wall from left going right
 				if (IS3TX > 0)
-					IS3HullAngle -= 2;
+					IS3HullAngle -=TANKSPEED*5*2;
 				else
-					IS3HullAngle += 2;
+					IS3HullAngle +=TANKSPEED*5*2;
 			}
 		}
 		if (smokeIndex >= 1000)

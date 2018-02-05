@@ -210,6 +210,7 @@ void Animate()
 }
 void loadMap()
 {
+	Reset();
 	for (int i = 0; i < 8; i++)
 		alSourceStop(Sources[i]);
 	for (int i = 0; i < CRATECAP; i++)
@@ -4227,6 +4228,13 @@ void InitLists()
 	alSource3f(Sources[6], AL_POSITION, 0, 0, 0);
 	alSource3f(Sources[6], AL_VELOCITY, 0, 0, 0);
 	alSourcei(Sources[6], AL_LOOPING, AL_TRUE);
+
+	alSourcei(Sources[7], AL_BUFFER, Buffers[7]);
+	alSourcef(Sources[7], AL_PITCH, 1.0);
+	alSourcef(Sources[7], AL_GAIN, 1.0);
+	alSource3f(Sources[7], AL_POSITION, 0, 0, 0);
+	alSource3f(Sources[7], AL_VELOCITY, 0, 0, 0);
+	alSourcei(Sources[7], AL_LOOPING, AL_TRUE);
 
 	alSourcei(Sources[8], AL_BUFFER, Buffers[8]);
 	alSourcef(Sources[8], AL_PITCH, 1.0);

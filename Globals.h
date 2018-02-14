@@ -203,6 +203,10 @@
 	float MoveTimeIS3 = 0;
 	std::string mapName = " ";
 	std::string lastMap = " ";
+	int AbramScore = 0;
+	int IS3Score = 0;
+	char scoreText[20];
+	bool ScoreSet = true;
 
 	bool keyBuffer[256];
 	char MapRaw[25 * 14];
@@ -257,6 +261,7 @@
 	void	DoMainMenu(int);
 	void	DoProjectMenu(int);
 	void	DoRasterString(float, float, float, char *);
+	void	DoStringBox   (float, float, float, char *);
 	void	DoStrokeString(float, float, float, float, char *);
 	float	ElapsedSeconds();
 	void	InitGraphics();

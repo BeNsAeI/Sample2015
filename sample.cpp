@@ -438,6 +438,7 @@ void loadMap()
 	{
 		smokeIDBufferSet[i] = false;
 	}
+	ScoreSet = false;
 	musicID = (musicID + rand()) % 14;
 	switch (musicID)
 	{
@@ -3307,7 +3308,6 @@ void Display()
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		glColor3f(1., 1., 1.);
-		glColor3f(1., 1., 1.);
 		int y = 70;
 		int inc = 0;
 		GLint m_viewport[4];
@@ -3315,6 +3315,19 @@ void Display()
 
 		float amount = 40;
 		selectIndex = selectIndex % 10;
+		glColor3f(0.125,0.125,0.125);
+		DoStringBox(60, y, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 2, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 4, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 6, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 8, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 10, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 12, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 14, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 16, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 18, 0, (char *)"Please select the map:");
+		DoStringBox(60, y - 20, 0, (char *)"Please select the map:");
+		glColor3f(1., 1., 1.);
 		DoRasterString(60, y, 0, (char *)"Please select the map:");
 
 		switch (backgroundRand)
@@ -3543,19 +3556,29 @@ void Display()
 		if (AbramHP <= 0 && IS3HP <= 0)
 		{
 			glColor3f(1., 1., 1.);
-			DoRasterString(0., 1., -1, (char *)"Draw!");
+			DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Draw!");
 		}
 		else
 		{
 			if (AbramHP <= 0)
 			{
 				glColor3f(0, 0, 1.);
-				DoRasterString(0., 1., -1, (char *)"Blue player Wins!");
+				DoRasterString(MAPEDGEX+22, 0, -10, (char *)"Blue player Wins!");
+				if (!ScoreSet)
+				{
+					ScoreSet = true;
+					IS3Score++;
+				}
 			}
 			if (IS3HP <= 0)
 			{
 				glColor3f(1, 1, 0);
-				DoRasterString(0., 1., -1, (char *)"Yellow player Wins!");
+				DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Yellow player Wins!");
+				if (!ScoreSet)
+				{
+					ScoreSet = true;
+					AbramScore++;
+				}
 			}
 		}
 		if (AbramShells == 0)
@@ -3578,6 +3601,19 @@ void Display()
 			glColor3f(0, 0, 1 - sin(Time * 1000));
 			DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
 		}
+
+		itoa(AbramScore, scoreText, 16);
+		if(ScoreSet)
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+		else
+			glColor3f(1, 1, 0);
+		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)scoreText);
+		itoa(IS3Score, scoreText, 16);
+		if (ScoreSet)
+			glColor3f(0, 0, 1 - sin(Time * 1000));
+		else
+			glColor3f(0, 0, 1);
+		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)scoreText);
 		if (loading)
 		{
 			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
@@ -3728,13 +3764,26 @@ void DoProjectMenu(int id)
 }
 void DoRasterString(float x, float y, float z, char *s)
 {
-	glRasterPos3f((GLfloat)x, (GLfloat)y, (GLfloat)z);
-
 	char c;			// one character to print
+	glRasterPos3f((GLfloat)x, (GLfloat)y, (GLfloat)z+1);
 	for (; (c = *s) != '\0'; s++)
 	{
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, c);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 	}
+}
+void DoStringBox(float x, float y, float z, char *s)
+{
+	char c;			// one character to print
+	float len = 0.5;
+	float x2 = x + 1;
+	for (; (c = *s) != '\0'; s++)
+	{
+		x2 += len;
+	}
+	glPushMatrix();
+	glColor3f(0.125, 0.125, 0.125);
+	glRectd(x - 1, y - 1, x2, y + 1);
+	glPopMatrix();
 }
 void DoStrokeString(float x, float y, float z, float ht, char *s)
 {

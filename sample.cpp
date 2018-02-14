@@ -762,6 +762,25 @@ void loadAll()
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 	}
 }
+void resetState(std::string newMap) {
+	AbramHP = TANKHP;
+	IS3HP = TANKHP;
+	shake = false;
+	smokeIndex = 0;
+	shakeOnce = false;
+	AbramShells = SHELLSTORAGE;
+	IS3Shells = SHELLSTORAGE;
+	AbramSmoke = SMOKECOUNT;
+	IS3Smoke = SMOKECOUNT;
+	AbramTurretAngle = 0;
+	IS3TurretAngle = 0;
+	AbramLastShot = 0;
+	IS3LastShot = 0;
+	for (int i = 0; i < 1000; i++)
+		smokeIDBuffer[i] = 0;
+	mapName = newMap;
+	loadMap();
+}
 float White[4] = { 1,1,1,1 };
 float *Array3(float a, float b, float c)
 {
@@ -2086,13 +2105,10 @@ void KeyHandler() {
 	if ((keyBuffer['o'] || keyBuffer['O'] || keyBuffer['9']) && IS3HP > 0) {
 		IS3TurretAngle -= TANKSPEED * 5;
 	}
-	if (keyBuffer['g'] || keyBuffer['G']) {
-		freeze = !freeze;
-	}
 	if (keyBuffer[ESCAPE]) {
 		//DoMainMenu(QUIT);	// will not return here
 		mapName = "M";
-		loadMap();
+		resetState(mapName);
 		isInMenu = true;
 		for (int i = 0; i < 8; i++)
 			alSourceStop(Sources[i]);
@@ -4414,23 +4430,8 @@ void Keyboard(unsigned char c, int x, int y)
 			break;
 		case 'g':
 		case 'G':
-			AbramHP = TANKHP;
-			IS3HP = TANKHP;
-			shake = false;
-			smokeIndex = 0;
-			shakeOnce = false;
-			AbramShells = SHELLSTORAGE;
-			IS3Shells = SHELLSTORAGE;
-			AbramSmoke = SMOKECOUNT;
-			IS3Smoke = SMOKECOUNT;
-			AbramTurretAngle = 0;
-			IS3TurretAngle = 0;
-			AbramLastShot = 0;
-			IS3LastShot = 0;
-			for (int i = 0; i < 1000; i++)
-				smokeIDBuffer[i] = 0;
 			mapName = lastMap;
-			loadMap();
+			resetState(mapName);
 			break;
 		}
 	}

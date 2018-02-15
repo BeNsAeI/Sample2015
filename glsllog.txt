@@ -1,9 +1,3 @@
 
-0(15) : warning C7533: global variable gl_ModelViewMatrix is deprecated after version 120
-0(15) : warning C7533: global variable gl_Vertex is deprecated after version 120
-0(16) : warning C7533: global variable gl_NormalMatrix is deprecated after version 120
-0(16) : warning C7533: global variable gl_Normal is deprecated after version 120
-0(21) : warning C7533: global variable gl_Color is deprecated after version 120
-0(23) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120
-0(14) : error C1008: undefined variable "gl_MultiTeaxCoord0"
+0(17) : error C7561: OpenGL requires 'in/out' with 'flat'
 

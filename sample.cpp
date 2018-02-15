@@ -8,8 +8,8 @@
 #ifdef WIN32
 #include <windows.h>
 #pragma warning(disable:4996)
-#include "glew.h"
 #endif
+#include "glew.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
@@ -30,9 +30,9 @@
 #include "AI.h"
 #include "SimpleAI.h"
 #include "neuron.h"
-
 #include "Globals.h"
 
+#ifdef WIN32
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
 {
 	int w_argc = 0;
@@ -60,6 +60,8 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 		LocalFree(w_argv);
 	}
 }
+#endif
+
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
@@ -895,7 +897,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	glTranslatef(0, 3, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
-	glColor3f(0, 0, 0.75);
+	glColor3f(0, 0.25, 1);
 	//SetMaterial(0, 0, 0.5, 1.0);
 	//glColor3f(0, 0.75, 0);
 	//SetMaterial(0, 0.5, 0, 1.0);
@@ -910,7 +912,7 @@ void drawIS3(float X, float Y, float Z , float hullAngle ,float turretAngle)
 	endPoint = IS3[1][END] - IS3[1][START];
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
-	glColor3f(0, 0, 0.75);
+	glColor3f(0, 0.25, 1);
 	//SetMaterial(0, 0, 0.5, 1.0);
 	//glColor3f(0, 0.75, 0);
 	//SetMaterial(0, 0.5, 0, 1.0);
@@ -1412,9 +1414,9 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	case 7:
-		PatternTree->SetUniformVariable((char *)"uMultR", (float)2);
-		PatternTree->SetUniformVariable((char *)"uMultG", (float)2);
-		PatternTree->SetUniformVariable((char *)"uMultB", (float)2);
+		PatternTree->SetUniformVariable((char *)"uMultR", (float)1);
+		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
+		PatternTree->SetUniformVariable((char *)"uMultB", (float)1);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
 		glRotatef(angle, 0, 1, 0);
@@ -1447,7 +1449,7 @@ void drawShell(float X, float Y, float angle,float scale=1)
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	//SetMaterial(1, 1, 0, 1.0);
-	glColor3f(1, 0.125, 0);
+	glColor3f(1, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 	glPopMatrix();
@@ -1467,7 +1469,7 @@ void drawAmmo(float X, float Y)
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	//SetMaterial(1, 1, 0, 1.0);
-	glColor3f(1, 0.125, 0);
+	glColor3f(1, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 	glPopMatrix();
@@ -1531,7 +1533,7 @@ void drawHPCrate(float X, float Y)
 	endPoint = hpCrate[1][END] - hpCrate[1][START];
 
 	//SetMaterial(1, 0.75, 0, 1.0);
-	glColor3f(1, 0, 0);
+	glColor3f(1, 0.25, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -2190,6 +2192,7 @@ void Display()
 {
 	if (!clicked && Time > 0.05)
 	{
+		#ifdef WIN32
 		INPUT Inputs[3] = { 0 };
 
 		Inputs[0].type = INPUT_MOUSE;
@@ -2204,6 +2207,7 @@ void Display()
 		Inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
 
 		SendInput(3, Inputs, sizeof(INPUT));
+		#endif
 		clicked = true;
 		loading = false;
 	}
@@ -2319,10 +2323,10 @@ void Display()
 	if (res && isInMenu)
 	{
 		PatternGrass->Use();
-		PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
-		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
-		PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
-		PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
+		PatternGrass->SetUniformVariable((char *)"uKa", (float)0.75);
+		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.25);
+		PatternGrass->SetUniformVariable((char *)"uKs", (float)1);
+		PatternGrass->SetUniformVariable((char *)"uShininess", (float)1);
 
 		float startx = 1+MAPEDGEX + CUBESIZE;
 		float startz = MAPEDGEY + CUBESIZE;
@@ -2373,7 +2377,7 @@ void Display()
 						myMap.MCM[i][j] = false;
 						myMap.isSolid[i][j] = false;
 					}
-					// Push the GL attribute bits so that we don't wreck any settings
+					/**/// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
 					glEnable(GL_POLYGON_OFFSET_FILL);
@@ -2384,9 +2388,10 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
-					// draw map border
+					// draw map border/**/
+					//DO TOON SHADING
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
 					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
@@ -2394,7 +2399,7 @@ void Display()
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
 					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);
+					glDisable(GL_LIGHTING);/**/
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -2424,9 +2429,9 @@ void Display()
 					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
 					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
 					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
-					PatternTree->SetUniformVariable((char *)"uMultR", (float)2.6);
-					PatternTree->SetUniformVariable((char *)"uMultG", (float)5);
-					PatternTree->SetUniformVariable((char *)"uMultB", (float)6);
+					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
+					PatternTree->SetUniformVariable((char *)"uMultG", (float)1.25);
+					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
@@ -2474,12 +2479,12 @@ void Display()
 		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
-		Pattern->SetUniformVariable((char *)"uX", (float)0);
-		Pattern->SetUniformVariable((char *)"uY", (float)2);
-		Pattern->SetUniformVariable((char *)"uZ", (float)0);
-		Pattern->SetUniformVariable((char *)"uShininess", (float)0.75);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.125);
+		Pattern->SetUniformVariable((char *)"uKs", (float)0.5);
+		Pattern->SetUniformVariable((char *)"uX", (float)-20);
+		Pattern->SetUniformVariable((char *)"uY", (float)5);
+		Pattern->SetUniformVariable((char *)"uZ", (float)-10);
+		Pattern->SetUniformVariable((char *)"uShininess", (float)0.25);
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
@@ -2876,7 +2881,7 @@ void Display()
 						myMap.MCM[i][j] = false;
 						myMap.isSolid[i][j] = false;
 					}
-					// Push the GL attribute bits so that we don't wreck any settings
+					/**/// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
 					glEnable(GL_POLYGON_OFFSET_FILL);
@@ -2887,9 +2892,10 @@ void Display()
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
 					// Render the object
-					// draw map border
+					// draw map border/**/
+					//DO TOON SHADING
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
 					glEnable(GL_LIGHTING);
 					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
@@ -2897,7 +2903,7 @@ void Display()
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
 					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);
+					glDisable(GL_LIGHTING);/**/
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -2927,9 +2933,9 @@ void Display()
 					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
 					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
 					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
-					PatternTree->SetUniformVariable((char *)"uMultR", (float)2.6);
-					PatternTree->SetUniformVariable((char *)"uMultG", (float)5);
-					PatternTree->SetUniformVariable((char *)"uMultB", (float)6);
+					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
+					PatternTree->SetUniformVariable((char *)"uMultG", (float)1.25);
+					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();

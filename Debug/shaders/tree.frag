@@ -14,9 +14,9 @@ main( )
 	vec3 myColor;
 
 	float Time = 1;
-	myColor.r = (color.r+2*abs(sin(1000))*fract(sin(dot(vec2(color.r*abs(sin(1000)),color.r*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultR;//color.r;//
-	myColor.g = (color.g+2*abs(sin(1000))*fract(sin(dot(vec2(color.g*abs(sin(1000)),color.g*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultG;//color.g;//
-	myColor.b = (color.b+2*abs(sin(1000))*fract(sin(dot(vec2(color.b*abs(sin(1000)),color.b*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultB;//color.b;//
+	myColor.r = (color.r + abs(sin(1000))*fract(sin(dot(vec2(color.r*abs(sin(1000)),color.r*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultR;//color.r;//
+	myColor.g = (color.g + abs(sin(1000))*fract(sin(dot(vec2(color.g*abs(sin(1000)),color.g*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultG;//color.g;//
+	myColor.b = (color.b + abs(sin(1000))*fract(sin(dot(vec2(color.b*abs(sin(1000)),color.b*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/uMultB;//color.b;//
 
 	vec3 Normal = normalize(vN);
 	vec3 Light = normalize(vL);

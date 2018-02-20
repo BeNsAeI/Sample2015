@@ -39,6 +39,7 @@ const int GLUIFALSE = { false };
 #define AMMOCRATE 0;
 #define SMOKECRATE 1;
 #define HPCRATE 2;
+#define MINECRATE 3;
 #define RELOADCRATE 3;
 #define DAMAGECRATE 4;
 #define RAMSPEEDCRATE 5;

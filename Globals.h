@@ -107,6 +107,7 @@
 	int		WhichProjection;		// ORTHO or PERSP
 	int		Xmouse, Ymouse;			// mouse values
 	float	Xrot, Yrot;				// rotation angles in degrees
+
 	bool freeze = false;
 	float Time;
 
@@ -141,6 +142,7 @@
 	int ammo[2];
 	int smokeCrate[2][2];
 	int hpCrate[2][2];
+	int mineCrate[2];
 	float smokeBeginTime = 0;
 	bool smokeSet = false;
 	float smokeIDBuffer[1000];

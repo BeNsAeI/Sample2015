@@ -68,7 +68,8 @@ int main(int argc, char *argv[])
 	// Do main menu:
 	loading = true;
 	isInMenu = true;
-	backgroundRand = rand() % 5;
+	backgroundRand = rand() % 6;
+	backgroundRand = (backgroundRand + rand()) % 6;
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
 	// pull some command line arguments out)
@@ -754,6 +755,10 @@ void loadAll()
 	ammo[START] = vertices.size();
 	res = loadOBJ("models/ammo.vbo", vertices, uvs, normals);
 	ammo[END] = vertices.size();
+
+	mineCrate[START] = vertices.size();
+	res = loadOBJ("models/mine.vbo", vertices, uvs, normals);
+	mineCrate[END] = vertices.size();
 	loadingText("Loading Finished ...", 100); // each step is 4.5%
 
 	//Texture needs to be loaded here
@@ -1541,6 +1546,28 @@ void drawHPCrate(float X, float Y)
 
 	glPopMatrix();
 }
+void drawMine(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1, Y);
+	glRotatef(270, 1, 0, 0);
+	glScalef(1.5, 1.5, 1.5);
+
+	beginPoint = mineCrate[START];
+	endPoint = mineCrate[END] - mineCrate[START];
+
+	glColor3f(1, 0.25, 0);
+	glPushMatrix();
+	
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawSpark(float X, float Y, float angle,float timeIndex)
 {
 	glLineWidth(1);
@@ -1747,6 +1774,10 @@ void KeyHandler() {
 				AbramHP = TANKHP;
 				alSourcePlay(Sources[11]);
 				break;
+			case 3:
+				AbramHP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
 			}
 			Crates[cratecheck].isActive = false;
 			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
@@ -1839,6 +1870,10 @@ void KeyHandler() {
 			case 2:
 				AbramHP = TANKHP;
 				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				AbramHP -= 3;
+				alSourcePlay(Sources[8]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -1972,6 +2007,10 @@ void KeyHandler() {
 				IS3HP = TANKHP;
 				alSourcePlay(Sources[11]);
 				break;
+			case 3:
+				IS3HP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
 			}
 			Crates[cratecheck].isActive = false;
 			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
@@ -2080,6 +2119,10 @@ void KeyHandler() {
 			case 2:
 				IS3HP = TANKHP;
 				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				IS3HP -= 3;
+				alSourcePlay(Sources[8]);
 				break;
 			}
 			Crates[cratecheck].isActive = false;
@@ -2471,6 +2514,9 @@ void Display()
 		case 4:
 			drawAbram(0, 0, 0, -45, -45);
 			break;
+		case 5:
+			drawMine(0, 0);
+			break;
 		}
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2504,6 +2550,9 @@ void Display()
 			break;
 		case 4:
 			drawAbram(0, 0, 0, -45, -45);
+			break;
+		case 5:
+			drawMine(0, 0);
 			break;
 		}
 		// Pop the state changes off the attribute stack
@@ -3001,6 +3050,9 @@ void Display()
 				case 2:
 					drawHPCrate(Crates[i].X, Crates[i].Y);
 					break;
+				case 3:
+					drawMine(Crates[i].X, Crates[i].Y);
+					break;
 				}
 		}
 		// Set the polygon mode to be filled triangles 
@@ -3029,6 +3081,9 @@ void Display()
 					break;
 				case 2:
 					drawHPCrate(Crates[i].X, Crates[i].Y);
+					break;
+				case 3:
+					drawMine(Crates[i].X, Crates[i].Y);
 					break;
 				}
 		}
@@ -3244,24 +3299,12 @@ void Display()
 						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
 						Crates[CrateIndex].isActive = true;
 						break;
-						/*case 5:
-							Crates[CrateIndex].type = HPCRATE;// RELOADCRATE;
-							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-							Crates[CrateIndex].isActive = true;
-							break;
-						case 6:
-							Crates[CrateIndex].type = HPCRATE;// DAMAGECRATE;
-							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-							Crates[CrateIndex].isActive = true;
-							break;
-						case 7:
-							Crates[CrateIndex].type = HPCRATE;// RAMSPEEDCRATE;
-							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-							Crates[CrateIndex].isActive = true;
-							break;*/
+					case 5:
+						Crates[CrateIndex].type = MINECRATE;// RELOADCRATE;
+						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+						Crates[CrateIndex].isActive = true;
+						break;
 					}
 					for (int i = 0; i < 50; i++)
 					{
@@ -3339,19 +3382,22 @@ void Display()
 		switch (backgroundRand)
 		{
 		case 0:
-			DoRasterString(10, 30, 0, (char *)"Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
+			DoRasterString(10, 30, 0, (char *)"Health Boost: Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
 			break;
 		case 1:
-			DoRasterString(10, 30, 0, (char *)"Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
+			DoRasterString(10, 30, 0, (char *)"Smoke Boost: Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
 			break;
 		case 2:
-			DoRasterString(10, 30, 0, (char *)"Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
+			DoRasterString(10, 30, 0, (char *)"Ammo Boost: Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
 			break;
 		case 3:
-			DoRasterString(10, 30, 0, (char *)"This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
+			DoRasterString(10, 30, 0, (char *)"IS3: This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
 			break;
 		case 4:
-			DoRasterString(10, 30, 0, (char *)"How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
+			DoRasterString(10, 30, 0, (char *)"Abram: How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
+			break;
+		case 5:
+			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
 			break;
 		}
 		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
@@ -3368,7 +3414,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand+rand()) % 5;
+				backgroundRand = (backgroundRand+rand()) % 6;
 			}
 		}
 		else
@@ -3388,7 +3434,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3408,7 +3454,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3428,7 +3474,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3448,7 +3494,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3468,7 +3514,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3488,7 +3534,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3508,7 +3554,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3528,7 +3574,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3548,7 +3594,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = rand() % 5;
+				backgroundRand = (backgroundRand + rand()) % 6;
 			}
 		}
 		else
@@ -3613,13 +3659,13 @@ void Display()
 			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
 		else
 			glColor3f(1, 1, 0);
-		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)scoreText);
+		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
 		itoa(IS3Score, scoreText, 16);
 		if (ScoreSet)
 			glColor3f(0, 0, 1 - sin(Time * 1000));
 		else
 			glColor3f(0, 0, 1);
-		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)scoreText);
+		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
 		if (loading)
 		{
 			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
@@ -3646,13 +3692,10 @@ void Display()
 	}
 
 	// swap the double-buffered framebuffers:
-
+	/**/
+	// Multipass rendering:
+	/**/
 	glutSwapBuffers();
-
-
-	// be sure the graphics buffer has been sent:
-	// note: be sure to use glFlush( ) here, not glFinish( ) !
-
 	glFlush();
 }
 void DoAxesMenu(int id)
@@ -3950,7 +3993,7 @@ void InitGraphics()
 	PatternGrass = new GLSLProgram();
 	PatternTree = new GLSLProgram();
 	PatternCamo = new GLSLProgram();
-	bool valid = Pattern->Create((char *)"shaders/lighting2.vert", (char *)"shaders/lighting2.frag");
+	bool valid = Pattern->Create((char *)"shaders/lighting.vert",/* (char *)"shaders/lighting.geom",*/ (char *)"shaders/lighting.frag");
 	if (!valid)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");

@@ -143,6 +143,7 @@
 	int smokeCrate[2][2];
 	int hpCrate[2][2];
 	int mineCrate[2];
+	int grass[2];
 	float smokeBeginTime = 0;
 	bool smokeSet = false;
 	float smokeIDBuffer[1000];
@@ -161,6 +162,7 @@
 	bool shakeOnce = false;
 	float shakeDuration = 0.005;
 	float shakeStartTime = 0;
+	bool playExplosionSound = false;
 	bool fireAbram = false;
 	bool fireIS3 = false;
 	bool clicked = false;

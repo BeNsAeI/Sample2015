@@ -1,0 +1,5 @@
+
+0(59) : error C1008: undefined variable "uTime"
+0(59) : error C1008: undefined variable "uTime"
+0(59) : error C1008: undefined variable "uTime"
+

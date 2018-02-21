@@ -11,7 +11,7 @@ void
 main( )
 {
 	vec3 myColor;
-	myColor.r = (color.r+2*abs(sin(1000))*fract(sin(dot(vec2(color.r*abs(sin(1000)),color.r*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453))/2;
+	myColor.r = color.r/2;
 	myColor.g = color.g+2*abs(sin(1000))*fract(sin(dot(vec2(color.g*abs(sin(1000)),color.g*abs(sin(1000))),vec2(12.9898,78.233)))*43758.5453);
 	myColor.b = color.b;
 	vec3 Normal = normalize(vN);
@@ -24,8 +24,8 @@ main( )
 	if( dot(Normal,Light) > 0. ) // only do specular if the light can see the point
 	{
 		vec3 ref = normalize( reflect( -Light, Normal ) );
-		s = pow( max( dot(Eye,ref),0. ), uShininess );
+		s = pow( max( dot(Eye,ref),0. ), uShininess/10 );
 	}
 	vec3 specular = uKs * s * vec3(1,1,1);
-	gl_FragColor = vec4( ambient + diffuse + specular, 1);
+	gl_FragColor = vec4( ambient + diffuse/2 + specular, 1);
 }

@@ -634,7 +634,7 @@ void loadingText(char * Text,float percent)
 void loadAll()
 {
 	float item = 0;
-	float percent = 1;
+	float percent = 4;
 	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
 	item++;
 	Abram[0][START] = vertices.size();
@@ -755,10 +755,19 @@ void loadAll()
 	ammo[START] = vertices.size();
 	res = loadOBJ("models/ammo.vbo", vertices, uvs, normals);
 	ammo[END] = vertices.size();
-
+	
+	loadingText("Loading Dima's present ...", percent * item); // each step is 4.5%
+	item++;
 	mineCrate[START] = vertices.size();
 	res = loadOBJ("models/mine.vbo", vertices, uvs, normals);
 	mineCrate[END] = vertices.size();
+
+	loadingText("Loading Grass ...", percent * item); // each step is 4.5%
+	item++;
+	grass[START] = vertices.size();
+	res = loadOBJ("models/grass.vbo", vertices, uvs, normals);
+	grass[END] = vertices.size();
+
 	loadingText("Loading Finished ...", 100); // each step is 4.5%
 
 	//Texture needs to be loaded here
@@ -1438,6 +1447,25 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	}
+	if (index % 2 != 1 && index != 6)
+	{
+		PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
+		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
+		PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
+		glPushMatrix();
+		glTranslatef(X, 0, Y);	//movement
+		glRotatef(angle, 0, 1, 0);
+		glTranslatef(2, 0.5, 5);
+		glScalef(0.5, 0.65, 0.5);
+		beginPoint = grass[START];
+		endPoint = grass[END] - grass[START];
+		glPushMatrix();
+		glRotatef(270, 1, 0, 0);
+		glColor3f(0, 0.5, 0);
+		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+		glPopMatrix();
+		glPopMatrix();
+	}
 }
 void drawShell(float X, float Y, float angle,float scale=1)
 {
@@ -1474,7 +1502,7 @@ void drawAmmo(float X, float Y)
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	//SetMaterial(1, 1, 0, 1.0);
-	glColor3f(1, 0.5, 0);
+	glColor3f(1 - sin(Time * 1000)/4, 0.5 + sin(Time * 1000) / 4, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 	glPopMatrix();
@@ -1505,7 +1533,7 @@ void drawSmokeCrate(float X, float Y, int angle = 0)
 	endPoint = smokeCrate[0][END]- smokeCrate[0][START];
 
 	//SetMaterial(0, 1, 0, 1.0);
-	glColor3f(0, 1, 0);
+	glColor3f(0, 1 - sin(Time * 1000)*3/4, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1538,7 +1566,7 @@ void drawHPCrate(float X, float Y)
 	endPoint = hpCrate[1][END] - hpCrate[1][START];
 
 	//SetMaterial(1, 0.75, 0, 1.0);
-	glColor3f(1, 0.25, 0);
+	glColor3f(1, 0.5-sin(Time * 1000) / 4, 0);
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -1560,9 +1588,31 @@ void drawMine(float X, float Y)
 	beginPoint = mineCrate[START];
 	endPoint = mineCrate[END] - mineCrate[START];
 
-	glColor3f(1, 0.25, 0);
+	glColor3f(1, 0.5 + sin(Time * 5000)/4, 0);
 	glPushMatrix();
 	
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawGrass(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1, Y);
+	glRotatef(270, 1, 0, 0);
+	glScalef(1.5, 1.5, 1.5);
+
+	beginPoint = mineCrate[START];
+	endPoint = mineCrate[END] - mineCrate[START];
+
+	glColor3f(1, 0.25, 0);
+	glPushMatrix();
+
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
@@ -2387,10 +2437,10 @@ void Display()
 		{
 			for (int j = 0; j < grainY; j++)
 			{
-				glVertex3f(startx - i*(lengthx) / grainX, -0.5, startz - j*(lengthz) / grainY);
-				glVertex3f(startx - i*(lengthx) / grainX, -0.5, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, -0.5, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, -0.5, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
 			}
 		}
 		glPopMatrix();
@@ -2618,7 +2668,12 @@ void Display()
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
 			{
-				alSourcePlay(Sources[10]);
+				if (!playExplosionSound)
+				{
+					alSourcePlay(Sources[10]);
+					playExplosionSound = true;
+				}
+					
 				eyex += sin((Time - shakeStartTime) * 5000) / 2;
 				eyey += sin((Time - shakeStartTime) * 5000) / 2;
 				if (AbramHP <= 0)
@@ -2716,6 +2771,7 @@ void Display()
 				eyex = CAMX;
 				eyey = CAMY;
 				shake = false;
+				playExplosionSound = false;
 			}
 		}
 		// Draw shell UI
@@ -2860,38 +2916,58 @@ void Display()
 		//glEnable(GL_LIGHTING);
 
 		//SetPointLight(GL_LIGHT0, 20, 50, 35, 0.75, 0.75, 0.75);
-		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
+		PatternCamo->Use();
+		PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
+		PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
+		PatternCamo->SetUniformVariable((char *)"uKs", (float)0.25);
+		PatternCamo->SetUniformVariable((char *)"uX", (float)20);
+		PatternCamo->SetUniformVariable((char *)"uY", (float)50);
+		PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
+
+		PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
+		PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
+
+		PatternCamo->SetUniformVariable((char *)"uShininess", (float)0.25);
+		PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
+		PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
+		
+		PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(5000*Time)));
+
+		PatternCamo->SetUniformVariable((char *)"Noise3", 0);
+
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
-		/*PatternCamo->Use();
-		PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
-		PatternCamo->SetUniformVariable((char *)"uR1", (float)1);
-		PatternCamo->SetUniformVariable((char *)"uG1", (float)1);
-		PatternCamo->SetUniformVariable((char *)"uB1", (float)1);
-		PatternCamo->SetUniformVariable((char *)"uR2", (float)0.125);
-		PatternCamo->SetUniformVariable((char *)"uG2", (float)0.125);
-		PatternCamo->SetUniformVariable((char *)"uB2", (float)0.125);
-		//PatternCamo->SetUniformVariable((char *)"Noise3", (float));*/
 		if (AbramHP > 0)
+		{
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
+			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
 			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		}
 		else
+		{
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.5);
+			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		}
+			
 		if (IS3HP > 0)
+		{
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
+			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
 			drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		}
 		else
+		{
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.5);
+			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		}
 		//PatternCamo->Use(0);
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
-		Pattern->Use(0);
+		PatternCamo->Use(0);
 		//glDisable(GL_LIGHT0);
 		//glDisable(GL_LIGHTING);
 
@@ -3400,6 +3476,12 @@ void Display()
 			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
 			break;
 		}
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0,    (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0,    (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
 		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
 			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 0)
 		{

@@ -54,6 +54,6 @@ const int GLUIFALSE = { false };
 #define PLANSIZE 3
 #define AIMTHRESH 1
 #define AIENGAGE 30
-#define GRASSGRAINX 25
-#define GRASSGRAINY 40
+#define GRASSGRAINX 15
+#define GRASSGRAINY 27
 #endif

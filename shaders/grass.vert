@@ -17,9 +17,9 @@ main( )
 	vE = vec3( 0., 0., 0. ) - ECposition.xyz; // vector from the point
 	vec3 v = gl_Vertex.xyz;
 	float Time = 1;
-	v.x = model.x+2*abs(sin(1000*Time))*fract(sin(dot(vec2(model.y*abs(sin(1000*Time)),model.z*abs(sin(1000*Time))),vec2(12.9898,78.233)))*43758.5453);
-	v.y = model.y+2*abs(sin(1000*Time))*fract(sin(dot(vec2(model.x*abs(sin(1000*Time)),model.z*abs(sin(1000*Time))),vec2(12.9898,78.233)))*43758.5453);
-	v.z = model.z+2*abs(sin(1000*Time))*fract(sin(dot(vec2(model.x*abs(sin(1000*Time)),model.y*abs(sin(1000*Time))),vec2(12.9898,78.233)))*43758.5453);
+	v.x = model.x;
+	v.y = model.y+2*abs(sin(1000*Time))*fract(sin(dot(vec2(model.x*abs(sin(1000*Time)),model.z*abs(sin(1000*Time))),vec2(12.9898,78.233)))*43758.5453)/2;
+	v.z = model.z;
 	gl_Position = gl_ModelViewProjectionMatrix * vec4( v, 1. );
 	color = gl_Color;
 }

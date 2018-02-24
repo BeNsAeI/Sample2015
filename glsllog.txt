@@ -1,3 +1,11 @@
 
-0(29) : error C0000: syntax error, unexpected type identifier, expecting ',' or ';' at token "vec3"
+0(10) : warning C7533: global variable gl_Vertex is deprecated after version 120
+0(11) : warning C7533: global variable gl_ModelViewMatrix is deprecated after version 120
+0(12) : warning C7533: global variable gl_NormalMatrix is deprecated after version 120
+0(12) : warning C7533: global variable gl_Normal is deprecated after version 120
+0(14) : error C1068: too much data in type constructor
+0(14) : error C1115: unable to find compatible overloaded function "dot(vec2)"
+0(14) : error C0000: syntax error, unexpected ';', expecting ')' at token ";"
+0(15) : warning C7533: global variable gl_Color is deprecated after version 120
+0(16) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120
 

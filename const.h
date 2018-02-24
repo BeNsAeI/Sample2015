@@ -6,18 +6,18 @@ const int GLUIFALSE = { false };
 #define ESCAPE		0x1b
 #define SPACEBAR	32
 #define ENTER 13
-#define CAMX -45;
+#define CAMX -44;
 #define CAMY 80;
 #define START 0
 #define END 1
-#define TANKSCALE 0.2
+#define TANKSCALE 0.25
 #define OUTLINE 4.0f
 #define MAPEDGEX 40
 #define MAPEDGEY 70
-#define BODY 4.5
+#define BODY 4.75
 #define CUBESIZE 6.0
 #define SPAWN 45
-#define TREESCALE 25
+#define TREESCALE 30
 #define SHELLSCALE 0.045
 #define SHELLSPEED 40000
 #define ROCKTHRESH 25
@@ -54,6 +54,6 @@ const int GLUIFALSE = { false };
 #define PLANSIZE 3
 #define AIMTHRESH 1
 #define AIENGAGE 30
-#define GRASSGRAINX 15
-#define GRASSGRAINY 27
+#define GRASSGRAINX 160
+#define GRASSGRAINY 140
 #endif

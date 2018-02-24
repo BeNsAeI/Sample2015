@@ -2418,8 +2418,6 @@ void Display()
 		PatternGrass->Use();
 		PatternGrass->SetUniformVariable((char *)"uKa", (float)0.75);
 		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.25);
-		PatternGrass->SetUniformVariable((char *)"uKs", (float)1);
-		PatternGrass->SetUniformVariable((char *)"uShininess", (float)1);
 
 		float startx = 1+MAPEDGEX + CUBESIZE;
 		float startz = MAPEDGEY + CUBESIZE;
@@ -2427,8 +2425,8 @@ void Display()
 		float endz = (-MAPEDGEY - CUBESIZE);
 		float lengthx = startx - endx;
 		float lengthz = startz - endz;
-		int grainX = GRASSGRAINX;
-		int grainY = GRASSGRAINY;
+		int grainX = GRASSGRAINX*5;
+		int grainY = GRASSGRAINY*5;
 		glEnable(GL_NORMALIZE);
 		glBegin(GL_QUADS);
 		glPushMatrix();
@@ -2457,6 +2455,21 @@ void Display()
 			(void*)0            // array buffer offset
 		);
 		// draw map
+		Pattern->Use();
+		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
+		Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
+		Pattern->SetUniformVariable((char *)"uX", (float)20);
+		Pattern->SetUniformVariable((char *)"uY", (float)50);
+		Pattern->SetUniformVariable((char *)"uZ", (float)35);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
 		for (int j = 0; j < 14; j++)
 		{
 			for (int i = 0; i < 24; i++)
@@ -2520,11 +2533,6 @@ void Display()
 					PatternTree->Use();
 					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
 					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
-					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
-					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
-					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
-					PatternTree->SetUniformVariable((char *)"uMultG", (float)1.25);
-					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
@@ -2576,11 +2584,9 @@ void Display()
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)1);
 		Pattern->SetUniformVariable((char *)"uKd", (float)0.125);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.5);
 		Pattern->SetUniformVariable((char *)"uX", (float)-20);
 		Pattern->SetUniformVariable((char *)"uY", (float)5);
 		Pattern->SetUniformVariable((char *)"uZ", (float)-10);
-		Pattern->SetUniformVariable((char *)"uShininess", (float)0.25);
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
@@ -2619,8 +2625,6 @@ void Display()
 		PatternGrass->Use();
 		PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
 		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
-		PatternGrass->SetUniformVariable((char *)"uKs", (float)0);
-		PatternGrass->SetUniformVariable((char *)"uShininess", (float)0.0005);
 
 		float startx = MAPEDGEX + CUBESIZE;
 		float startz = MAPEDGEY + CUBESIZE;
@@ -2703,11 +2707,9 @@ void Display()
 					Pattern->Use();
 					Pattern->SetUniformVariable((char *)"uKa", (float)1);
 					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-					Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
 					Pattern->SetUniformVariable((char *)"uX", (float)20);
 					Pattern->SetUniformVariable((char *)"uY", (float)50);
 					Pattern->SetUniformVariable((char *)"uZ", (float)35);
-					Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2748,11 +2750,9 @@ void Display()
 					Pattern->Use();
 					Pattern->SetUniformVariable((char *)"uKa", (float)1);
 					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-					Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
 					Pattern->SetUniformVariable((char *)"uX", (float)20);
 					Pattern->SetUniformVariable((char *)"uY", (float)50);
 					Pattern->SetUniformVariable((char *)"uZ", (float)35);
-					Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2808,11 +2808,9 @@ void Display()
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)1);
 		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
 		Pattern->SetUniformVariable((char *)"uX", (float)20);
 		Pattern->SetUniformVariable((char *)"uY", (float)50);
 		Pattern->SetUniformVariable((char *)"uZ", (float)35);
-		Pattern->SetUniformVariable((char *)"uShininess", (float)0.5);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1, 90);
@@ -2856,7 +2854,6 @@ void Display()
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)1);
 		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
 		Pattern->SetUniformVariable((char *)"uX", (float)20);
 		Pattern->SetUniformVariable((char *)"uY", (float)50);
 		Pattern->SetUniformVariable((char *)"uZ", (float)35);
@@ -2919,7 +2916,6 @@ void Display()
 		PatternCamo->Use();
 		PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
 		PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-		PatternCamo->SetUniformVariable((char *)"uKs", (float)0.25);
 		PatternCamo->SetUniformVariable((char *)"uX", (float)20);
 		PatternCamo->SetUniformVariable((char *)"uY", (float)50);
 		PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
@@ -2927,7 +2923,6 @@ void Display()
 		PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
 		PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
 
-		PatternCamo->SetUniformVariable((char *)"uShininess", (float)0.25);
 		PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
 		PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
 		
@@ -2974,11 +2969,9 @@ void Display()
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
 		Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.125);
 		Pattern->SetUniformVariable((char *)"uX", (float)20);
 		Pattern->SetUniformVariable((char *)"uY", (float)50);
 		Pattern->SetUniformVariable((char *)"uZ", (float)35);
-		Pattern->SetUniformVariable((char *)"uShininess", (float)1);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
 			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
@@ -3056,8 +3049,6 @@ void Display()
 					PatternTree->Use();
 					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
 					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
-					PatternTree->SetUniformVariable((char *)"uKs", (float)0.125);
-					PatternTree->SetUniformVariable((char *)"uShininess", (float)1);
 					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
 					PatternTree->SetUniformVariable((char *)"uMultG", (float)1.25);
 					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
@@ -3139,7 +3130,6 @@ void Display()
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)1);
 		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uKs", (float)0.25);
 		Pattern->SetUniformVariable((char *)"uX", (float)20);
 		Pattern->SetUniformVariable((char *)"uY", (float)50);
 		Pattern->SetUniformVariable((char *)"uZ", (float)35);

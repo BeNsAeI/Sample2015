@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 130
 uniform float uKa, uKd,uAd,uBd, uTol,uNoiseFreq,uNoiseAmp,uAlpha,uTime; // coefficients of each type of lighting
 uniform float uShininess; // specular exponent
 uniform sampler3D Noise3;

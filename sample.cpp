@@ -22,9 +22,18 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+
+#ifdef WIN32
 #include <al.h>
 #include <alc.h>
 #include <alut.h>
+#endif
+
+#ifndef WIN32
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alut.h>
+#endif
 
 #include "Map.h"
 #include "AI.h"
@@ -2493,14 +2502,21 @@ void Display()
 					//DO TOON SHADING
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					glShadeModel(GL_FLAT);
-					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-					glColor3f(0.0f, 0.0f, 0.0f);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
+					Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
+					Pattern->SetUniformVariable((char *)"uX", (float)20);
+					Pattern->SetUniformVariable((char *)"uY", (float)50);
+					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
-					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);/**/
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);/**/
+					Pattern->Use(0);
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -3009,14 +3025,21 @@ void Display()
 					//DO TOON SHADING
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-					glShadeModel(GL_FLAT);
-					glEnable(GL_LIGHTING);
-					SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-					glColor3f(0.0f, 0.0f, 0.0f);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
+					Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
+					Pattern->SetUniformVariable((char *)"uX", (float)20);
+					Pattern->SetUniformVariable((char *)"uY", (float)50);
+					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
-					glDisable(GL_LIGHT1);
-					glDisable(GL_LIGHTING);/**/
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);/**/
+					Pattern->Use(0);
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{

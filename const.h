@@ -3,6 +3,13 @@
 #define CONST_H
 
 const int GLUIFALSE = { false };
+
+// Platfoarm compatibility
+#ifndef WIN32
+#define <unistd.h>
+#define Sleep usleep
+#endif
+
 #define ESCAPE		0x1b
 #define SPACEBAR	32
 #define ENTER 13

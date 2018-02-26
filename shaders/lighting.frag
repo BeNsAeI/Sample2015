@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 130
 uniform float uKa, uKd, uKs; // coefficients of each type of lighting
 uniform float uShininess; // specular exponent
 uniform sampler2D ImageUnit;
@@ -7,7 +7,6 @@ in vec3 gN; // normal vector
 in vec3 gL; // vector from point to light
 in vec4 gColor;
 
-layout(location = 0) out vec3 color;
 
 void
 main( )

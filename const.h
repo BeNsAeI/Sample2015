@@ -17,7 +17,7 @@ const int GLUIFALSE = { false };
 #define BODY 4.75
 #define CUBESIZE 6.0
 #define SPAWN 45
-#define TREESCALE 30
+#define TREESCALE 25
 #define SHELLSCALE 0.045
 #define SHELLSPEED 40000
 #define ROCKTHRESH 25
@@ -56,4 +56,9 @@ const int GLUIFALSE = { false };
 #define AIENGAGE 30
 #define GRASSGRAINX 160
 #define GRASSGRAINY 140
+#define MENUMULTIPLIER 6
+#define MENUXOFFSET 5
+#define MENUZOFFSET 0
+#define MENUYOFFSET -0.6
+#define BUSHSCALE 2
 #endif

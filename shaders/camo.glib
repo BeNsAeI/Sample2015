@@ -8,15 +8,13 @@ Fragment camo.frag
 Program camo   					\
 		uKa <0. .5 1.>			\
 		uKd <0. .5 1.>			\
-		uKs <0. .125 1.>		\
 		uAd <0. .25 1.>			\
 		uBd <0. .25 1.>			\
-		uTol <0. 1 0.5>		\
-		uShininess <0 0.25 100> \
+		uTol <0. 0 5>			\
 		uNoiseAmp <0. 0.75 1.>	\
 		uNoiseFreq <0 0.15 10>	\
 		uAlpha <0. 0 1.>		\
-		uTime <0. 1. 1.>
+		uTime <0. 1. 10.>
 rotate 35 1 0 0
 rotate 135 0 1 0
 rotate -90 1 0 0

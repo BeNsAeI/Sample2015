@@ -1433,9 +1433,9 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		PatternTree->SetUniformVariable((char *)"uMultB", (float)1);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
+		glScalef(TREESCALE / 2, TREESCALE / 2, TREESCALE / 2);
 		glRotatef(angle, 0, 1, 0);
-		glTranslatef(12, 0, 4.5);
-		glScalef(TREESCALE/2, TREESCALE/2, TREESCALE/2);
+		glTranslatef(0.75, 0, 0.25);
 		beginPoint = trees[7][START];
 		endPoint = trees[7][END] - trees[7][START];
 		glPushMatrix();
@@ -1447,7 +1447,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	}
-	if (index % 2 != 1 && index != 6)
+	if (index < 4)
 	{
 		PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
 		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
@@ -1456,7 +1456,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glTranslatef(X, 0, Y);	//movement
 		glRotatef(angle, 0, 1, 0);
 		glTranslatef(2, 0.5, 5);
-		glScalef(0.5, 0.65, 0.5);
+		glScalef(BUSHSCALE, BUSHSCALE/2, BUSHSCALE);
 		beginPoint = grass[START];
 		endPoint = grass[END] - grass[START];
 		glPushMatrix();
@@ -1598,24 +1598,20 @@ void drawMine(float X, float Y)
 }
 void drawGrass(float X, float Y)
 {
-	int beginPoint;
-	int endPoint;
-
+	PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
+	PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
+	PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 	glPushMatrix();
-
-	glTranslatef(X, 1, Y);
+	glTranslatef(X, 0, Y);	//movement
+	glTranslatef(2, 0.5, 5);
+	glScalef(0.5, 0.65, 0.5);
+	int	beginPoint = grass[START];
+	int endPoint = grass[END] - grass[START];
+	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
-	glScalef(1.5, 1.5, 1.5);
-
-	beginPoint = mineCrate[START];
-	endPoint = mineCrate[END] - mineCrate[START];
-
-	glColor3f(1, 0.25, 0);
-	glPushMatrix();
-
+	glColor3f(0, 0.5, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
-
 	glPopMatrix();
 }
 void drawSpark(float X, float Y, float angle,float timeIndex)
@@ -2418,15 +2414,14 @@ void Display()
 		PatternGrass->Use();
 		PatternGrass->SetUniformVariable((char *)"uKa", (float)0.75);
 		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.25);
-
-		float startx = 1+MAPEDGEX + CUBESIZE;
-		float startz = MAPEDGEY + CUBESIZE;
-		float endx = (-MAPEDGEX - CUBESIZE);
-		float endz = (-MAPEDGEY - CUBESIZE);
+		float startx = 1+MAPEDGEX/2 + CUBESIZE;
+		float startz = MAPEDGEY/2 + CUBESIZE;
+		float endx = (-MAPEDGEX/2 - CUBESIZE);
+		float endz = (-MAPEDGEY/2 - CUBESIZE);
 		float lengthx = startx - endx;
 		float lengthz = startz - endz;
-		int grainX = GRASSGRAINX*5;
-		int grainY = GRASSGRAINY*5;
+		int grainX = GRASSGRAINX*MENUMULTIPLIER;
+		int grainY = GRASSGRAINY*MENUMULTIPLIER;
 		glEnable(GL_NORMALIZE);
 		glBegin(GL_QUADS);
 		glPushMatrix();
@@ -2435,10 +2430,10 @@ void Display()
 		{
 			for (int j = 0; j < grainY; j++)
 			{
-				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
-				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz- MENUZOFFSET - j*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
 			}
 		}
 		glPopMatrix();
@@ -2643,10 +2638,10 @@ void Display()
 		{
 			for (int j = 0; j < grainY; j++)
 			{
-				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
-				glVertex3f(startx - i*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, 0, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
+				glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+				glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
 			}
 		}
 		glPopMatrix();

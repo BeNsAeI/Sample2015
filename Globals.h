@@ -312,4 +312,13 @@
 	static int zorder[] = {
 		1, 2, 3, 4, -5, 6
 	};
+
+	//OS Compatibility
+#ifndef WIN32
+	char * itoa(int i, char * buffer, int radix)
+	{
+		snprintf(buffer, sizeof(buffer), "%d", i);
+		return buffer;
+	}
+#endif
 #endif

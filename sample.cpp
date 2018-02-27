@@ -14,6 +14,7 @@
 #endif
 #ifndef WIN32
 #include <GL/glew.h>
+#include <stdlib.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>

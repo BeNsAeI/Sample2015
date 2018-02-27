@@ -6,7 +6,7 @@ const int GLUIFALSE = { false };
 
 // Platfoarm compatibility
 #ifndef WIN32
-#define <unistd.h>
+#include <unistd.h>
 #define Sleep usleep
 #endif
 

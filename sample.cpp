@@ -9,7 +9,12 @@
 #include <windows.h>
 #pragma warning(disable:4996)
 #endif
+#ifdef WIN32
 #include "glew.h"
+#endif
+#ifndef WIN32
+#include <GL/glew.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "glut.h"
@@ -4069,7 +4074,7 @@ void InitGraphics()
 
 	// init glew (a window must be open to do this):
 
-#ifdef WIN32
+
 	GLenum err = glewInit();
 	if (err != GLEW_OK)
 	{
@@ -4078,7 +4083,7 @@ void InitGraphics()
 	else
 		fprintf(stderr, "GLEW initialized OK\n");
 	fprintf(stderr, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-#endif
+
 	Pattern = new GLSLProgram();
 	PatternGrass = new GLSLProgram();
 	PatternTree = new GLSLProgram();

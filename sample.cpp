@@ -2430,8 +2430,6 @@ void Display()
 	if (res && isInMenu)
 	{
 		PatternGrass->Use();
-		PatternGrass->SetUniformVariable((char *)"uKa", (float)0.75);
-		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.25);
 		float startx = 1+MAPEDGEX/2 + CUBESIZE;
 		float startz = MAPEDGEY/2 + CUBESIZE;
 		float endx = (-MAPEDGEX/2 - CUBESIZE);
@@ -2648,34 +2646,8 @@ void Display()
 	if (res && !isInMenu)
 	{
 		PatternGrass->Use();
-		PatternGrass->SetUniformVariable((char *)"uKa", (float)1);
-		PatternGrass->SetUniformVariable((char *)"uKd", (float)0.5);
-
-		float startx = MAPEDGEX + CUBESIZE;
-		float startz = MAPEDGEY + CUBESIZE;
-		float endx = (-MAPEDGEX - CUBESIZE);
-		float endz = (-MAPEDGEY - CUBESIZE);
-		float lengthx = startx - endx;
-		float lengthz = startz - endz;
-		int grainX = GRASSGRAINX;
-		int grainY = GRASSGRAINY;
-		glEnable(GL_NORMALIZE);
-		glBegin(GL_QUADS);
-		glPushMatrix();
-		//SetMaterial(0.05, 0.05, 0, 1.0);
-		glColor3f(0.1, 0.1, 0.0);
-		for (int i = 0; i < grainX; i++)
-		{
-			for (int j = 0; j < grainY; j++)
-			{
-				glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
-				glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
-			}
-		}
-		glPopMatrix();
-		glEnd();
+		//draw grass
+		glCallList(BoxList);
 		PatternGrass->Use(0);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
@@ -3470,27 +3442,13 @@ void Display()
 	}
 
 	if (DepthFightingOn != 0)
-	{
-		glPushMatrix();
-		glRotatef(90., 0., 1., 0.);
-		glCallList(BoxList);
-		glPopMatrix();
-	}
-
 
 	// draw some gratuitous text that just rotates on top of the scene:
 
 	glDisable(GL_DEPTH_TEST);
 	if (isInMenu)
 	{
-		if (loading)
-		{
-			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
-			DoRasterString(0, 10, 0, (char *)"Loading");
-		}
-		// select level:
-
-		// level list
+		
 
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
@@ -3814,11 +3772,7 @@ void Display()
 		else
 			glColor3f(0, 0, 1);
 		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
-		if (loading)
-		{
-			glColor3f(1, 0 - sin(Time * 1000), 0 - sin(Time * 1000));
-			DoRasterString(0, 10, 0, (char *)"Loading");
-		}
+		
 		// draw some gratuitous text that is fixed on the screen:
 		//
 		// the projection matrix is reset to define a scene whose
@@ -4552,6 +4506,33 @@ void InitLists()
 	BoxList = glGenLists(1);
 	glNewList(BoxList, GL_COMPILE);
 	// Random Objects placed here (polyStack)
+
+
+	//Grass
+	float startx = MAPEDGEX + CUBESIZE;
+	float startz = MAPEDGEY + CUBESIZE;
+	float endx = (-MAPEDGEX - CUBESIZE);
+	float endz = (-MAPEDGEY - CUBESIZE);
+	float lengthx = startx - endx;
+	float lengthz = startz - endz;
+	int grainX = GRASSGRAINX;
+	int grainY = GRASSGRAINY;
+	glBegin(GL_QUADS);
+	glPushMatrix();
+	glColor3f(0.1, 0.1, 0.0);
+	for (int i = 0; i < grainX; i++)
+	{
+		for (int j = 0; j < grainY; j++)
+		{
+			glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
+			glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+			glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+			glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
+		}
+	}
+	glPopMatrix();
+	glEnd();
+
 	glEndList();
 
 	// Generate the textures

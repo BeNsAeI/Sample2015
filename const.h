@@ -64,7 +64,7 @@ const int GLUIFALSE = { false };
 #define AIENGAGE 30
 #define GRASSGRAINX 160
 #define GRASSGRAINY 140
-#define MENUMULTIPLIER 6
+#define MENUMULTIPLIER 4
 #define MENUXOFFSET 5
 #define MENUZOFFSET 0
 #define MENUYOFFSET -0.6

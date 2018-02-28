@@ -2247,8 +2247,8 @@ void KeyHandler() {
 			for (int i = 0; i < 20; i++)
 			{
 				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180);
-				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
 				smokeDurBuffer[smokeIndex] = 0.015;
 				smokeAngleBuffer[smokeIndex] = rand() % 360;
 				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
@@ -2280,8 +2280,8 @@ void KeyHandler() {
 			for (int i = 0; i < 20; i++)
 			{
 				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180);
-				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180);
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
 				smokeDurBuffer[smokeIndex] = 0.015;
 				smokeAngleBuffer[smokeIndex] = rand() % 360;
 				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
@@ -3220,7 +3220,7 @@ void Display()
 				glColor3f(.5, .5, .5);
 				// Render the object
 				PatternSilh->Use();
-				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
+				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)), Shells[i].angle);
 				PatternSilh->Use(0);
 				// Set the polygon mode to be filled triangles 
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -3228,45 +3228,45 @@ void Display()
 				//glEnable(GL_LIGHTING);
 				SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 				glColor3f(0.0f, 0.0f, 0.0f);
-				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)), Shells[i].angle);
+				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)), Shells[i].angle);
 				glPopAttrib();
 				glDisable(GL_LIGHT1);
 				glDisable(GL_LIGHTING);
 				// Calculate trajectory:
 				if (
-					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < IS3XY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > IS3XY[0] - BODY)) &&
-					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < IS3XY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > IS3XY[1] - BODY)) &&
+					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) < IS3XY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) > IS3XY[0] - BODY)) &&
+					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) < IS3XY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) > IS3XY[1] - BODY)) &&
 					Shells[i].shooterId == ABRAMID
 					)
 				{
 					//spark
 					//Dammage:
-					IS3HP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)));
+					IS3HP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)));
 					// Bounce!
-					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180))) < BOUNCETHRESH)
+					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0))) < BOUNCETHRESH)
 					{
 						alSourcePlay(Sources[9]);
 						if (IS3XY[0] > Shells[i].x)
 						{
 							if (IS3XY[1] > Shells[i].y)
 								if (IS3XY[0] - Shells[i].x >= IS3XY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
 								else
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 							else
 								if (IS3XY[0] - Shells[i].x >= IS3XY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 								else
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
@@ -3295,39 +3295,39 @@ void Display()
 					}
 				}
 				if (
-					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < AbramXY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > AbramXY[0] - BODY)) &&
-					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < AbramXY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > AbramXY[1] - BODY)) &&
+					((Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) < AbramXY[0] + BODY) && (Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) > AbramXY[0] - BODY)) &&
+					((Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) < AbramXY[1] + BODY) && (Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) > AbramXY[1] - BODY)) &&
 					Shells[i].shooterId == IS3ID
 					)
 				{
 					//spark
 					//Dammage:
-					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)));
+					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)));
 					// Bounce!
-					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180))) < BOUNCETHRESH)
+					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0))) < BOUNCETHRESH)
 					{
 						alSourcePlay(Sources[9]);
 						if (AbramXY[0] > Shells[i].x)
 						{
 							if (AbramXY[1] > Shells[i].y)
 								if (AbramXY[0] - Shells[i].x >= AbramXY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
 								else
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 							else
 								if (AbramXY[0] - Shells[i].x >= AbramXY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 								else
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180)) >= 0)
+									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
@@ -3356,18 +3356,18 @@ void Display()
 					}
 				}
 				if (
-					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) < -MAPEDGEX) ||
-					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180)) > MAPEDGEX) ||
-					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) < -MAPEDGEY) ||
-					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180)) > MAPEDGEY)
+					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) < -MAPEDGEX) ||
+					(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)) > MAPEDGEX) ||
+					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) < -MAPEDGEY) ||
+					(Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)) > MAPEDGEY)
 					)
 					Shells[i].active = false;
 				int tmpi;
 				int tmpj;
 				//CrateCollisionModel
 				int cratecheck = CrateCollisionModel(Shells[i].x, Shells[i].y,
-					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
-					(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
+					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0),
+					(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0),
 					-1
 				);
 				if (cratecheck != CRATECAP)
@@ -3377,8 +3377,8 @@ void Display()
 				}
 				if (
 					MapCollisionModel(Shells[i].x, Shells[i].y,
-					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180),
-						(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180),
+					(Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0),
+						(Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0),
 						-1,
 						0,
 						&tmpi,

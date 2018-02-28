@@ -210,7 +210,7 @@
 	std::string lastMap = " ";
 	int AbramScore = 0;
 	int IS3Score = 0;
-	char scoreText[20];
+	char scoreText[5];
 	bool ScoreSet = true;
 
 	bool keyBuffer[256];

@@ -1266,9 +1266,10 @@ void drawTreeCube(float X, float Y,float angle, int index)
 	case 0:
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(-8.5, -0.5, 6);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(-0.325, 0, 0.275);
+			
 			beginPoint = trees[0][START];
 			endPoint = 3960 - 2250;
 			glPushMatrix();
@@ -1289,12 +1290,11 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	case 1:
-
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(1, -0.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0, 0, 0.15);
 			beginPoint = trees[1][START];
 			endPoint = 5688 - 2022;
 			glPushMatrix();
@@ -1317,9 +1317,10 @@ void drawTreeCube(float X, float Y,float angle, int index)
 
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(5.5, -0.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glScalef(1.25, 1.25, 1.25);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0.22, 0, 0.2);
 			beginPoint = trees[2][START];
 			endPoint = 4398 - 3525;
 			glPushMatrix();
@@ -1343,9 +1344,10 @@ void drawTreeCube(float X, float Y,float angle, int index)
 
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(8.5, -0.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glScalef(1.5, 1.5, 1.5);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0.4, 0, 0.2);
 			beginPoint = trees[3][START];
 			endPoint = 3522 - 3000;
 			glPushMatrix();
@@ -1369,9 +1371,9 @@ void drawTreeCube(float X, float Y,float angle, int index)
 
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(-6, 10.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(-0.24, 0.42, 0.21);
 			beginPoint = trees[4][START];
 			endPoint = 4752 - 3816;
 			glPushMatrix();
@@ -1395,9 +1397,9 @@ void drawTreeCube(float X, float Y,float angle, int index)
 
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(0, 10.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0, 0.42, 0.21);
 			beginPoint = trees[5][START];
 			endPoint = 6105 - 4668;
 			glPushMatrix();
@@ -1420,9 +1422,9 @@ void drawTreeCube(float X, float Y,float angle, int index)
 	case 6:
 		glPushMatrix();
 			glTranslatef(X, 0, Y);	//movement
-			glRotatef(angle, 0, 1, 0);
-			glTranslatef(6, 10.5, 4);
 			glScalef(TREESCALE, TREESCALE, TREESCALE);
+			glRotatef(angle, 0, 1, 0);
+			glTranslatef(0.24, 0.42, 0.21);
 			beginPoint = trees[6][START];
 			endPoint = 6030 - 4944;
 			glPushMatrix();
@@ -1448,7 +1450,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		PatternTree->SetUniformVariable((char *)"uMultB", (float)1);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
-		glScalef(TREESCALE / 2, TREESCALE / 2, TREESCALE / 2);
+		glScalef(ROCKSCALE, ROCKSCALE, ROCKSCALE);
 		glRotatef(angle, 0, 1, 0);
 		glTranslatef(0.75, 0, 0.25);
 		beginPoint = trees[7][START];
@@ -1462,7 +1464,7 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	}
-	if (index < 4)
+	if (index > 1 && index < 7)
 	{
 		PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
 		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
@@ -2575,6 +2577,7 @@ void Display()
 		glColor3f(.75, .75, .75);
 		// Render the object
 		PatternSilh->Use();
+		//BehnamSaeedi
 		switch (backgroundRand)
 		{
 		case 0:
@@ -3771,13 +3774,13 @@ void Display()
 			DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
 		}
 
-		itoa(AbramScore, scoreText, 16);
+		itoa(AbramScore, scoreText, 10);
 		if(ScoreSet)
 			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
 		else
 			glColor3f(1, 1, 0);
 		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
-		itoa(IS3Score, scoreText, 16);
+		itoa(IS3Score, scoreText, 10);
 		if (ScoreSet)
 			glColor3f(0, 0, 1 - sin(Time * 1000));
 		else
@@ -4199,6 +4202,9 @@ static void list_audio_devices(const ALCchar *devices)
 }
 void InitLists()
 {
+	// List here
+
+	// Setup the sound
 	float dx = BOXSIZE / 2.f;
 	float dy = BOXSIZE / 2.f;
 	float dz = BOXSIZE / 2.f;

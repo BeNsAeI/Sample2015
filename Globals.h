@@ -179,6 +179,13 @@
 	float AbramSmoke = SMOKECOUNT;
 	float IS3Smoke = SMOKECOUNT;
 
+	//texture
+	#include "bmptotexture.h"
+	int width, height;
+	GLuint tex0 = 1;
+	BTT myTexture;
+	unsigned char *Texture = myTexture.BmpToTexture("textures\\camo.bmp", &width, &height);
+
 	GLSLProgram *Pattern;
 	GLSLProgram *PatternGrass;
 	GLSLProgram *PatternTree;

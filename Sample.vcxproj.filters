@@ -33,6 +33,12 @@
     <ClCompile Include="SimpleAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bmptotexture.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bmptotexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="loader.h">

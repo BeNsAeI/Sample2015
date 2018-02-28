@@ -1,11 +1,7 @@
 
-0(10) : warning C7533: global variable gl_Vertex is deprecated after version 120
-0(11) : warning C7533: global variable gl_ModelViewMatrix is deprecated after version 120
-0(12) : warning C7533: global variable gl_NormalMatrix is deprecated after version 120
-0(12) : warning C7533: global variable gl_Normal is deprecated after version 120
-0(14) : error C1068: too much data in type constructor
-0(14) : error C1115: unable to find compatible overloaded function "dot(vec2)"
-0(14) : error C0000: syntax error, unexpected ';', expecting ')' at token ";"
-0(15) : warning C7533: global variable gl_Color is deprecated after version 120
-0(16) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120
+0(44) : error C7623: implicit narrowing of type from "vec3" to "float"
+0(44) : error C0000: syntax error, unexpected identifier, expecting ',' or ';' at token "z"
+0(46) : error C7502: OpenGL does not allow type suffix 'x' on constant literals in versions below 120
+0(46) : error C7623: implicit narrowing of type from "vec3" to "float"
+0(84) : warning C7533: global variable gl_FragColor is deprecated after version 120
 

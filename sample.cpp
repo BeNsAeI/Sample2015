@@ -46,6 +46,7 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 #include "Globals.h"
+#include "bmptotexture.h"
 
 #ifdef WIN32
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
@@ -2942,10 +2943,37 @@ void Display()
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glShadeModel(GL_FLAT);
+		//glShadeModel(GL_FLAT);
 		//glEnable(GL_LIGHTING);
 
-		//SetPointLight(GL_LIGHT0, 20, 50, 35, 0.75, 0.75, 0.75);
+		//SetPointLight(GL_LIGHT0, 20, 50, 35, 0.25, 0.25, 0.25);
+
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		/*glActiveTexture(GL_TEXTURE0);
+		glEnable(GL_TEXTURE_2D);
+		glGenTextures(1, &tex0);
+		glBindTexture(GL_TEXTURE_2D, tex0);
+		glBindTexture(GL_TEXTURE0, tex0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D,
+			0,
+			GL_RGB,
+			width,
+			height,
+			0,
+			GL_RGB,
+			GL_UNSIGNED_BYTE,
+			Texture
+		);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, tex0);*/
+
 		PatternCamo->Use();
 		PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
 		PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
@@ -2959,7 +2987,7 @@ void Display()
 		PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
 		PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
 		
-		PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(5000*Time)));
+		PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000*Time)));
 
 		PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 
@@ -2974,7 +3002,7 @@ void Display()
 		}
 		else
 		{
-			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.5);
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		}
@@ -2987,17 +3015,17 @@ void Display()
 		}
 		else
 		{
-			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.5);
+			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		}
-		//PatternCamo->Use(0);
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
 		PatternCamo->Use(0);
 		//glDisable(GL_LIGHT0);
 		//glDisable(GL_LIGHTING);
+		//glDisable(GL_TEXTURE_2D);
 
 		Pattern->Use();
 		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
@@ -4037,7 +4065,6 @@ void InitGraphics()
 {
 	// request the display modes:
 	// ask for red-green-blue-alpha color, double-buffering, and z-buffering:
-
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 
 	// set the initial window configuration:
@@ -4527,6 +4554,8 @@ void InitLists()
 	// Random Objects placed here (polyStack)
 	glEndList();
 
+	// Generate the textures
+	
 
 	// create the axes:
 

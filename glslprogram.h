@@ -57,7 +57,6 @@ private:
 	bool			IncludeGstap;
 	GLenum			InputTopology;
 	GLenum			OutputTopology;
-	GLuint			Program;
 	char *			TCfile;
 	GLuint			TCshader;
 	char *			TEfile;
@@ -100,6 +99,7 @@ public:
 	void	SetAttributeVariable(char *, float);
 	void	SetAttributeVariable(char *, float, float, float);
 	void	SetAttributeVariable(char *, float[3]);
+	GLuint			Program;
 #ifdef VEC3_H
 	void	SetAttributeVariable(char *, Vec3&);
 #endif

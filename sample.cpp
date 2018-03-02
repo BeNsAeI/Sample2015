@@ -1224,6 +1224,7 @@ void drawCube(float X, float Y, float Z,float r,float g, float b)
 	//SetMaterial(0.25, 0.25, 0.25, 1.0);
 	glColor3f(0.25, 0.25, 0.25);
 	SetMaterial(0.25, 0.25, 0.25, 1.0);
+	glRotated(-90, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 2
 
@@ -1233,24 +1234,28 @@ void drawCube(float X, float Y, float Z,float r,float g, float b)
 	glPushMatrix();				// 3
 	glTranslatef(-0.55, -0.55, 0);
 	glScalef(0.48, 0.48,.95);
+	glRotated(-90, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 3
 
 	glPushMatrix();				// 4
 	glTranslatef(0.55, -0.55, 0);
 	glScalef(0.48, 0.48, .95);
+	glRotated(-90, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 4
 	
 	glPushMatrix();				// 5
 	glTranslatef(0, 0.55, -0.55);
 	glScalef(.95, 0.48, 0.48);
+	glRotated(-90, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 5
 
 	glPushMatrix();				// 6
 	glTranslatef(0, 0.55, 0.55);
 	glScalef(.95, 0.48, 0.48);
+	glRotated(-90, 1, 0, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();				// 6
 
@@ -1446,9 +1451,6 @@ void drawTreeCube(float X, float Y,float angle, int index)
 		glPopMatrix();
 		break;
 	case 7:
-		PatternTree->SetUniformVariable((char *)"uMultR", (float)1);
-		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
-		PatternTree->SetUniformVariable((char *)"uMultB", (float)1);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
 		glScalef(ROCKSCALE, ROCKSCALE, ROCKSCALE);
@@ -1467,9 +1469,6 @@ void drawTreeCube(float X, float Y,float angle, int index)
 	}
 	if (index > 1 && index < 7)
 	{
-		PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
-		PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
-		PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 		glPushMatrix();
 		glTranslatef(X, 0, Y);	//movement
 		glRotatef(angle, 0, 1, 0);
@@ -1616,9 +1615,6 @@ void drawMine(float X, float Y)
 }
 void drawGrass(float X, float Y)
 {
-	PatternTree->SetUniformVariable((char *)"uMultR", (float)3);
-	PatternTree->SetUniformVariable((char *)"uMultG", (float)1);
-	PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 	glPushMatrix();
 	glTranslatef(X, 0, Y);	//movement
 	glTranslatef(2, 0.5, 5);
@@ -2322,10 +2318,6 @@ void Display()
 		if (!clicked)
 			loading = true;
 	}
-	if (DebugOn != 0)
-	{
-		fprintf(stderr, "Display\n");
-	}
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	// set which window we want to do the graphics into:
@@ -2337,12 +2329,13 @@ void Display()
 
 	glDrawBuffer(GL_BACK);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
 
-	if (DepthBufferOn != 0)
-		glEnable(GL_DEPTH_TEST);
+	/*if (DepthBufferOn != 0)
+		
 	else
 		glDisable(GL_DEPTH_TEST);
-
+		*/
 
 	// specify shading to be flat:
 
@@ -2366,9 +2359,9 @@ void Display()
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	if (WhichProjection == ORTHO)
+	/*if (WhichProjection == ORTHO)
 		glOrtho(-3., 3., -3., 3., 0.1, 1000.);
-	else
+	else*/
 		gluPerspective(90., 1., 0.1, 1000.);
 
 
@@ -2391,15 +2384,11 @@ void Display()
 
 
 	// uniformly scale the scene:
-
-	if (Scale < MINSCALE)
-		Scale = MINSCALE;
+	//if (Scale < MINSCALE)
+	//	Scale = MINSCALE;
 	glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
-
-
 	// set the fog parameters:
-
-	if (DepthCueOn != 0)
+	/*if (DepthCueOn != 0)
 	{
 		glFogi(GL_FOG_MODE, FOGMODE);
 		glFogfv(GL_FOG_COLOR, FOGCOLOR);
@@ -2409,18 +2398,15 @@ void Display()
 		glEnable(GL_FOG);
 	}
 	else
-	{
+	{*/
 		glDisable(GL_FOG);
-	}
-
-
+//	}
 	// possibly draw the axes:
-
-	if (AxesOn == 0)
+	/*if (AxesOn == 0)
 	{
 		glColor3fv(&Colors[WhichColor][0]);
 		glCallList(AxesList);
-	}
+	}*/
 	// since we are using glScalef( ), be sure normals get unitized:
 
 	// draw the current object:
@@ -2467,11 +2453,6 @@ void Display()
 		);
 		// draw map
 		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
 			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
@@ -2516,11 +2497,6 @@ void Display()
 					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
 					//glColor3f(0.0f, 0.0f, 0.0f);
 					Pattern->Use();
-					Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
-					Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-					Pattern->SetUniformVariable((char *)"uX", (float)20);
-					Pattern->SetUniformVariable((char *)"uY", (float)50);
-					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
 					//glDisable(GL_LIGHT1);
@@ -2551,8 +2527,6 @@ void Display()
 					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					PatternTree->Use();
-					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
-					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
@@ -2604,40 +2578,76 @@ void Display()
 		//glShadeModel(GL_FLAT);
 		//glEnable(GL_LIGHTING);
 		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
-		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.125);
-		Pattern->SetUniformVariable((char *)"uX", (float)-20);
-		Pattern->SetUniformVariable((char *)"uY", (float)5);
-		Pattern->SetUniformVariable((char *)"uZ", (float)-10);
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
 		switch (backgroundRand)
 		{
 		case 0:
+			Pattern->Use();
 			drawHPCrate(0, 0);
+			Pattern->Use(0);
 			break;
 		case 1:
+			Pattern->Use();
 			drawSmokeCrate(0, 0);
+			Pattern->Use(0);
 			break;
 		case 2:
+			Pattern->Use();
 			drawAmmo(0, 0);
+			Pattern->Use(0);
 			break;
 		case 3:
+			PatternCamo->Use();
+			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
+			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
+			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
+			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
+			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
+
+			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
+			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
+
+			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
+			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
+
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000 * Time)));
+
+			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawIS3(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
 			break;
 		case 4:
+			PatternCamo->Use();
+			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
+			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
+			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
+			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
+			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
+
+			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
+			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
+
+			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
+			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
+
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000 * Time)));
+
+			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawAbram(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
 			break;
 		case 5:
+			Pattern->Use();
 			drawMine(0, 0);
+			Pattern->Use(0);
 			break;
 		}
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
-		Pattern->Use(0);
+		
 		//glDisable(GL_LIGHT2);
 		//glDisable(GL_LIGHTING);
 
@@ -2704,11 +2714,6 @@ void Display()
 					//glEnable(GL_LIGHTING);
 					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					Pattern->Use();
-					Pattern->SetUniformVariable((char *)"uKa", (float)1);
-					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-					Pattern->SetUniformVariable((char *)"uX", (float)20);
-					Pattern->SetUniformVariable((char *)"uY", (float)50);
-					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2749,11 +2754,6 @@ void Display()
 					//glEnable(GL_LIGHTING);
 					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					Pattern->Use();
-					Pattern->SetUniformVariable((char *)"uKa", (float)1);
-					Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-					Pattern->SetUniformVariable((char *)"uX", (float)20);
-					Pattern->SetUniformVariable((char *)"uY", (float)50);
-					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
@@ -2809,11 +2809,6 @@ void Display()
 		//glEnable(GL_LIGHTING);
 		////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1, 90);
@@ -2857,11 +2852,6 @@ void Display()
 		glEnable(GL_LIGHTING);
 		////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		if (AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180, 4);
@@ -3000,11 +2990,6 @@ void Display()
 		//glDisable(GL_TEXTURE_2D);
 
 		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
 			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
@@ -3054,11 +3039,6 @@ void Display()
 					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
 					//glColor3f(0.0f, 0.0f, 0.0f);
 					Pattern->Use();
-					Pattern->SetUniformVariable((char *)"uKa", (float)0.5);
-					Pattern->SetUniformVariable((char *)"uKd", (float)0.5);
-					Pattern->SetUniformVariable((char *)"uX", (float)20);
-					Pattern->SetUniformVariable((char *)"uY", (float)50);
-					Pattern->SetUniformVariable((char *)"uZ", (float)35);
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					glPopAttrib();
 					//glDisable(GL_LIGHT1);
@@ -3089,11 +3069,6 @@ void Display()
 					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
 					glColor3f(0.0f, 0.0f, 0.0f);
 					PatternTree->Use();
-					PatternTree->SetUniformVariable((char *)"uKa", (float)0.75);
-					PatternTree->SetUniformVariable((char *)"uKd", (float)0.5);
-					PatternTree->SetUniformVariable((char *)"uMultR", (float)1.3);
-					PatternTree->SetUniformVariable((char *)"uMultG", (float)1.25);
-					PatternTree->SetUniformVariable((char *)"uMultB", (float)3);
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternTree->Use(0);
 					glPopAttrib();
@@ -3174,11 +3149,6 @@ void Display()
 		//glEnable(GL_LIGHTING);
 		//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 		Pattern->Use();
-		Pattern->SetUniformVariable((char *)"uKa", (float)1);
-		Pattern->SetUniformVariable((char *)"uKd", (float)0.95);
-		Pattern->SetUniformVariable((char *)"uX", (float)20);
-		Pattern->SetUniformVariable((char *)"uY", (float)50);
-		Pattern->SetUniformVariable((char *)"uZ", (float)35);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		for (int i = 0; i < 9; i++)
 		{
@@ -3386,70 +3356,71 @@ void Display()
 					)
 					)
 				{
-					CrateIndex++;	// randomly generate crates
-					if (CrateIndex > CRATECAP)
-						CrateIndex = 0;
-					int wallState = rand() % 8;
-					myMap.isCrate[tmpi][tmpj] = true;
-					switch (wallState)
+					if (myMap.MCM[tmpi][tmpj] && myMap.isSolid[tmpi][tmpj] && myMap.color[tmpi][tmpj][0] != 7)
 					{
-					case 0:
-					case 1:
-					case 2:
-						Crates[CrateIndex].type = AMMOCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
-					case 3:
-						Crates[CrateIndex].type = SMOKECRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
-					case 4:
-						Crates[CrateIndex].type = HPCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
-					case 5:
-						Crates[CrateIndex].type = MINECRATE;// RELOADCRATE;
-						Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
-						Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
-						Crates[CrateIndex].isActive = true;
-						break;
+						CrateIndex++;	// randomly generate crates
+						if (CrateIndex > CRATECAP)
+							CrateIndex = 0;
+						int wallState = rand() % 8;
+						myMap.isCrate[tmpi][tmpj] = true;
+						switch (wallState)
+						{
+						case 0:
+						case 1:
+						case 2:
+							Crates[CrateIndex].type = AMMOCRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						case 3:
+							Crates[CrateIndex].type = SMOKECRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						case 4:
+							Crates[CrateIndex].type = HPCRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						case 5:
+							Crates[CrateIndex].type = MINECRATE;// RELOADCRATE;
+							Crates[CrateIndex].X = myMap.coord[tmpi][tmpj][0];
+							Crates[CrateIndex].Y = myMap.coord[tmpi][tmpj][1];
+							Crates[CrateIndex].isActive = true;
+							break;
+						}
+						for (int i = 0; i < 50; i++)
+						{
+							if (smokeIndex >= 1000)
+								smokeIndex = 0;
+							smokeIDBuffer[smokeIndex] = Time;
+							smokeCoordBuffer[smokeIndex][0] = myMap.coord[tmpi][tmpj][0];
+							smokeCoordBuffer[smokeIndex][1] = myMap.coord[tmpi][tmpj][1];
+							smokeAngleBuffer[smokeIndex] = rand() % 360;
+							smokeDurBuffer[smokeIndex] = 0.02;
+							smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+							smokeActive[smokeIndex] = true;
+							smokeIndex++;
+						}
+						destructionTimeBuffer[tmpi][tmpj] = Time;
+						Shells[i].active = false;
 					}
-					for (int i = 0; i < 50; i++)
-					{
-						if (smokeIndex >= 1000)
-							smokeIndex = 0;
-						smokeIDBuffer[smokeIndex] = Time;
-						smokeCoordBuffer[smokeIndex][0] = myMap.coord[tmpi][tmpj][0];
-						smokeCoordBuffer[smokeIndex][1] = myMap.coord[tmpi][tmpj][1];
-						smokeAngleBuffer[smokeIndex] = rand() % 360;
-						smokeDurBuffer[smokeIndex] = 0.02;
-						smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-						smokeActive[smokeIndex] = true;
-						smokeIndex++;
-					}
-					destructionTimeBuffer[tmpi][tmpj] = Time;
-					Shells[i].active = false;
 				}
 			}
 		}
 		glDisableVertexAttribArray(0);
 	}
 
-	if (DepthFightingOn != 0)
+	//if (DepthFightingOn != 0)
 
 	// draw some gratuitous text that just rotates on top of the scene:
 
 	glDisable(GL_DEPTH_TEST);
 	if (isInMenu)
 	{
-		
-
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

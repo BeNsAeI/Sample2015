@@ -3,7 +3,7 @@ uniform float uKa, uKd,uAd,uBd, uTol,uNoiseFreq,uNoiseAmp,uAlpha,uTime; // coeff
 uniform float uShininess; // specular exponent
 uniform sampler2D Noise2;
 
-in vec2 vST; // texture cords
+//in vec2 vST; // texture cords
 in vec3 vN; // normal vector
 in vec3 vL; // vector from point to light
 in vec4 vColor;

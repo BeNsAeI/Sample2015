@@ -1,7 +1,6 @@
 
-0(44) : error C7623: implicit narrowing of type from "vec3" to "float"
-0(44) : error C0000: syntax error, unexpected identifier, expecting ',' or ';' at token "z"
-0(46) : error C7502: OpenGL does not allow type suffix 'x' on constant literals in versions below 120
-0(46) : error C7623: implicit narrowing of type from "vec3" to "float"
-0(84) : warning C7533: global variable gl_FragColor is deprecated after version 120
+0(8) : warning C7533: global variable gl_Vertex is deprecated after version 120
+0(8) : error C0000: syntax error, unexpected '+', expecting identifier or template identifier or type identifier at token "+"
+0(9) : warning C7533: global variable gl_Color is deprecated after version 120
+0(10) : warning C7533: global variable gl_ModelViewProjectionMatrix is deprecated after version 120
 

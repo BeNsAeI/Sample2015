@@ -69,4 +69,6 @@ const int GLUIFALSE = { false };
 #define MENUZOFFSET 0
 #define MENUYOFFSET -0.6
 #define BUSHSCALE 2
+#define GLFW_JOYSTICK_1   0
+#define GLFW_JOYSTICK_2   1
 #endif

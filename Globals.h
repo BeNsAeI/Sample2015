@@ -283,6 +283,7 @@
 	void	Keyboard(unsigned char, int, int);
 	void	keySpecial(int key, int x, int y);
 	void	keyUp(unsigned char, int, int);
+	void	gamepad();
 	void	MouseButton(int, int, int, int);
 	void	MouseMotion(int, int);
 	void	Reset();
@@ -320,6 +321,10 @@
 	static int zorder[] = {
 		1, 2, 3, 4, -5, 6
 	};
+
+	bool isLocal = true;
+
+
 
 	//OS Compatibility
 #ifndef WIN32

@@ -57,13 +57,13 @@ main( )
 
 	float dist = ds*ds + dt*dt;
 	float a=1.;
-	if(dist < 1 - uTol * 2 * uTime)
+	/*if(dist < 1 - uTol * 2 * uTime)
 	{
 		if (uAlpha==0)
 			discard;
 		else
 			a=uAlpha;
-	}
+	}*/
 	if(dist < 1 - uTol)
 	{
 		myColor=camoColor;

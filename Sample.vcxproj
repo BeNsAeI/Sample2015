@@ -48,8 +48,8 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Program Files\glm-0.9.9-a2;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include\GLFW;C:\Program Files\glm-0.9.9-a2;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -72,14 +72,14 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalUsingDirectories>%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include\GLFW;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>glew32.lib;freeglut.lib;glu32.lib;opengl32.lib;odbc32.lib;odbccp32.lib;OpenAL32.lib;alut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32.lib;freeglut.lib;glu32.lib;opengl32.lib;glfw3dll.lib;odbc32.lib;odbccp32.lib;OpenAL32.lib;alut.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/Sample.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -90,7 +90,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\lib-vc2015;C:\Program Files (x86)\OpenAL 1.1 SDK\libs\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,6 +149,8 @@
   <ItemGroup>
     <ClInclude Include="AI.h" />
     <ClInclude Include="const.h" />
+    <ClInclude Include="glfw3.h" />
+    <ClInclude Include="glfw3native.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="glslprogram.h" />
     <ClInclude Include="loader.h" />

@@ -5,8 +5,10 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+
 #ifdef WIN32
 #include <windows.h>
+
 #pragma warning(disable:4996)
 #endif
 #ifdef WIN32
@@ -20,6 +22,8 @@
 #include <GL/glu.h>
 #include "glut.h"
 #include <glm/glm.hpp>
+#include <glfw3.h>
+#include <glfw3native.h>
 #include "loader.h"
 #include <math.h>       /* cos */
 #include <fstream>
@@ -2551,6 +2555,7 @@ void Display()
 		// Render the object
 		PatternSilh->Use();
 		//BehnamSaeedi
+
 		switch (backgroundRand)
 		{
 		case 0:
@@ -2673,8 +2678,10 @@ void Display()
 		{
 			myAIKB.agent->getMove(myAIKB.AIID, keyBuffer);
 		}
-		KeyHandler();
 
+		gamepad();
+		KeyHandler();
+		
 		if (shake)
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
@@ -3436,20 +3443,24 @@ void Display()
 		float amount = 40;
 		selectIndex = selectIndex % 10;
 		glColor3f(0.125,0.125,0.125);
-		DoStringBox(60, y, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 2, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 4, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 6, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 8, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 10, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 12, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 14, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 16, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 18, 0, (char *)"Please select the map:");
-		DoStringBox(60, y - 20, 0, (char *)"Please select the map:");
+		DoStringBox(60, y, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 2, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 4, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 6, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 8, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 10, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 12, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 14, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 16, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 18, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y - 20, 0, (char *)"Please select the map: LOCAL");
 		glColor3f(1., 1., 1.);
 		DoRasterString(60, y, 0, (char *)"Please select the map:");
-
+		/*glColor3f(1., 1., 0);
+		if(isLocal)
+			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Local->");
+		else
+			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-LAN->");*/
 		switch (backgroundRand)
 		{
 		case 0:
@@ -3864,6 +3875,7 @@ void DoMainMenu(int id)
 		// gracefully close out the graphics:
 		// gracefully close the graphics window:
 		// gracefully exit the program:
+		glfwTerminate();
 		glutSetWindow(MainWindow);
 		glFinish();
 		glutDestroyWindow(MainWindow);
@@ -4129,6 +4141,11 @@ void InitGraphics()
 	//load graphics
 	loadAll();
 	loadMap();
+	if (!glfwInit())
+	{
+		fprintf(stderr, "GLFW failed!\n");
+		DoMainMenu(QUIT);
+	}
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)
 {
@@ -4549,6 +4566,12 @@ void Keyboard(unsigned char c, int x, int y)
 			selectIndex++;
 			selectIndex = selectIndex % 10;
 			break;
+		case 'a':
+		case 'A':
+		case 'd':
+		case 'D':
+			isLocal = !isLocal;
+			break;
 		case ' ':
 		case 13:
 			run = true;
@@ -4666,12 +4689,104 @@ void keySpecial(int key, int x, int y) {
 			selectIndex++;
 			selectIndex = selectIndex % 10;
 			break;
+		case GLUT_KEY_LEFT:
+		case GLUT_KEY_RIGHT:
+			isLocal = !isLocal;
+			break;
 		}
 }
 void keyUp(unsigned char c, int x, int y)
 {
 	keyBuffer[c] = false;
 
+}
+void gamepad() {
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1))
+	{
+		int axesCount = 0;
+		int buttonCount = 0;
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		const unsigned char *button = glfwGetJoystickButtons(GLFW_JOYSTICK_1,&buttonCount);
+
+		if(GLFW_PRESS == button[1] || GLFW_PRESS == button[2])
+			keyBuffer['f'] = true;
+		else
+			keyBuffer['f'] = false;
+
+		if (GLFW_PRESS == button[3])
+			keyBuffer['w'] = true;
+		else
+			keyBuffer['w'] = false;
+
+		if (GLFW_PRESS == button[0])
+			keyBuffer['s'] = true;
+		else
+			keyBuffer['s'] = false;
+
+		if (GLFW_PRESS == button[5])
+			keyBuffer['e'] = true;
+		else
+			keyBuffer['e'] = false;
+
+		if (GLFW_PRESS == button[4])
+			keyBuffer['q'] = true;
+		else
+			keyBuffer['q'] = false;
+
+		if (GLFW_PRESS == button[17])
+			keyBuffer['d'] = true;
+		else
+			keyBuffer['d'] = false;
+
+
+		if (GLFW_PRESS == button[19])
+			keyBuffer['a'] = true;
+		else
+			keyBuffer['a'] = false;
+
+	}
+	if (glfwJoystickPresent(GLFW_JOYSTICK_2))
+	{
+		int axesCount = 0;
+		int buttonCount = 0;
+		const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_2, &axesCount);
+		const unsigned char *button = glfwGetJoystickButtons(GLFW_JOYSTICK_2, &buttonCount);
+
+		if (GLFW_PRESS == button[1] || GLFW_PRESS == button[2])
+			keyBuffer['h'] = true;
+		else
+			keyBuffer['h'] = false;
+
+		if (GLFW_PRESS == button[3])
+			keyBuffer['i'] = true;
+		else
+			keyBuffer['i'] = false;
+
+		if (GLFW_PRESS == button[0])
+			keyBuffer['k'] = true;
+		else
+			keyBuffer['k'] = false;
+
+		if (GLFW_PRESS == button[5])
+			keyBuffer['o'] = true;
+		else
+			keyBuffer['o'] = false;
+
+		if (GLFW_PRESS == button[4])
+			keyBuffer['u'] = true;
+		else
+			keyBuffer['u'] = false;
+
+		if (GLFW_PRESS == button[17])
+			keyBuffer['l'] = true;
+		else
+			keyBuffer['l'] = false;
+
+		if (GLFW_PRESS == button[19])
+			keyBuffer['j'] = true;
+		else
+			keyBuffer['j'] = false;
+	}
 }
 void MouseButton(int button, int state, int x, int y)
 {

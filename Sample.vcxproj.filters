@@ -65,5 +65,11 @@
     <ClInclude Include="Globals.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="glfw3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

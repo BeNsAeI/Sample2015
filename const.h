@@ -27,7 +27,7 @@ const int GLUIFALSE = { false };
 #define TREESCALE 35
 #define ROCKSCALE 10
 #define SHELLSCALE 0.045
-#define SHELLSPEED 40000
+#define SHELLSPEED 50000
 #define ROCKTHRESH 25
 #define REFLECT -1
 #define SMOKECOUNT 3

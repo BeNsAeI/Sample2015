@@ -48,7 +48,7 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include\GLFW;C:\Program Files\glm-0.9.9-a2;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include;C:\Program Files\glm-0.9.9-a2;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -72,7 +72,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalUsingDirectories>%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include\GLFW;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Behnam\Documents\glfw-3.2.1.bin.WIN32\glfw-3.2.1.bin.WIN32\include\;C:\Program Files %28x86%29\OpenAL 1.1 SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

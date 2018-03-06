@@ -1,50 +1,42 @@
-#include "const.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <iostream>
+#include <ctype.h>
 #include <vector>
 #include <math.h>
+#include <cmath>
+#include <cstring>
+#include <string>
+#include <fstream>
+#include <time.h>
 
 #ifdef WIN32
 #include <windows.h>
-
-#pragma warning(disable:4996)
-#endif
-#ifdef WIN32
-#include "glew.h"
-#endif
-#ifndef WIN32
-#include <GL/glew.h>
-#include <stdlib.h>
-#endif
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "glut.h"
-#include <glm/glm.hpp>
-#include <glfw3.h>
-#include <glfw3native.h>
-#include "loader.h"
-#include <math.h>       /* cos */
-#include <fstream>
-#include <time.h>       /* time */
-#include "glslprogram.h"
-#include <cstring>
-#include <string>
-#include <iostream>
-
-#ifdef WIN32
 #include <al.h>
 #include <alc.h>
 #include <alut.h>
+#include "glew.h"
+#pragma warning(disable:4996)
 #endif
 
 #ifndef WIN32
+#include <GL/glew.h>
+#include <stdlib.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alut.h>
 #endif
 
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include "glut.h"
+#include "glslprogram.h"
+
+#include "const.h"
+#include "loader.h"
 #include "Map.h"
 #include "AI.h"
 #include "SimpleAI.h"
@@ -2617,7 +2609,7 @@ void Display()
 			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
 			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
 
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000 * Time)));
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
 
 			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawIS3(0, 0, 0, -45, -45);
@@ -2637,7 +2629,7 @@ void Display()
 			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
 			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
 
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000 * Time)));
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
 
 			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawAbram(0, 0, 0, -45, -45);
@@ -2708,12 +2700,12 @@ void Display()
 					glColor3f(.5, .5, .5);
 					// Render the object
 					PatternSilh->Use();
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					PatternSilh->Use(0);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2722,12 +2714,12 @@ void Display()
 					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					Pattern->Use();
 					glColor3f(0.0f, 0.0f, 0.0f);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 0, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 60, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 120, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 180, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					glPopAttrib();
 					Pattern->Use(0);
 					//glDisable(GL_LIGHT1);
@@ -2748,12 +2740,12 @@ void Display()
 					glColor3f(.5, .5, .5);
 					// Render the object
 					PatternSilh->Use();
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					PatternSilh->Use(0);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -2762,12 +2754,12 @@ void Display()
 					////SetPointLight(GL_LIGHT1, 20, 50, 35, 0.75, 0.75, 0.75);
 					Pattern->Use();
 					glColor3f(0.0f, 0.0f, 0.0f);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
-					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - abs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * abs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 0, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 60, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 120, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 180, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
+					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					glPopAttrib();
 					Pattern->Use(0);
 					//glDisable(GL_LIGHT1);
@@ -2956,7 +2948,7 @@ void Display()
 		PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
 		PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
 		
-		PatternCamo->SetUniformVariable((char *)"uTime", (float)abs(sin(1000*Time)));
+		PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000*Time)));
 
 		PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 
@@ -3218,32 +3210,32 @@ void Display()
 				{
 					//spark
 					//Dammage:
-					IS3HP -= 2 * abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)));
+					IS3HP -= 2 * fabs(fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)));
 					// Bounce!
-					if (abs(abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0))) < BOUNCETHRESH)
+					if (fabs(fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0))) < BOUNCETHRESH)
 					{
 						alSourcePlay(Sources[9]);
 						if (IS3XY[0] > Shells[i].x)
 						{
 							if (IS3XY[1] > Shells[i].y)
 								if (IS3XY[0] - Shells[i].x >= IS3XY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
 								else
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 							else
 								if (IS3XY[0] - Shells[i].x >= IS3XY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 								else
-									if (abs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - IS3HullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - IS3HullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
@@ -3279,32 +3271,32 @@ void Display()
 				{
 					//spark
 					//Dammage:
-					AbramHP -= 2 * abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)));
+					AbramHP -= 2 * fabs(fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)));
 					// Bounce!
-					if (abs(abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0))) < BOUNCETHRESH)
+					if (fabs(fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0))) < BOUNCETHRESH)
 					{
 						alSourcePlay(Sources[9]);
 						if (AbramXY[0] > Shells[i].x)
 						{
 							if (AbramXY[1] > Shells[i].y)
 								if (AbramXY[0] - Shells[i].x >= AbramXY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;
 								else
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 							else
 								if (AbramXY[0] - Shells[i].x >= AbramXY[1] - Shells[i].y)
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle -= 90;
 									else
 										Shells[i].angle += 90;
 								else
-									if (abs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - abs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
+									if (fabs(sin((Shells[i].angle - AbramHullAngle)* PI / 180.0)) - fabs(cos((Shells[i].angle - AbramHullAngle)* PI / 180.0)) >= 0)
 										Shells[i].angle += 90;
 									else
 										Shells[i].angle -= 90;

@@ -4772,13 +4772,13 @@ void gamepad() {
 		else
 			keyBuffer['q'] = false;
 
-		if (GLFW_PRESS == button[17])
+		if (GLFW_PRESS == button[17] || axes[0] > 0.25)
 			keyBuffer['d'] = true;
 		else
 			keyBuffer['d'] = false;
 
 
-		if (GLFW_PRESS == button[19])
+		if (GLFW_PRESS == button[19] || axes[0] < -0.25)
 			keyBuffer['a'] = true;
 		else
 			keyBuffer['a'] = false;
@@ -4816,12 +4816,12 @@ void gamepad() {
 		else
 			keyBuffer['u'] = false;
 
-		if (GLFW_PRESS == button[17])
+		if (GLFW_PRESS == button[17] || axes[0] > 0.25)
 			keyBuffer['l'] = true;
 		else
 			keyBuffer['l'] = false;
 
-		if (GLFW_PRESS == button[19])
+		if (GLFW_PRESS == button[19] || axes[0] < -0.25)
 			keyBuffer['j'] = true;
 		else
 			keyBuffer['j'] = false;

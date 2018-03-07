@@ -1635,7 +1635,7 @@ void drawSpark(float X, float Y, float angle,float timeIndex)
 }
 void makeAI(bool isActive, char Tank)
 {
-	myAIKB.isAI = isActive;
+	myAIKB.isAI = isActive && AIACTIVE;
 	myAIKB.AIID = Tank;
 	if (myAIKB.isAI)
 	{
@@ -3491,10 +3491,13 @@ void Display()
 		DoRasterString(60, y, 0, (char *)"Please select the map:");
 
 		glColor3f(1., 1., 0);
-		if(isSingle)
-			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
-		else
-			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
+		if (AIACTIVE)
+		{
+			if (isSingle)
+				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
+			else
+				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
+		}
 		switch (backgroundRand)
 		{
 		case 0:

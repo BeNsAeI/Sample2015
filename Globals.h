@@ -1,5 +1,6 @@
 #ifndef GLOBALS_H
 	#define GLOBALS_H
+
 	ALCdevice *device;
 	ALboolean enumeration;
 	ALCcontext *context;
@@ -45,29 +46,6 @@
 	const int LEFT = { 4 };
 	const int MIDDLE = { 2 };
 	const int RIGHT = { 1 };
-	enum Projections
-	{
-		ORTHO,
-		PERSP
-	};
-	enum ButtonVals
-	{
-		RESET,
-		QUIT
-	};
-	const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
-	const GLfloat AXES_WIDTH = { 3. };
-	enum Colors
-	{
-		RED,
-		YELLOW,
-		GREEN,
-		CYAN,
-		BLUE,
-		MAGENTA,
-		WHITE,
-		BLACK
-	};
 	char * ColorNames[] = {
 		(char *)"Red",
 		(char *)"Yellow",
@@ -78,6 +56,8 @@
 		(char *)"White",
 		(char *)"Black"
 	};
+	const GLfloat BACKCOLOR[] = { 0., 0., 0., 1. };
+	const GLfloat AXES_WIDTH = { 3. };
 	const GLfloat Colors[][3] = {
 		{ 1., 0., 0. },		// red
 		{ 1., 1., 0. },		// yellow
@@ -223,24 +203,11 @@
 	bool keyBuffer[256];
 	char MapRaw[25 * 14];
 
-	struct Shell {
-		float x;
-		float y;
-		float angle;
-		float startTime;
-		int shooterId;
-		bool active;
-	};
 	struct Map myMap;
+	Crate Crates[10];
+
 	struct Shell Shells[SHELLMAX];
-	struct Crate {
-		int type;
-		float X;
-		float Y;
-		int i;
-		int j;
-		bool isActive;
-	};
+
 	// AI knowledge Base
 	struct AIKB {
 		bool isAI = false;
@@ -256,9 +223,9 @@
 		float * AIHullAngle = NULL;
 		float * AITurretAngle = NULL;
 		SimpleAI * agent = new SimpleAI(&myMap);
+
 	};
 	struct AIKB myAIKB;
-	Crate Crates[10];
 	int CrateIndex = 0;
 	int shellSize = 0;
 	void	Animate();
@@ -322,7 +289,7 @@
 		1, 2, 3, 4, -5, 6
 	};
 
-	bool isLocal = true;
+	bool isSingle = false;
 
 
 

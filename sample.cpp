@@ -36,6 +36,7 @@
 #include "glslprogram.h"
 
 #include "const.h"
+#include "struct.h"
 #include "loader.h"
 #include "Map.h"
 #include "AI.h"
@@ -73,7 +74,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nC
 	}
 }
 #endif
-
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
@@ -82,12 +82,12 @@ int main(int argc, char *argv[])
 	isInMenu = true;
 	backgroundRand = rand() % 6;
 	backgroundRand = (backgroundRand + rand()) % 6;
+	mapName = "M";
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
 	// pull some command line arguments out)
-	if (argc > 1)
+/*	if (argc > 1)
 		mapName = argv[1];
-	mapName = "M";
 	if (argc < 2)
 	{
 		std::cout << "Would you like an AI?(a/t/n)" << std::endl;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 			break;
 		}
 		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
-	}
+	}*/
 	glutInit(&argc, argv);
 
 
@@ -1633,6 +1633,46 @@ void drawSpark(float X, float Y, float angle,float timeIndex)
 	glVertex3f(0, 10, timeIndex*100);
 	glEnd();
 }
+void makeAI(bool isActive, char Tank)
+{
+	myAIKB.isAI = isActive;
+	myAIKB.AIID = Tank;
+	if (myAIKB.isAI)
+	{
+		switch (myAIKB.AIID)
+		{
+		case 'A':
+		case 'a':
+			myAIKB.playerHP = &IS3HP;
+			myAIKB.playerPos = IS3XY;
+			myAIKB.playerAmmo = &IS3Shells;
+			myAIKB.playerHullAngle = &IS3HullAngle;
+			myAIKB.playerTurretAngle = &IS3TurretAngle;
+
+			myAIKB.AIHP = &AbramHP;
+			myAIKB.AIPos = AbramXY;
+			myAIKB.AIAmmo = &AbramShells;
+			myAIKB.AIHullAngle = &AbramHullAngle;
+			myAIKB.AITurretAngle = &AbramTurretAngle;
+			break;
+		case 'T':
+		case 't':
+			myAIKB.playerHP = &AbramHP;
+			myAIKB.playerPos = AbramXY;
+			myAIKB.playerAmmo = &AbramShells;
+			myAIKB.playerHullAngle = &AbramHullAngle;
+			myAIKB.playerTurretAngle = &AbramTurretAngle;
+
+			myAIKB.AIHP = &IS3HP;
+			myAIKB.AIPos = IS3XY;
+			myAIKB.AIAmmo = &IS3Shells;
+			myAIKB.AIHullAngle = &IS3HullAngle;
+			myAIKB.AITurretAngle = &IS3TurretAngle;
+			break;
+		}
+		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
+	}
+}
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign, int axis,int * ival = NULL, int *jval = NULL)
 {
 	switch (axis)
@@ -2668,7 +2708,7 @@ void Display()
 		);
 		if (myAIKB.isAI)
 		{
-			myAIKB.agent->getMove(myAIKB.AIID, keyBuffer);
+			myAIKB.agent->getMove(myAIKB.AIID, keyBuffer,Crates);
 		}
 
 		gamepad();
@@ -3435,24 +3475,26 @@ void Display()
 		float amount = 40;
 		selectIndex = selectIndex % 10;
 		glColor3f(0.125,0.125,0.125);
-		DoStringBox(60, y, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 2, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 4, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 6, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 8, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 10, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 12, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 14, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 16, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 18, 0, (char *)"Please select the map: LOCAL");
-		DoStringBox(60, y - 20, 0, (char *)"Please select the map: LOCAL");
+		DoStringBox(60, y,      0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y -  2, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y -  4, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y -  6, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y -  8, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 10, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 12, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 14, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 16, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 18, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 20, 0, (char *)"Please select the map: Single Player");
+
 		glColor3f(1., 1., 1.);
 		DoRasterString(60, y, 0, (char *)"Please select the map:");
-		/*glColor3f(1., 1., 0);
-		if(isLocal)
-			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Local->");
+
+		glColor3f(1., 1., 0);
+		if(isSingle)
+			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
 		else
-			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-LAN->");*/
+			DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
 		switch (backgroundRand)
 		{
 		case 0:
@@ -4562,7 +4604,8 @@ void Keyboard(unsigned char c, int x, int y)
 		case 'A':
 		case 'd':
 		case 'D':
-			isLocal = !isLocal;
+			isSingle = !isSingle;
+			makeAI(isSingle,'T');
 			break;
 		case ' ':
 		case 13:
@@ -4683,7 +4726,8 @@ void keySpecial(int key, int x, int y) {
 			break;
 		case GLUT_KEY_LEFT:
 		case GLUT_KEY_RIGHT:
-			isLocal = !isLocal;
+			isSingle = !isSingle;
+			makeAI(isSingle, 'T');
 			break;
 		}
 }

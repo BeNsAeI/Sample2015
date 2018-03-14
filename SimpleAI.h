@@ -33,6 +33,7 @@ private:
 	struct Map * myMap;
 	float targetPos[2];
 	float wayPoint[2];
+	float tempWayPoint[2];
 	bool wayPointSet;
 	bool pickUp;
 };

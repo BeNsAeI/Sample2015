@@ -79,5 +79,5 @@ const int GLUIFALSE = { false };
 #define BUSHSCALE 2
 #define GLFW_JOYSTICK_1   0
 #define GLFW_JOYSTICK_2   1
-#define AIACTIVE false
+#define AIACTIVE true
 #endif

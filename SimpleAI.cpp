@@ -42,8 +42,8 @@ void SimpleAI::getMove(char AIID, bool*keyBuffer, Crate * Crates) {
 	targetPos[1] = env->playerPos[1];
 	if (!wayPointSet)
 	{
-		wayPoint[0] = targetPos[0] + rand() % (AIENGAGE/2);
-		wayPoint[1] = targetPos[1] + rand() % (AIENGAGE/2);
+		wayPoint[0] = targetPos[0] +  rand() % (AIENGAGE/3);
+		wayPoint[1] = targetPos[1] +  rand() % (AIENGAGE/3);
 		pickUp = false;
 		wayPointSet = true;
 	}
@@ -68,14 +68,16 @@ void SimpleAI::getMove(char AIID, bool*keyBuffer, Crate * Crates) {
 	else {
 		pickUp = false;
 	}
-	
+
 	float xdist = wayPoint[0] - (env->AIPos[0]);
 	float ydist = wayPoint[1] - (env->AIPos[1]);
 	float targetDistance = xdist * xdist + ydist * ydist;
 
 	float AIHullAngle = *env->AIHullAngle;
 	
-	
+//	tempWayPoint[0] = ;
+//	tempWayPoint[1] = ;
+
 	float angleSine = -xdist / sqrt(pow(xdist, 2) + pow(ydist, 2));
 	float angleCosine = -ydist / sqrt(pow(xdist, 2) + pow(ydist, 2));
 	float current = (float)((int)(AIHullAngle) % 360) * PI / 180;

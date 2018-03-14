@@ -1,4 +1,10 @@
-﻿  sample.cpp
+﻿  SimpleAI.cpp
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\simpleai.cpp(83): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\simpleai.cpp(90): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\simpleai.cpp(92): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\simpleai.cpp(182): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\behnam\documents\visual studio 2015\projects\sample2015\simpleai.cpp(185): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  sample.cpp
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\globals.h(138): warning C4305: 'initializing': truncation from 'double' to 'float'
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\globals.h(143): warning C4305: 'initializing': truncation from 'double' to 'float'
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(50): warning C4007: 'WinMain': must be '__stdcall'
@@ -198,6 +204,7 @@ c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(4685
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(4686): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(4687): warning C4305: '=': truncation from 'double' to 'float'
 c:\users\behnam\documents\visual studio 2015\projects\sample2015\sample.cpp(4688): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
 AI.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
 .\Debug/bmptotexture.obj : warning LNK4042: object specified more than once; extras ignored
   Sample.vcxproj -> C:\Users\Behnam\Documents\Visual Studio 2015\Projects\Sample2015\.\Debug\Sample.exe

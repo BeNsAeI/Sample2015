@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	loading = true;
 	isInMenu = true;
 	backgroundRand = rand() % 6;
-	backgroundRand = (backgroundRand + rand()) % 6;
+	backgroundRand = (backgroundRand + rand()) % 8;
 	mapName = "M";
 	// turn on the glut package:
 	// (do this before checking argc and argv since it might
@@ -645,8 +645,9 @@ void loadingText(char * Text,float percent)
 }
 void loadAll()
 {
+	// Item goes up to 28 -> percent is ~ 3.5
 	float item = 0;
-	float percent = 4;
+	float percent = 3.5;
 	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
 	item++;
 	Abram[0][START] = vertices.size();
@@ -659,6 +660,18 @@ void loadAll()
 	res = loadOBJ("models/abram-hull.vbo", vertices, uvs, normals);
 	Abram[1][END] = vertices.size();
 
+	loadingText("Loading T29 Turret ...", percent * item); // each step is 4.5%
+	item++;
+	T29[0][START] = vertices.size();
+	res = loadOBJ("models/T-29-turret.vbo", vertices, uvs, normals);
+	T29[0][END] = vertices.size();
+
+	loadingText("Loading T29 Hull ...", percent * item); // each step is 4.5%
+	item++;
+	T29[1][START] = vertices.size();
+	res = loadOBJ("models/T-29-hull.vbo", vertices, uvs, normals);
+	T29[1][END] = vertices.size();
+	
 	loadingText("Loading IS3 Turret ...", percent * item); // each step is 4.5%
 	item++;
 	IS3[0][START] = vertices.size();
@@ -676,6 +689,18 @@ void loadAll()
 	IS3[2][START] = vertices.size();
 	res = loadOBJ("models/IS-3-lower-hull.vbo", vertices, uvs, normals);
 	IS3[2][END] = vertices.size();
+
+	loadingText("Loading E100 Turret ...", percent * item); // each step is 4.5%
+	item++;
+	E100[0][START] = vertices.size();
+	res = loadOBJ("models/E100-turret.vbo", vertices, uvs, normals);
+	E100[0][END] = vertices.size();
+
+	loadingText("Loading E100 Hull ...", percent * item); // each step is 4.5%
+	item++;
+	E100[1][START] = vertices.size();
+	res = loadOBJ("models/E100-hull.vbo", vertices, uvs, normals);
+	E100[1][END] = vertices.size();
 
 	loadingText("Loading Left Track ...", percent * item); // each step is 4.5%
 	item++;
@@ -1198,6 +1223,274 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	//glDrawArrays(GL_LINES, beginPoint, endPoint);
 	//glColor3f(1, 0, 0);
 	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawT29(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = T29[0][START];
+	int endPoint = T29[0][END] - T29[0][START];
+	glPushMatrix();
+	glTranslatef(0, 3, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -3, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.38, 0.2, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = T29[1][START];
+	endPoint = T29[1][END] - T29[1][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.38, 0.2, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-14.75, 0, -3);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glColor3f(0.3, 0.25, 0.18);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(1.75, 0, -3);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glColor3f(0.3, 0.25, 0.18);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawT29Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = T29[0][START];
+	int endPoint = T29[0][END] - T29[0][START];
+	glPushMatrix();
+	glTranslatef(0, 3, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -3, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = T29[1][START];
+	endPoint = T29[1][END] - T29[1][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-14.75, 0, -3);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(1.75, 0, -3);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawE100(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = E100[0][START];
+	int endPoint = E100[0][END] - E100[0][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(1, 0.1, 0.5);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = E100[1][START];
+	endPoint = E100[1][END] - E100[1][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(1, 0.1, 0.5);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawE100Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = E100[0][START];
+	int endPoint = E100[0][END] - E100[0][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0, -1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = E100[1][START];
+	endPoint = E100[1][END] - E100[1][START];
+	glPushMatrix();
+	glTranslatef(0, 1, 0);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -2608,6 +2901,12 @@ void Display()
 		case 5:
 			drawMine(0, 0);
 			break;
+		case 6:
+			drawT29(0, 0, 0, -45, -45);
+			break;
+		case 7:
+			drawE100(0, 0, 0, -45, -45);
+			break;
 		}
 		PatternSilh->Use(0);
 		// Set the polygon mode to be filled triangles 
@@ -2679,6 +2978,46 @@ void Display()
 			Pattern->Use();
 			drawMine(0, 0);
 			Pattern->Use(0);
+			break;
+		case 6:
+			PatternCamo->Use();
+			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
+			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
+			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
+			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
+			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
+
+			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
+			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
+
+			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
+			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
+
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
+
+			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
+			drawT29(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 7:
+			PatternCamo->Use();
+			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
+			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
+			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
+			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
+			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
+
+			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
+			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
+
+			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
+			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
+
+			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
+
+			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
+			drawE100(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
 			break;
 		}
 		// Pop the state changes off the attribute stack
@@ -2828,12 +3167,40 @@ void Display()
 		// Render the object
 		PatternSilh->Use();
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1, 1, 0);
+		switch (PlayerOne)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY);
 		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY + AbramSmoke * 7);
 		glEnd();
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0, 0, 1);
+		switch (PlayerTwo)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY);
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7);
 		glEnd();
@@ -2870,12 +3237,40 @@ void Display()
 		// Render the object
 		PatternSilh->Use();
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1, 1, 0);
+		switch (PlayerOne)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		glVertex3f(MAPEDGEX + 15, 3, -MAPEDGEY);
 		glVertex3f(MAPEDGEX + 15, 3, -MAPEDGEY + AbramShells * 2);
 		glEnd();
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0, 0, 1);
+		switch (PlayerTwo)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		glVertex3f(MAPEDGEX + 15, 3, MAPEDGEY);
 		glVertex3f(MAPEDGEX + 15, 3, MAPEDGEY - IS3Shells * 2);
 		glEnd();
@@ -2916,10 +3311,42 @@ void Display()
 		// Render the object
 		PatternSilh->Use();
 		if (AbramHP > 0)
-			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+		{
+			switch (PlayerOne)
+			{
+			case (0):
+				drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (1):
+				drawIS3(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (2):
+				drawT29(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (3):
+				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			}
+			
+		}
+			
 		else
 		{
-			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			switch (PlayerOne)
+			{
+			case (0):
+				drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (1):
+				drawIS3Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (2):
+				drawT29Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (3):
+				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			}
 			if (!shakeOnce)
 			{
 				shake = true;
@@ -2928,11 +3355,40 @@ void Display()
 			}
 		}
 		if (IS3HP > 0)
-			drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+		{
+			switch (PlayerTwo)
+			{
+			case (0):
+				drawAbram(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (1):
+				drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (2):
+				drawT29(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (3):
+				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			}
+		}
 		else
 		{
-			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			switch (PlayerTwo)
+			{
+			case (0):
+				drawAbramDead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (1):
+				drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (2):
+				drawT29Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (3):
+				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			}
 			if (!shakeOnce)
 			{
 				shake = true;
@@ -2999,26 +3455,82 @@ void Display()
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
-			drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			switch (PlayerOne)
+			{
+			case (0):
+				drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (1):
+				drawIS3(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (2):
+				drawT29(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (3):
+				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			}
 		}
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
-			drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+			switch (PlayerOne)
+			{
+			case (0):
+				drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (1):
+				drawIS3Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (2):
+				drawT29Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (3):
+				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			}
 		}
 			
 		if (IS3HP > 0)
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
-			drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+			switch (PlayerTwo)
+			{
+			case (0):
+				drawAbram(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (1):
+				drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (2):
+				drawT29(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (3):
+				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			}
 		}
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
 			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
-			drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+			switch (PlayerTwo)
+			{
+			case (0):
+				drawAbramDead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (1):
+				drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (2):
+				drawT29Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (3):
+				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			}
 		}
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
@@ -3486,10 +3998,40 @@ void Display()
 		DoStringBox(60, y - 16, 0, (char *)"Please select the map: Single Player");
 		DoStringBox(60, y - 18, 0, (char *)"Please select the map: Single Player");
 		DoStringBox(60, y - 20, 0, (char *)"Please select the map: Single Player");
-
+		switch (PlayerOne)
+		{
+		case 0:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0.5, 0.5, 0);
+			break;
+		case 1:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0, 1);
+			break;
+		case 2:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0.38, 0.2, 0.01);
+			break;
+		case 3:
+			DoStringBoxColor(72, y, 0, (char *)   "", 1, 0.1, 0.5);
+			break;
+		}
+		DoStringBox(74, y, 0, (char *)   "");
+		switch (PlayerTwo)
+		{
+		case 0:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0.5, 0.5, 0);
+			break;
+		case 1:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0, 1);
+			break;
+		case 2:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0.38, 0.2, 0.01);
+			break;
+		case 3:
+			DoStringBoxColor(76, y, 0, (char *)   "", 1, 0.1, 0.5);
+			break;
+		}
 		glColor3f(1., 1., 1.);
 		DoRasterString(60, y, 0, (char *)"Please select the map:");
-
+		DoRasterString(72, y, 0, (char *)"1     vs     2");
 		glColor3f(1., 1., 0);
 		if (AIACTIVE)
 		{
@@ -3518,6 +4060,12 @@ void Display()
 		case 5:
 			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
 			break;
+		case 6: 
+			DoRasterString(10, 30, 0, (char *)"T29: Hate groupmates? just remember that this tank has 6 crew members ... Good Lord!");
+			break;
+		case 7:
+			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
+			break;
 		}
 		glColor3f(0.125, 0.125, 0.125);
 		DoStringBox(80, 25, 0,    (char *)"Developed By Behnam ");
@@ -3539,7 +4087,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand+rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3559,7 +4107,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3579,7 +4127,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3599,7 +4147,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3619,7 +4167,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3639,7 +4187,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3659,7 +4207,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3679,7 +4227,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3699,7 +4247,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3719,7 +4267,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 6;
+				backgroundRand = (backgroundRand + rand()) % 8;
 			}
 		}
 		else
@@ -3739,8 +4287,22 @@ void Display()
 		{
 			if (AbramHP <= 0)
 			{
-				glColor3f(0, 0, 1.);
-				DoRasterString(MAPEDGEX+22, 0, -10, (char *)"Blue player Wins!");
+				switch (PlayerTwo)
+				{
+				case 0:
+					glColor3f(0.5, 0.5, 0);
+					break;
+				case 1:
+					glColor3f(0, 0, 1);
+					break;
+				case 2:
+					glColor3f(0.38, 0.2, 0.01);
+					break;
+				case 3:
+					glColor3f(1, 0.1, 0.5);
+					break;
+				}
+				DoRasterString(MAPEDGEX+22, 0, -10, (char *)"Player 2 Wins!");
 				if (!ScoreSet)
 				{
 					ScoreSet = true;
@@ -3749,8 +4311,22 @@ void Display()
 			}
 			if (IS3HP <= 0)
 			{
-				glColor3f(1, 1, 0);
-				DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Yellow player Wins!");
+				switch (PlayerOne)
+				{
+				case 0:
+					glColor3f(0.5, 0.5, 0);
+					break;
+				case 1:
+					glColor3f(0, 0, 1);
+					break;
+				case 2:
+					glColor3f(0.38, 0.2, 0.01);
+					break;
+				case 3:
+					glColor3f(1, 0.1, 0.5);
+					break;
+				}
+				DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Player 1 Wins!");
 				if (!ScoreSet)
 				{
 					ScoreSet = true;
@@ -3760,34 +4336,35 @@ void Display()
 		}
 		if (AbramShells == 0)
 		{
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
 			DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
 		}
 		if (IS3Shells == 0)
 		{
-			glColor3f(0, 0, 1 - sin(Time * 1000));
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
 			DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
 		}
 		if (AbramSmoke == 0)
 		{
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
 			DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
 		}
 		if (IS3Smoke == 0)
 		{
-			glColor3f(0, 0, 1 - sin(Time * 1000));
+			glColor3f(1 - sin(Time * 1000),1 - sin(Time * 1000), 1 - sin(Time * 1000));
 			DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
 		}
 
 		itoa(AbramScore, scoreText, 10);
 		if(ScoreSet)
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 0);
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
 		else
 			glColor3f(1, 1, 0);
 		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
 		itoa(IS3Score, scoreText, 10);
 		if (ScoreSet)
-			glColor3f(0, 0, 1 - sin(Time * 1000));
+			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
 		else
 			glColor3f(0, 0, 1);
 		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
@@ -3953,6 +4530,20 @@ void DoStringBox(float x, float y, float z, char *s)
 	}
 	glPushMatrix();
 	glColor3f(0.125, 0.125, 0.125);
+	glRectd(x - 1, y - 1, x2, y + 1);
+	glPopMatrix();
+}
+void DoStringBoxColor(float x, float y, float z, char *s,float r, float g, float b)
+{
+	char c;			// one character to print
+	float len = 0.5;
+	float x2 = x + 1;
+	for (; (c = *s) != '\0'; s++)
+	{
+		x2 += len;
+	}
+	glPushMatrix();
+	glColor3f(r, g, b);
 	glRectd(x - 1, y - 1, x2, y + 1);
 	glPopMatrix();
 }
@@ -4605,11 +5196,27 @@ void Keyboard(unsigned char c, int x, int y)
 			break;
 		case 'a':
 		case 'A':
+			PlayerOne += 1;
+			PlayerOne = PlayerOne % TOTALTANKS;
+			break;
 		case 'd':
 		case 'D':
-			isSingle = !isSingle;
-			makeAI(isSingle,'T');
+			PlayerOne += 3;
+			PlayerOne = PlayerOne % TOTALTANKS;
 			break;
+		case 'j':
+		case 'J':
+		case '4':
+			PlayerTwo += 1;
+			PlayerTwo = PlayerTwo % TOTALTANKS;
+			break;
+		case 'l':
+		case 'L':
+		case '6':
+			PlayerTwo += 3;
+			PlayerTwo = PlayerTwo % TOTALTANKS;
+			break;
+
 		case ' ':
 		case 13:
 			run = true;

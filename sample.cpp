@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
 
 	// setup all the user interface stuff:
 
-	InitMenus();
+	//InitMenus();
 
 
 	// draw the scene once and wait for some interaction:
@@ -201,6 +201,14 @@ int main(int argc, char *argv[])
 	alcDestroyContext(context);
 	alcCloseDevice(device);
 	return 0;
+}
+void Quit()
+{
+	glfwTerminate();
+	glutSetWindow(MainWindow);
+	glFinish();
+	glutDestroyWindow(MainWindow);
+	exit(0);
 }
 void Animate()
 {
@@ -2541,7 +2549,6 @@ void KeyHandler() {
 		IS3TurretAngle -= TANKSPEED * 5;
 	}
 	if (keyBuffer[ESCAPE]) {
-		//DoMainMenu(QUIT);	// will not return here
 		mapName = "M";
 		resetState(mapName);
 		isInMenu = true;
@@ -2660,18 +2667,13 @@ void Display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
 
-	/*if (DepthBufferOn != 0)
-		
-	else
-		glDisable(GL_DEPTH_TEST);
-		*/
-
 	// specify shading to be flat:
 
-	glShadeModel(GL_FLAT);
+	//glShadeModel(GL_FLAT);
 
 
 	// set the viewport to a square centered in the window:
+
 
 	GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
 	GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
@@ -2681,65 +2683,29 @@ void Display()
 	GLint yb = (vy - v) / 2;
 	glViewport(xl, yb, v, v);
 
-	// set the viewing volume:
-	// remember that the Z clipping  values are actually
-	// given as DISTANCES IN FRONT OF THE EYE
-	// USE gluOrtho2D( ) IF YOU ARE DOING 2D !
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	/*if (WhichProjection == ORTHO)
-		glOrtho(-3., 3., -3., 3., 0.1, 1000.);
-	else*/
-		gluPerspective(90., 1., 0.1, 1000.);
-
-
-	// place the objects into the scene:
-
+	gluPerspective(90., 1., 0.1, 1000.);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 
 	// set the eye position, look-at position, and up-vector:
 	if (isInMenu)
+	{
 		gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
+		glRotatef((GLfloat)Yrot, 0., 1., 0.);
+		glRotatef((GLfloat)Xrot, 1., 0., 0.);
+	}
 	else
 		gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
 
-	// rotate the scene:
-
-	glRotatef((GLfloat)Yrot, 0., 1., 0.);
-	glRotatef((GLfloat)Xrot, 1., 0., 0.);
-
-
-	// uniformly scale the scene:
-	//if (Scale < MINSCALE)
-	//	Scale = MINSCALE;
-	glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
+	//glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
 	// set the fog parameters:
-	/*if (DepthCueOn != 0)
-	{
-		glFogi(GL_FOG_MODE, FOGMODE);
-		glFogfv(GL_FOG_COLOR, FOGCOLOR);
-		glFogf(GL_FOG_DENSITY, FOGDENSITY);
-		glFogf(GL_FOG_START, FOGSTART);
-		glFogf(GL_FOG_END, FOGEND);
-		glEnable(GL_FOG);
-	}
-	else
-	{*/
-		glDisable(GL_FOG);
-//	}
-	// possibly draw the axes:
-	/*if (AxesOn == 0)
-	{
-		glColor3fv(&Colors[WhichColor][0]);
-		glCallList(AxesList);
-	}*/
-	// since we are using glScalef( ), be sure normals get unitized:
 
-	// draw the current object:
-	//glCallList(BoxList);
+	//	glDisable(GL_FOG);
+
 	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
 	
 	if (res && isInMenu)
@@ -2936,41 +2902,11 @@ void Display()
 			break;
 		case 3:
 			PatternCamo->Use();
-			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
-			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
-			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
-			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
-
-			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
-
-			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
-			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
-
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
-
-			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawIS3(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
 			break;
 		case 4:
 			PatternCamo->Use();
-			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
-			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
-			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
-			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
-
-			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
-
-			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
-			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
-
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
-
-			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawAbram(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
 			break;
@@ -2981,41 +2917,11 @@ void Display()
 			break;
 		case 6:
 			PatternCamo->Use();
-			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
-			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
-			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
-			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
-
-			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
-
-			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
-			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
-
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
-
-			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawT29(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
 			break;
 		case 7:
 			PatternCamo->Use();
-			PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
-			PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-			PatternCamo->SetUniformVariable((char *)"uX", (float)20);
-			PatternCamo->SetUniformVariable((char *)"uY", (float)50);
-			PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
-
-			PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
-
-			PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
-			PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
-
-			PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000 * Time)));
-
-			PatternCamo->SetUniformVariable((char *)"Noise3", 0);
 			drawE100(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
 			break;
@@ -3432,29 +3338,12 @@ void Display()
 		glBindTexture(GL_TEXTURE_2D, tex0);*/
 
 		PatternCamo->Use();
-		PatternCamo->SetUniformVariable((char *)"uKa", (float)1);
-		PatternCamo->SetUniformVariable((char *)"uKd", (float)0.95);
-		PatternCamo->SetUniformVariable((char *)"uX", (float)20);
-		PatternCamo->SetUniformVariable((char *)"uY", (float)50);
-		PatternCamo->SetUniformVariable((char *)"uZ", (float)35);
-
-		PatternCamo->SetUniformVariable((char *)"uAd", (float)0.25);
-		PatternCamo->SetUniformVariable((char *)"uBd", (float)0.75);
-
-		PatternCamo->SetUniformVariable((char *)"uNoiseAmp", (float)0.75);
-		PatternCamo->SetUniformVariable((char *)"uNoiseFreq", (float)0.15);
-		
-		PatternCamo->SetUniformVariable((char *)"uTime", (float)fabs(sin(1000*Time)));
-
-		PatternCamo->SetUniformVariable((char *)"Noise3", 0);
-
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
 		if (AbramHP > 0)
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
-			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
 			switch (PlayerOne)
 			{
 			case (0):
@@ -3474,7 +3363,6 @@ void Display()
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			switch (PlayerOne)
 			{
 			case (0):
@@ -3495,7 +3383,6 @@ void Display()
 		if (IS3HP > 0)
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
-			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)1);
 			switch (PlayerTwo)
 			{
 			case (0):
@@ -3515,7 +3402,6 @@ void Display()
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
-			PatternCamo->SetUniformVariable((char *)"uAlpha", (float)0);
 			switch (PlayerTwo)
 			{
 			case (0):
@@ -3551,9 +3437,6 @@ void Display()
 			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
 		Pattern->Use(0);
 		//test ammo power up
-
-
-
 		// Draw Map
 		for (int j = 0; j < 14; j++)
 		{
@@ -4334,6 +4217,70 @@ void Display()
 				}
 			}
 		}
+		// Controlls here:
+		// Player 1:
+		glColor3f(1, 1, 1);
+		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 45, (char *)"Turret");
+		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 30, (char *)"Q        E");
+		DoRasterString(MAPEDGEX + 17.5, 3, -MAPEDGEY - 45, (char *)"Movement");
+		DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"    W");
+		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 28, (char *)"A   S   D");
+		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 40, (char *)"Ordnance");
+		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 26, (char *)"  F   C");
+		DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 25, (char *)"G   +   -");
+		switch (PlayerOne)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
+		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 31, (char *)"[    ]     [   ]");
+		DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"   [    ]");
+		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 29, (char *)"[   ][    ][   ]");
+		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 27, (char *)"  [   ] [   ]");
+		DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 26, (char *)"[    ][   ][   ]");
+
+		// Player 2:
+		glColor3f(1, 1, 1);
+		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 15, (char *)"Turret");
+		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 34, (char *)"7        9");
+		DoRasterString(MAPEDGEX + 17.5, 3, MAPEDGEY + 15, (char *)"Movement");
+		DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 34, (char *)"    8");
+		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 32, (char *)"4   5   6");
+		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 15, (char *)"Ordnance");
+		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 30, (char *)"  0   .");
+		DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 29, (char *)"G   +   -");
+		switch (PlayerTwo)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
+		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 33, (char *)"[   ]     [   ]");
+		DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 33.5, (char *)"   [   ]");
+		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 31, (char *)"[   ][   ][   ]");
+		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 29, (char *)" [   ] [   ]");
+		DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 28, (char *)"[    ][   ][   ]");
+		
+
 		if (AbramShells == 0)
 		{
 
@@ -4357,16 +4304,38 @@ void Display()
 		}
 
 		itoa(AbramScore, scoreText, 10);
-		if(ScoreSet)
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
-		else
-			glColor3f(1, 1, 0);
+		switch (PlayerOne)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
 		itoa(IS3Score, scoreText, 10);
-		if (ScoreSet)
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
-		else
+		switch (PlayerTwo)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
 			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		}
 		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
 		
 		// draw some gratuitous text that is fixed on the screen:
@@ -4396,7 +4365,7 @@ void Display()
 	glutSwapBuffers();
 	glFlush();
 }
-void DoAxesMenu(int id)
+/*void DoAxesMenu(int id)
 {
 	AxesOn = id;
 
@@ -4509,7 +4478,7 @@ void DoProjectMenu(int id)
 
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
-}
+}*/
 void DoRasterString(float x, float y, float z, char *s)
 {
 	char c;			// one character to print
@@ -4547,7 +4516,18 @@ void DoStringBoxColor(float x, float y, float z, char *s,float r, float g, float
 	glRectd(x - 1, y - 1, x2, y + 1);
 	glPopMatrix();
 }
-void DoStrokeString(float x, float y, float z, float ht, char *s)
+void DoStringBoxColor(float x, float y, float z, char *s)
+{
+	char c;			// one character to print
+	float len = 0.5;
+	float x2 = x + 1;
+	for (; (c = *s) != '\0'; s++)
+	{
+		x2 += len;
+	}
+	glRectd(x - 1, y - 1, x2, y + 1);
+}
+/*void DoStrokeString(float x, float y, float z, float ht, char *s)
 {
 	glPushMatrix();
 	glTranslatef((GLfloat)x, (GLfloat)y, (GLfloat)z);
@@ -4559,7 +4539,7 @@ void DoStrokeString(float x, float y, float z, float ht, char *s)
 		glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
 	}
 	glPopMatrix();
-}
+}*/
 float ElapsedSeconds()
 {
 	// get # of milliseconds since the start of the program:
@@ -4570,7 +4550,7 @@ float ElapsedSeconds()
 
 	return (float)ms / 1000.f;
 }
-void InitMenus()
+/*void InitMenus()
 {
 	glutSetWindow(MainWindow);
 
@@ -4625,7 +4605,7 @@ void InitMenus()
 	// attach the pop-up menu to the right mouse button:
 
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
+}*/
 void InitGraphics()
 {
 	// request the display modes:
@@ -4710,7 +4690,7 @@ void InitGraphics()
 	if (!valid)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 	else
 	{
@@ -4722,7 +4702,7 @@ void InitGraphics()
 	if (!validGrass)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 	else
 	{
@@ -4734,7 +4714,7 @@ void InitGraphics()
 	if (!validTree)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 	else
 	{
@@ -4746,7 +4726,7 @@ void InitGraphics()
 	if (!validCamo)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 	else
 	{
@@ -4758,7 +4738,7 @@ void InitGraphics()
 	if (!validsilh)
 	{
 		fprintf(stderr, "Shader cannot be created!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 	else
 	{
@@ -4772,7 +4752,7 @@ void InitGraphics()
 	if (!glfwInit())
 	{
 		fprintf(stderr, "GLFW failed!\n");
-		DoMainMenu(QUIT);
+		Quit();//DoMainMenu(QUIT);
 	}
 }
 void InitializeVertexBuffer(GLuint &theBuffer, GLenum target, GLenum usage, const void* data, int size)
@@ -5224,7 +5204,7 @@ void Keyboard(unsigned char c, int x, int y)
 		case 'q':
 		case 'Q':
 		case ESCAPE:
-			DoMainMenu(QUIT);	// will not return here
+			Quit();//DoMainMenu(QUIT);	// will not return here
 			break;				// happy compiler
 
 		}

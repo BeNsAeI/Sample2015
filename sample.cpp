@@ -2666,7 +2666,6 @@ void Display()
 	glDrawBuffer(GL_BACK);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
-
 	// specify shading to be flat:
 
 	//glShadeModel(GL_FLAT);
@@ -2773,10 +2772,10 @@ void Display()
 					/**/// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -2786,6 +2785,8 @@ void Display()
 					PatternSilh->Use();
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					//glShadeModel(GL_FLAT);
 					//glEnable(GL_LIGHTING);
@@ -2804,10 +2805,10 @@ void Display()
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -2815,6 +2816,8 @@ void Display()
 					PatternSilh->Use();
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					// Set the polygon mode to be filled triangles
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
@@ -2837,7 +2840,7 @@ void Display()
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
-		glEnable(GL_POLYGON_OFFSET_FILL);
+		glDisable(GL_POLYGON_OFFSET_FILL);
 		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glLineWidth(OUTLINE);
@@ -2876,6 +2879,8 @@ void Display()
 		}
 		PatternSilh->Use(0);
 		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		//glShadeModel(GL_FLAT);
 		//glEnable(GL_LIGHTING);
@@ -2976,10 +2981,10 @@ void Display()
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -2992,6 +2997,8 @@ void Display()
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(AbramXY[0], AbramXY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
@@ -3016,10 +3023,10 @@ void Display()
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -3032,6 +3039,8 @@ void Display()
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 240, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					drawExplosion(IS3XY[0], IS3XY[1], 0, 300, 0.5, 1 - fabs(sin((Time - shakeStartTime) * 500)), 0.75 - 3 * fabs(sin((Time - shakeStartTime) * 500)) / 4, 0, shakeStartTime, shakeDuration / 2);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					// Set the polygon mode to be filled triangles 
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
@@ -3063,10 +3072,10 @@ void Display()
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
@@ -3111,6 +3120,8 @@ void Display()
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY - IS3Smoke * 7);
 		glEnd();
 		PatternSilh->Use(0);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(OUTLINE);
 		if (AbramSmoke > 0)
 			drawSmokeCrate(MAPEDGEX + 22, -MAPEDGEY + AbramSmoke * 7 + 1, 90);
@@ -3133,10 +3144,10 @@ void Display()
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(10.0f);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
@@ -3181,6 +3192,8 @@ void Display()
 		glVertex3f(MAPEDGEX + 15, 3, MAPEDGEY - IS3Shells * 2);
 		glEnd();
 		PatternSilh->Use(0);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(OUTLINE);
 		if (AbramShells > 0)
 			drawShell(MAPEDGEX + 15, -MAPEDGEY + AbramShells * 2, 180, 4);
@@ -3207,10 +3220,10 @@ void Display()
 		// Push the GL attribute bits so that we don't wreck any settings
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
@@ -3303,6 +3316,8 @@ void Display()
 			}
 		}
 		PatternSilh->Use(0);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -3454,10 +3469,10 @@ void Display()
 					/**/// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -3467,6 +3482,8 @@ void Display()
 					PatternSilh->Use();
 					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					//glShadeModel(GL_FLAT);
 					//glEnable(GL_LIGHTING);
@@ -3478,6 +3495,7 @@ void Display()
 					//glDisable(GL_LIGHT1);
 					//glDisable(GL_LIGHTING);/**/
 					Pattern->Use(0);
+
 				}
 				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 				{
@@ -3485,10 +3503,10 @@ void Display()
 					// Push the GL attribute bits so that we don't wreck any settings
 					glPushAttrib(GL_ALL_ATTRIB_BITS);
 					// Enable polygon offsets, and offset filled polygons forward by 2.5
-					glEnable(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-2.5f, -2.5f);
 					// Set the render mode to be line rendering with a thick line width
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					glLineWidth(OUTLINE);
 					// Set the colour to be white
 					glColor3f(.5, .5, .5);
@@ -3496,6 +3514,8 @@ void Display()
 					PatternSilh->Use();
 					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
 					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
 					// Set the polygon mode to be filled triangles
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 					glShadeModel(GL_FLAT);
@@ -3520,10 +3540,10 @@ void Display()
 				// Push the GL attribute bits so that we don't wreck any settings
 				glPushAttrib(GL_ALL_ATTRIB_BITS);
 				// Enable polygon offsets, and offset filled polygons forward by 2.5
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(-2.5f, -2.5f);
 				// Set the render mode to be line rendering with a thick line width
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glDisable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-2.5f, -2.5f);
 				glLineWidth(OUTLINE);
 				// Set the colour to be white
 				glColor3f(.5, .5, .5);
@@ -3531,6 +3551,8 @@ void Display()
 				PatternSilh->Use();
 				drawSmoke(smokeCoordBuffer[i][0], smokeCoordBuffer[i][1], 0, smokeAngleBuffer[i], 0.05, 0.59, 0.52, 0.48, smokeIDBuffer[i], smokeDurBuffer[i]);
 				PatternSilh->Use(0);
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-2.5f, -2.5f);
 				// Set the polygon mode to be filled triangles 
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);
@@ -3548,10 +3570,10 @@ void Display()
 		//draw crates
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		// Enable polygon offsets, and offset filled polygons forward by 2.5
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(-2.5f, -2.5f);
 		// Set the render mode to be line rendering with a thick line width
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		glLineWidth(OUTLINE);
 		// Set the colour to be white
 		glColor3f(.5, .5, .5);
@@ -3577,6 +3599,8 @@ void Display()
 				}
 		}
 		PatternSilh->Use(0);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
 		// Set the polygon mode to be filled triangles 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glShadeModel(GL_FLAT);
@@ -3615,10 +3639,10 @@ void Display()
 				// Push the GL attribute bits so that we don't wreck any settings
 				glPushAttrib(GL_ALL_ATTRIB_BITS);
 				// Enable polygon offsets, and offset filled polygons forward by 2.5
-				glEnable(GL_POLYGON_OFFSET_FILL);
-				glPolygonOffset(-2.5f, -2.5f);
 				// Set the render mode to be line rendering with a thick line width
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				glDisable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-2.5f, -2.5f);
 				glLineWidth(OUTLINE);
 				// Set the colour to be white
 				glColor3f(.5, .5, .5);
@@ -3626,6 +3650,8 @@ void Display()
 				PatternSilh->Use();
 				drawShell(Shells[i].x - ((Time - Shells[i].startTime) * SHELLSPEED * sin(Shells[i].angle * PI / 180.0)), Shells[i].y - ((Time - Shells[i].startTime) * SHELLSPEED * cos(Shells[i].angle * PI / 180.0)), Shells[i].angle);
 				PatternSilh->Use(0);
+				glEnable(GL_POLYGON_OFFSET_FILL);
+				glPolygonOffset(-2.5f, -2.5f);
 				// Set the polygon mode to be filled triangles 
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				glShadeModel(GL_FLAT);

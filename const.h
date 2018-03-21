@@ -30,9 +30,9 @@ const int GLUIFALSE = { false };
 #define RELOADTIME 0.015
 #ifdef WIN32
 #define SHELLSPEED 50000
-#define GRASSGRAINX 160
-#define GRASSGRAINY 140
-#define MENUMULTIPLIER 5
+#define GRASSGRAINX 2*160
+#define GRASSGRAINY 2*140
+#define MENUMULTIPLIER 2
 #endif
 #ifndef WIN32
 #define SHELLSPEED 30000
@@ -80,5 +80,5 @@ const int GLUIFALSE = { false };
 #define GLFW_JOYSTICK_1   0
 #define GLFW_JOYSTICK_2   1
 #define TOTALTANKS 4;
-#define AIACTIVE true
+#define AIACTIVE false
 #endif

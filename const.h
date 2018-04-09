@@ -80,5 +80,12 @@ const int GLUIFALSE = { false };
 #define GLFW_JOYSTICK_1   0
 #define GLFW_JOYSTICK_2   1
 #define TOTALTANKS 4;
-#define AIACTIVE false
+#define AIACTIVE true
+#define IDLE 0
+#define ATTACK 1
+#define DEFEND 2
+#define RUN 3
+#define AQUIRE 4
+#define ELIMINATECRATE 5
+#define SC 20
 #endif

@@ -5350,6 +5350,10 @@ void keySpecial(int key, int x, int y) {
 void keyUp(unsigned char c, int x, int y)
 {
 	keyBuffer[c] = false;
+	if(c >= 'a' && c <= 'z')
+		keyBuffer[c-32] = false;
+	if (c >= 'A' && c <= 'Z')
+		keyBuffer[c+32] = false;
 
 }
 void gamepad() {

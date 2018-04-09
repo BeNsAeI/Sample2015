@@ -10,6 +10,7 @@ public:
 	SimpleAI();
 	SimpleAI(struct Map * map);
 	float huristic();
+	void pathFind(char AIID,bool*keyBuffer, Crate * Crates);
 	void getMove(char AIID,bool * keyBuffer, Crate * Crates);
 	struct InnerAIKB {
 		bool isAI = false;

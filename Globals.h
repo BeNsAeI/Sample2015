@@ -116,6 +116,7 @@
 	int Abram[2][2];
 	int T29[2][2];
 	int E100[2][2];
+	int Type59[2][2];
 	int IS3[3][2];
 	int Track[2][2];
 	int cube[2];

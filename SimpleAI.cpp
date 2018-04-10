@@ -1,5 +1,7 @@
 #include "SimpleAI.h"
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 #include <cmath>
 #include <string>
 #include <time.h>

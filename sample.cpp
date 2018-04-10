@@ -80,70 +80,10 @@ int main(int argc, char *argv[])
 	// Do main menu:
 	loading = true;
 	isInMenu = true;
-	backgroundRand = rand() % 6;
-	backgroundRand = (backgroundRand + rand()) % 8;
+	backgroundRand = rand() % 9;
+	backgroundRand = (backgroundRand + rand()) % 9;
 	mapName = "M";
-	// turn on the glut package:
-	// (do this before checking argc and argv since it might
-	// pull some command line arguments out)
-/*	if (argc > 1)
-		mapName = argv[1];
-	if (argc < 2)
-	{
-		std::cout << "Would you like an AI?(a/t/n)" << std::endl;
-		std::string ans = "no";
-		std::cin >> ans;
-		switch(ans[0])
-		{
-		case 'a':
-		case 'A':
-		case 't':
-		case 'T':
-			myAIKB.isAI = true;
-			myAIKB.AIID = ans[0];
-			break;
-		}
-	}
-	if (argc > 2)
-	{
-		myAIKB.isAI = true;
-		myAIKB.AIID = argv[2][0];
-	}
-	if (myAIKB.isAI)
-	{
-		switch (myAIKB.AIID)
-		{
-		case 'A':
-		case 'a':
-			myAIKB.playerHP = &IS3HP;
-			myAIKB.playerPos = IS3XY;
-			myAIKB.playerAmmo = &IS3Shells;
-			myAIKB.playerHullAngle = &IS3HullAngle;
-			myAIKB.playerTurretAngle = &IS3TurretAngle;
-
-			myAIKB.AIHP = &AbramHP;
-			myAIKB.AIPos = AbramXY;
-			myAIKB.AIAmmo = &AbramShells;
-			myAIKB.AIHullAngle = &AbramHullAngle;
-			myAIKB.AITurretAngle = &AbramTurretAngle;
-			break;
-		case 'T':
-		case 't':
-			myAIKB.playerHP = &AbramHP;
-			myAIKB.playerPos = AbramXY;
-			myAIKB.playerAmmo = &AbramShells;
-			myAIKB.playerHullAngle = &AbramHullAngle;
-			myAIKB.playerTurretAngle = &AbramTurretAngle;
-
-			myAIKB.AIHP = &IS3HP;
-			myAIKB.AIPos = IS3XY;
-			myAIKB.AIAmmo = &IS3Shells;
-			myAIKB.AIHullAngle = &IS3HullAngle;
-			myAIKB.AITurretAngle = &IS3TurretAngle;
-			break;
-		}
-		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
-	}*/
+	
 	glutInit(&argc, argv);
 
 
@@ -653,9 +593,9 @@ void loadingText(char * Text,float percent)
 }
 void loadAll()
 {
-	// Item goes up to 28 -> percent is ~ 3.5
+	// Item goes up to 30 -> percent is ~ 3.3
 	float item = 0;
-	float percent = 3.5;
+	float percent = 3.3;
 	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
 	item++;
 	Abram[0][START] = vertices.size();
@@ -709,6 +649,18 @@ void loadAll()
 	E100[1][START] = vertices.size();
 	res = loadOBJ("models/E100-hull.vbo", vertices, uvs, normals);
 	E100[1][END] = vertices.size();
+
+	loadingText("Loading Type 59 Turret ...", percent * item); // each step is 4.5%
+	item++;
+	Type59[0][START] = vertices.size();
+	res = loadOBJ("models/Type59-turret.vbo", vertices, uvs, normals);
+	Type59[0][END] = vertices.size();
+
+	loadingText("Loading Type 59 Hull ...", percent * item); // each step is 4.5%
+	item++;
+	Type59[1][START] = vertices.size();
+	res = loadOBJ("models/Type59-hull.vbo", vertices, uvs, normals);
+	Type59[1][END] = vertices.size();
 
 	loadingText("Loading Left Track ...", percent * item); // each step is 4.5%
 	item++;
@@ -1503,6 +1455,134 @@ void drawE100Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 
 	glPopMatrix();
 }
+void drawType59(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = Type59[0][START];
+	int endPoint = Type59[0][END] - Type59[0][START];
+	glPushMatrix();
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0.75, 0, -8);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0, 0.5, 0.125);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Type59[1][START];
+	endPoint = Type59[1][END] - Type59[1][START];
+	glPushMatrix();
+	glTranslatef(0.75, 0, -8);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0, 0.5, 0.125);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
+void drawType59Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
+{
+	glPushMatrix();
+	glTranslatef(X, Y, Z);	//movement
+	glTranslatef(0, 2.1, 0);
+	glRotatef(hullAngle, 0, 1, 0);
+	glRotatef(270, 1, 0, 0);
+	glScalef(TANKSCALE, TANKSCALE, TANKSCALE);
+
+	int beginPoint = Type59[0][START];
+	int endPoint = Type59[0][END] - Type59[0][START];
+	glPushMatrix();
+	glRotatef(turretAngle, 0, 0, 1);
+	glTranslatef(0.75, 0, -8);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Type59[1][START];
+	endPoint = Type59[1][END] - Type59[1][START];
+	glPushMatrix();
+	glTranslatef(0.75, 0, -8);
+	//SetMaterial(0.5, 0.5, 0, 1.0);
+	glColor3f(0.1, 0.1, 0.01);
+	//glColor3f(0.6, 0.6, 0.3);
+	//SetMaterial(0.3, 0.3, 0.1, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0.25, 0.25, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[0][START];
+	endPoint = Track[0][END] - Track[0][START];
+	glPushMatrix();
+	glTranslatef(-13, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	//glColor3f(0, 0, 0);
+	//glDrawArrays(GL_LINES, beginPoint, endPoint);
+	//glColor3f(1, 0, 0);
+	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = Track[1][START];
+	endPoint = Track[1][END] - Track[1][START];
+	glPushMatrix();
+	glTranslatef(0, 0, -3);
+	glColor3f(0.3, 0.25, 0.18);
+	//SetMaterial(0.3, 0.25, 0.18, 1.0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawCube(float X, float Y, float Z,float r,float g, float b)
 {
 	glPushMatrix();				// 0
@@ -1920,7 +2000,7 @@ void drawGrass(float X, float Y)
 	int endPoint = grass[END] - grass[START];
 	glPushMatrix();
 	glRotatef(270, 1, 0, 0);
-	glColor3f(0, 0.5, 0);
+	glColor3f(0, 1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 	glPopMatrix();
@@ -2849,7 +2929,6 @@ void Display()
 		// Render the object
 		PatternSilh->Use();
 		//BehnamSaeedi
-
 		switch (backgroundRand)
 		{
 		case 0:
@@ -2875,6 +2954,9 @@ void Display()
 			break;
 		case 7:
 			drawE100(0, 0, 0, -45, -45);
+			break;
+		case 8: 
+			drawType59(0, 0, 0, -45, -45);
 			break;
 		}
 		PatternSilh->Use(0);
@@ -2928,6 +3010,11 @@ void Display()
 		case 7:
 			PatternCamo->Use();
 			drawE100(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 8:
+			PatternCamo->Use();
+			drawType59(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
 			break;
 		}
@@ -3096,6 +3183,9 @@ void Display()
 		case 3:
 			glColor3f(1, 0.1, 0.5);
 			break;
+		case 4:
+			glColor3f(0, 1, 0);
+			break;
 		}
 		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY);
 		glVertex3f(MAPEDGEX + 20, 3, -MAPEDGEY + AbramSmoke * 7);
@@ -3114,6 +3204,9 @@ void Display()
 			break;
 		case 3:
 			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
 			break;
 		}
 		glVertex3f(MAPEDGEX + 20, 3, MAPEDGEY);
@@ -3167,6 +3260,9 @@ void Display()
 			break;
 		case 3:
 			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
 			break;
 		}
 		glVertex3f(MAPEDGEX + 15, 3, -MAPEDGEY);
@@ -3245,6 +3341,9 @@ void Display()
 			case (3):
 				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 				break;
+			case 4:
+				drawType59(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
 			}
 			
 		}
@@ -3264,6 +3363,9 @@ void Display()
 				break;
 			case (3):
 				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case 4:
+				drawType59Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 				break;
 			}
 			if (!shakeOnce)
@@ -3289,6 +3391,9 @@ void Display()
 			case (3):
 				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 				break;
+			case (4):
+				drawType59(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
 			}
 		}
 		else
@@ -3306,6 +3411,9 @@ void Display()
 				break;
 			case (3):
 				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (4):
+				drawType59Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 				break;
 			}
 			if (!shakeOnce)
@@ -3373,6 +3481,9 @@ void Display()
 			case (3):
 				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 				break;
+			case (4):
+				drawType59(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
 			}
 		}
 		else
@@ -3391,6 +3502,9 @@ void Display()
 				break;
 			case (3):
 				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
+				break;
+			case (4):
+				drawType59Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 				break;
 			}
 		}
@@ -3412,6 +3526,9 @@ void Display()
 			case (3):
 				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 				break;
+			case (4):
+				drawType59(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
 			}
 		}
 		else
@@ -3430,6 +3547,9 @@ void Display()
 				break;
 			case (3):
 				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
+				break;
+			case (4):
+				drawType59Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 				break;
 			}
 		}
@@ -3821,7 +3941,7 @@ void Display()
 						CrateIndex++;	// randomly generate crates
 						if (CrateIndex > CRATECAP)
 							CrateIndex = 0;
-						int wallState = rand() % 8;
+						int wallState = rand() % 6;
 						myMap.isCrate[tmpi][tmpj] = true;
 						switch (wallState)
 						{
@@ -3921,6 +4041,9 @@ void Display()
 		case 3:
 			DoStringBoxColor(72, y, 0, (char *)   "", 1, 0.1, 0.5);
 			break;
+		case 4:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0.5, 0);
+			break;
 		}
 		DoStringBox(74, y, 0, (char *)   "");
 		switch (PlayerTwo)
@@ -3936,6 +4059,9 @@ void Display()
 			break;
 		case 3:
 			DoStringBoxColor(76, y, 0, (char *)   "", 1, 0.1, 0.5);
+			break;
+		case 4:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0.5, 0);
 			break;
 		}
 		glColor3f(1., 1., 1.);
@@ -3975,6 +4101,9 @@ void Display()
 		case 7:
 			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
 			break;
+		case 8:
+			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
+			break;
 		}
 		glColor3f(0.125, 0.125, 0.125);
 		DoStringBox(80, 25, 0,    (char *)"Developed By Behnam ");
@@ -3996,7 +4125,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4016,7 +4145,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4036,7 +4165,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4056,7 +4185,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4076,7 +4205,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4096,7 +4225,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4116,7 +4245,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4136,7 +4265,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4156,7 +4285,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4176,7 +4305,7 @@ void Display()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 8;
+				backgroundRand = (backgroundRand + rand()) % 9;
 			}
 		}
 		else
@@ -4210,6 +4339,9 @@ void Display()
 				case 3:
 					glColor3f(1, 0.1, 0.5);
 					break;
+				case 4:
+					glColor3f(0, 1, 0);
+					break;
 				}
 				DoRasterString(MAPEDGEX+22, 0, -10, (char *)"Player 2 Wins!");
 				if (!ScoreSet)
@@ -4233,6 +4365,9 @@ void Display()
 					break;
 				case 3:
 					glColor3f(1, 0.1, 0.5);
+					break;
+				case 4:
+					glColor3f(0, 1, 0);
 					break;
 				}
 				DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Player 1 Wins!");
@@ -4268,6 +4403,9 @@ void Display()
 		case 3:
 			glColor3f(1, 0.1, 0.5);
 			break;
+		case 4:
+			glColor3f(0, 1, 0);
+			break;
 		}
 		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 31, (char *)"[    ]     [   ]");
 		DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"   [    ]");
@@ -4298,6 +4436,9 @@ void Display()
 			break;
 		case 3:
 			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
 			break;
 		}
 		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 33, (char *)"[   ]     [   ]");
@@ -4344,6 +4485,9 @@ void Display()
 		case 3:
 			glColor3f(1, 0.1, 0.5);
 			break;
+		case 4:
+			glColor3f(0, 1, 0);
+			break;
 		}
 		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
 		itoa(IS3Score, scoreText, 10);
@@ -4360,6 +4504,9 @@ void Display()
 			break;
 		case 3:
 			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
 			break;
 		}
 		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);

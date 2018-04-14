@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
 	
 	glutInit(&argc, argv);
 
-
+	//initiate draw function
+	
 	// setup all the graphics stuff:
 
 	InitGraphics();
@@ -3327,47 +3328,12 @@ void Display()
 		PatternSilh->Use();
 		if (AbramHP > 0)
 		{
-			switch (PlayerOne)
-			{
-			case (0):
-				drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (1):
-				drawIS3(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (2):
-				drawT29(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (3):
-				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case 4:
-				drawType59(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			}
-			
+			DrawPointer1(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		}
 			
 		else
 		{
-			switch (PlayerOne)
-			{
-			case (0):
-				drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (1):
-				drawIS3Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (2):
-				drawT29Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (3):
-				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case 4:
-				drawType59Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			}
+			DrawPointer1d(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 			if (!shakeOnce)
 			{
 				shake = true;
@@ -3377,45 +3343,11 @@ void Display()
 		}
 		if (IS3HP > 0)
 		{
-			switch (PlayerTwo)
-			{
-			case (0):
-				drawAbram(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (1):
-				drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (2):
-				drawT29(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (3):
-				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (4):
-				drawType59(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			}
+			DrawPointer2(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		}
 		else
 		{
-			switch (PlayerTwo)
-			{
-			case (0):
-				drawAbramDead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (1):
-				drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (2):
-				drawT29Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (3):
-				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (4):
-				drawType59Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			}
+			DrawPointer2d(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 			if (!shakeOnce)
 			{
 				shake = true;
@@ -3467,91 +3399,23 @@ void Display()
 		if (AbramHP > 0)
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
-			switch (PlayerOne)
-			{
-			case (0):
-				drawAbram(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (1):
-				drawIS3(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (2):
-				drawT29(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (3):
-				drawE100(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (4):
-				drawType59(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			}
+			DrawPointer1(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		}
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
-			switch (PlayerOne)
-			{
-			case (0):
-				drawAbramDead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (1):
-				drawIS3Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (2):
-				drawT29Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (3):
-				drawE100Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			case (4):
-				drawType59Dead(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
-				break;
-			}
+			DrawPointer1d(AbramXY[0], -0.25, AbramXY[1], AbramHullAngle, AbramTurretAngle);
 		}
 			
 		if (IS3HP > 0)
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0);
-			switch (PlayerTwo)
-			{
-			case (0):
-				drawAbram(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (1):
-				drawIS3(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (2):
-				drawT29(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (3):
-				drawE100(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (4):
-				drawType59(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			}
+			DrawPointer2(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		}
 		else
 		{
 			PatternCamo->SetUniformVariable((char *)"uTol", (float)0.25);
-			switch (PlayerTwo)
-			{
-			case (0):
-				drawAbramDead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (1):
-				drawIS3Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (2):
-				drawT29Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (3):
-				drawE100Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			case (4):
-				drawType59Dead(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
-				break;
-			}
+			DrawPointer2d(IS3XY[0], -0.25, IS3XY[1], IS3HullAngle, IS3TurretAngle);
 		}
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
@@ -4922,6 +4786,10 @@ void InitGraphics()
 	//load graphics
 	loadAll();
 	loadMap();
+	DrawPointer1 = &drawAbram;
+	DrawPointer2 = &drawIS3;
+	DrawPointer1d = &drawAbramDead;
+	DrawPointer2d = &drawIS3Dead;
 	if (!glfwInit())
 	{
 		fprintf(stderr, "GLFW failed!\n");
@@ -5351,23 +5219,115 @@ void Keyboard(unsigned char c, int x, int y)
 		case 'A':
 			PlayerOne += 1;
 			PlayerOne = PlayerOne % TOTALTANKS;
+			switch (PlayerOne)
+			{
+			case 0:
+				DrawPointer1 = &drawAbram;
+				DrawPointer1d = &drawAbramDead;
+				break;
+			case 1:
+				DrawPointer1 = &drawIS3;
+				DrawPointer1d = &drawIS3Dead;
+				break;
+			case 2:
+				DrawPointer1 = &drawT29;
+				DrawPointer1d = &drawT29Dead;
+				break;
+			case 3:
+				DrawPointer1 = &drawE100;
+				DrawPointer1d = &drawE100Dead;
+				break;
+			case 4:
+				DrawPointer1 = &drawType59;
+				DrawPointer1d = &drawType59Dead;
+				break;
+			}
 			break;
 		case 'd':
 		case 'D':
-			PlayerOne += 3;
-			PlayerOne = PlayerOne % TOTALTANKS;
+			PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
+			PlayerOne = (PlayerOne-1) % TOTALTANKS;
+			switch (PlayerOne)
+			{
+			case 0:
+				DrawPointer1 = &drawAbram;
+				DrawPointer1d = &drawAbramDead;
+				break;
+			case 1:
+				DrawPointer1 = &drawIS3;
+				DrawPointer1d = &drawIS3Dead;
+				break;
+			case 2:
+				DrawPointer1 = &drawT29;
+				DrawPointer1d = &drawT29Dead;
+				break;
+			case 3:
+				DrawPointer1 = &drawE100;
+				DrawPointer1d = &drawE100Dead;
+				break;
+			case 4:
+				DrawPointer1 = &drawType59;
+				DrawPointer1d = &drawType59Dead;
+				break;
+			}
 			break;
 		case 'j':
 		case 'J':
 		case '4':
 			PlayerTwo += 1;
 			PlayerTwo = PlayerTwo % TOTALTANKS;
+			switch (PlayerTwo)
+			{
+			case 0:
+				DrawPointer2 = &drawAbram;
+				DrawPointer2d = &drawAbramDead;
+				break;
+			case 1:
+				DrawPointer2 = &drawIS3;
+				DrawPointer2d = &drawIS3Dead;
+				break;
+			case 2:
+				DrawPointer2 = &drawT29;
+				DrawPointer2d = &drawT29Dead;
+				break;
+			case 3:
+				DrawPointer2 = &drawE100;
+				DrawPointer2d = &drawE100Dead;
+				break;
+			case 4:
+				DrawPointer2 = &drawType59;
+				DrawPointer2d = &drawType59Dead;
+				break;
+			}
 			break;
 		case 'l':
 		case 'L':
 		case '6':
-			PlayerTwo += 3;
-			PlayerTwo = PlayerTwo % TOTALTANKS;
+			PlayerTwo += TOTALTANKS;
+			PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
+			switch (PlayerTwo)
+			{
+			case 0:
+				DrawPointer2 = &drawAbram;
+				DrawPointer2d = &drawAbramDead;
+				break;
+			case 1:
+				DrawPointer2 = &drawIS3;
+				DrawPointer2d = &drawIS3Dead;
+				break;
+			case 2:
+				DrawPointer2 = &drawT29;
+				DrawPointer2d = &drawT29Dead;
+				break;
+			case 3:
+				DrawPointer2 = &drawE100;
+				DrawPointer2d = &drawE100Dead;
+				break;
+			case 4:
+				DrawPointer2 = &drawType59;
+				DrawPointer2d = &drawType59Dead;
+				break;
+			}
 			break;
 
 		case ' ':

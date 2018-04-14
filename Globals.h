@@ -300,7 +300,10 @@
 	int PlayerOne = 0;
 	int PlayerTwo = 1;
 
-
+	void(*DrawPointer1)(float X, float Y, float Z, float hullAngle, float turretAngle);
+	void(*DrawPointer2)(float X, float Y, float Z, float hullAngle, float turretAngle);
+	void(*DrawPointer1d)(float X, float Y, float Z, float hullAngle, float turretAngle);
+	void(*DrawPointer2d)(float X, float Y, float Z, float hullAngle, float turretAngle);
 	//OS Compatibility
 #ifndef WIN32
 	char * itoa(int i, char * buffer, int radix)

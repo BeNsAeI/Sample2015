@@ -839,7 +839,698 @@ void SetMaterial(float r, float g, float b, float shininess)
 	glMaterialfv(GL_FRONT, GL_SPECULAR, MulArray3(.8f, White));
 	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }
-void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, float g, float b, float beginTime,float duration)
+bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign, int axis, int * ival = NULL, int *jval = NULL)
+{
+	switch (axis)
+	{
+	case 0:
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				{
+					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
+						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+					{
+						if (ival != NULL && jval != NULL)
+						{
+							*ival = i;
+							*jval = j;
+						}
+						return true;
+					}
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 2) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 2)) &&
+						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 2) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 2))))
+						return true;
+				}
+			}
+		}
+		return false;
+	case 1:
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				{
+					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY &&
+						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY &&
+						AY + (0 * sign) < myMap.coord[i][j][1] + BODY &&
+						AY + (0 * sign) > myMap.coord[i][j][1] - BODY)
+					{
+						return true;
+					}
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
+						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
+						return true;
+				}
+			}
+		}
+		return false;
+	case 2:
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				{
+					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY &&
+						AX + (0 * sign) > myMap.coord[i][j][0] - BODY &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY)
+					{
+						return true;
+					}
+				}
+				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
+				{
+					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
+						AX + (0 * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
+						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
+						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
+						return true;
+				}
+			}
+		}
+		return false;
+	default:
+		return false;
+		break;
+	}
+}
+int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
+{
+	for (int i = 0; i < CRATECAP; i++)
+	{
+		if (Crates[i].isActive)
+		{
+			if ((((AX + (Xstride * sign) < Crates[i].X + BODY) && (AX + (Xstride * sign) > Crates[i].X - BODY)) &&
+				((AY + (Ystride * sign) <Crates[i].Y + BODY) && (AY + (Ystride * sign) > Crates[i].Y - BODY))))
+			{
+				return i;
+			}
+		}
+	}
+	return CRATECAP;
+}
+void makeAI(bool isActive, char Tank)
+{
+	myAIKB.isAI = isActive && AIACTIVE;
+	myAIKB.AIID = Tank;
+	if (myAIKB.isAI)
+	{
+		switch (myAIKB.AIID)
+		{
+		case 'A':
+		case 'a':
+			myAIKB.playerHP = &IS3HP;
+			myAIKB.playerPos = IS3XY;
+			myAIKB.playerAmmo = &IS3Shells;
+			myAIKB.playerHullAngle = &IS3HullAngle;
+			myAIKB.playerTurretAngle = &IS3TurretAngle;
+
+			myAIKB.AIHP = &AbramHP;
+			myAIKB.AIPos = AbramXY;
+			myAIKB.AIAmmo = &AbramShells;
+			myAIKB.AIHullAngle = &AbramHullAngle;
+			myAIKB.AITurretAngle = &AbramTurretAngle;
+			break;
+		case 'T':
+		case 't':
+			myAIKB.playerHP = &AbramHP;
+			myAIKB.playerPos = AbramXY;
+			myAIKB.playerAmmo = &AbramShells;
+			myAIKB.playerHullAngle = &AbramHullAngle;
+			myAIKB.playerTurretAngle = &AbramTurretAngle;
+
+			myAIKB.AIHP = &IS3HP;
+			myAIKB.AIPos = IS3XY;
+			myAIKB.AIAmmo = &IS3Shells;
+			myAIKB.AIHullAngle = &IS3HullAngle;
+			myAIKB.AITurretAngle = &IS3TurretAngle;
+			break;
+		}
+		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
+	}
+}
+void KeyHandler() {
+	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
+	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
+	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
+	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
+	if ((keyBuffer['w'] || keyBuffer['W']) && AbramHP > 0) {
+		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1), 1)) &&
+			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[0] -= AbramTX;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (AbramTY > 0)
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle += TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (AbramTY > 0)
+					AbramHullAngle += TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+			}
+		}
+		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1), 2)) &&
+			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[1] -= AbramTY;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (AbramTX > 0)
+					AbramHullAngle += TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (AbramTX > 0)
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle += TANKSPEED * 5 * 2;
+			}
+
+		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
+			AbramTX,
+			AbramTY,
+			-1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				AbramShells = SHELLSTORAGE;
+				alSourcePlay(Sources[12]);
+				break;
+			case 1:
+				AbramSmoke = SMOKECOUNT;
+				alSourcePlay(Sources[12]);
+				break;
+			case 2:
+				AbramHP = TANKHP;
+				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				AbramHP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
+		}
+	}
+	if ((keyBuffer['s'] || keyBuffer['S']) && AbramHP > 0) {
+		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1), 1)) &&
+			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[0] += AbramTX;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (AbramTY > 0)
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle += TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (AbramTY > 0)
+					AbramHullAngle += TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+			}
+		}
+		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
+			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1), 2)) &&
+			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
+			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
+		{
+			AbramXY[1] += AbramTY;
+		}
+		else
+		{
+			//adjust angle
+			if (AbramTY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (AbramTX > 0)
+					AbramHullAngle += TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (AbramTX > 0)
+					AbramHullAngle -= TANKSPEED * 5 * 2;
+				else
+					AbramHullAngle += TANKSPEED * 5 * 2;
+			}
+		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
+			AbramTX,
+			AbramTY,
+			1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				AbramShells = SHELLSTORAGE;
+				alSourcePlay(Sources[12]);
+				break;
+			case 1:
+				AbramSmoke = SMOKECOUNT;
+				alSourcePlay(Sources[12]);
+				break;
+			case 2:
+				AbramHP = TANKHP;
+				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				AbramHP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
+		}
+	}
+	if ((keyBuffer['a'] || keyBuffer['A']) && AbramHP > 0) {
+		if (keyBuffer['s'] || keyBuffer['S'])
+			AbramHullAngle -= TANKSPEED * 5;
+		else
+			AbramHullAngle += TANKSPEED * 5;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+	}
+	if ((keyBuffer['d'] || keyBuffer['D']) && AbramHP > 0) {
+		if (keyBuffer['s'] || keyBuffer['S'])
+			AbramHullAngle += TANKSPEED * 5;
+		else
+			AbramHullAngle -= TANKSPEED * 5;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
+		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+	}
+	if ((keyBuffer['q'] || keyBuffer['Q']) && AbramHP > 0) {
+		AbramTurretAngle += TANKSPEED * 5;
+	}
+	if ((keyBuffer['e'] || keyBuffer['E']) && AbramHP > 0) {
+		AbramTurretAngle -= TANKSPEED * 5;
+	}
+
+	if ((keyBuffer['i'] || keyBuffer['I'] || keyBuffer['8']) && IS3HP > 0) {
+		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1), 1)) &&
+			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[0] -= IS3TX;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (IS3TY > 0)
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle += TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (IS3TY > 0)
+					IS3HullAngle += TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+			}
+		}
+		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1), 2)) &&
+			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[1] -= IS3TY;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (IS3TX > 0)
+					IS3HullAngle += TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (IS3TX > 0)
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle += TANKSPEED * 5 * 2;
+			}
+		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
+			IS3TX,
+			IS3TX,
+			-1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				IS3Shells = SHELLSTORAGE;
+				alSourcePlay(Sources[12]);
+				break;
+			case 1:
+				IS3Smoke = SMOKECOUNT;
+				alSourcePlay(Sources[12]);
+				break;
+			case 2:
+				IS3HP = TANKHP;
+				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				IS3HP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
+		}
+	}
+	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
+		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1), 1)) &&
+			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[0] += IS3TX;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TX > 0)
+			{
+				//hit a wall horizontal wall from top going down
+				if (IS3TY > 0)
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle += TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall horizontal wall from bottom going up
+				if (IS3TY > 0)
+					IS3HullAngle += TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+			}
+		}
+		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
+			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1), 2)) &&
+			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
+			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
+		{
+			IS3XY[1] += IS3TY;
+		}
+		else
+		{
+			//adjust angle
+			if (IS3TY > 0)
+			{
+				//hit a wall Vertical wall from right going left
+				if (IS3TX > 0)
+					IS3HullAngle += TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+
+			}
+			else
+			{
+				//hit a wall Vertical wall from left going right
+				if (IS3TX > 0)
+					IS3HullAngle -= TANKSPEED * 5 * 2;
+				else
+					IS3HullAngle += TANKSPEED * 5 * 2;
+			}
+		}
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+	}
+	if ((keyBuffer['j'] || keyBuffer['J'] || keyBuffer['4']) && IS3HP > 0) {
+		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
+			IS3HullAngle -= TANKSPEED * 5;
+		else
+			IS3HullAngle += TANKSPEED * 5;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
+			IS3TX,
+			IS3TX,
+			1
+		);
+		if (cratecheck != CRATECAP)
+		{
+			switch (Crates[cratecheck].type)
+			{
+			case 0:
+				IS3Shells = SHELLSTORAGE;
+				alSourcePlay(Sources[12]);
+				break;
+			case 1:
+				IS3Smoke = SMOKECOUNT;
+				alSourcePlay(Sources[12]);
+				break;
+			case 2:
+				IS3HP = TANKHP;
+				alSourcePlay(Sources[11]);
+				break;
+			case 3:
+				IS3HP -= 3;
+				alSourcePlay(Sources[8]);
+				break;
+			}
+			Crates[cratecheck].isActive = false;
+			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
+		}
+	}
+	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
+		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
+			IS3HullAngle += TANKSPEED * 5;
+		else
+			IS3HullAngle -= TANKSPEED * 5;
+		if (smokeIndex >= 1000)
+			smokeIndex = 0;
+		smokeIDBuffer[smokeIndex] = Time;
+		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
+		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
+		smokeDurBuffer[smokeIndex] = 0.01;
+		smokeAngleBuffer[smokeIndex] = rand() % 360;
+		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+		smokeActive[smokeIndex] = true;
+		smokeIndex++;
+	}
+	if ((keyBuffer['u'] || keyBuffer['U'] || keyBuffer['7']) && IS3HP > 0) {
+		IS3TurretAngle += TANKSPEED * 5;
+	}
+	if ((keyBuffer['o'] || keyBuffer['O'] || keyBuffer['9']) && IS3HP > 0) {
+		IS3TurretAngle -= TANKSPEED * 5;
+	}
+	if (keyBuffer[ESCAPE]) {
+		isInMenu = true;
+		for (int i = 0; i < 8; i++)
+			alSourceStop(Sources[i]);
+	}
+	if (keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR])
+	{
+		if ((Time - AbramLastShot) < 0)
+			AbramLastShot = 0;
+
+		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
+		{
+			alSourcePlay(Sources[8]);
+			AbramLastShot = Time;
+			Shells[shellSize].x = AbramXY[0];
+			Shells[shellSize].y = AbramXY[1];
+			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
+			Shells[shellSize].shooterId = ABRAMID;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			AbramShells--;
+			if (smokeIndex >= 1000)
+				smokeIndex = 0;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
+				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+			}
+		}
+	}
+	if (keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER] || keyBuffer['0'])
+	{
+		if ((Time - IS3LastShot) < 0)
+			IS3LastShot = 0;
+
+		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
+		{
+			alSourcePlay(Sources[8]);
+			IS3LastShot = Time;
+			Shells[shellSize].x = IS3XY[0];
+			Shells[shellSize].y = IS3XY[1];
+			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;
+			Shells[shellSize].shooterId = IS3ID;
+			Shells[shellSize].startTime = Time;
+			Shells[shellSize].active = true;
+			if (shellSize < SHELLMAX - 1)
+				shellSize++;
+			else
+				shellSize = 0;
+			IS3Shells--;
+			for (int i = 0; i < 20; i++)
+			{
+				smokeIDBuffer[smokeIndex] = Time;
+				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
+				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
+				smokeDurBuffer[smokeIndex] = 0.015;
+				smokeAngleBuffer[smokeIndex] = rand() % 360;
+				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
+				smokeActive[smokeIndex] = true;
+				smokeIndex++;
+			}
+		}
+	}
+	// force a call to :
+	//glutSetWindow(MainWindow);
+	//glutPostRedisplay();
+}
+void drawSmoke(float X, float Y, float Z, float angle, float scale, float r, float g, float b, float beginTime, float duration)
 {
 	int beginPoint;
 	int endPoint;
@@ -848,7 +1539,7 @@ void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, floa
 		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
 		glPushMatrix();
 		glTranslatef(X, Z + 3 + (Time - beginTime) * 100, Y);
-		glScalef(1 + (Time - beginTime)* 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
+		glScalef(1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
 		glRotatef(angle, 0, 1, 0);
 		glPushMatrix();
 		glScalef(scale, scale, scale);
@@ -857,7 +1548,7 @@ void drawSmoke(float X, float Y, float Z,float angle, float scale, float r, floa
 		endPoint = trees[7][END] - trees[7][START];
 		glPushMatrix();
 		glTranslatef(0.5, 0, 0.5);
-		SetMaterial(r-0.10, g - 0.10, b - 0.10, 1);
+		SetMaterial(r - 0.10, g - 0.10, b - 0.10, 1);
 		glColor3f(r, g, b);
 		glRotatef(270, 1, 0, 0);
 		glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
@@ -2015,786 +2706,1049 @@ void drawSpark(float X, float Y, float angle,float timeIndex)
 	glVertex3f(0, 10, timeIndex*100);
 	glEnd();
 }
-void makeAI(bool isActive, char Tank)
+void drawMenu()
 {
-	myAIKB.isAI = isActive && AIACTIVE;
-	myAIKB.AIID = Tank;
-	if (myAIKB.isAI)
+	if (ADVANCEMENU)
 	{
-		switch (myAIKB.AIID)
+		switch (menuState)
 		{
-		case 'A':
-		case 'a':
-			myAIKB.playerHP = &IS3HP;
-			myAIKB.playerPos = IS3XY;
-			myAIKB.playerAmmo = &IS3Shells;
-			myAIKB.playerHullAngle = &IS3HullAngle;
-			myAIKB.playerTurretAngle = &IS3TurretAngle;
-
-			myAIKB.AIHP = &AbramHP;
-			myAIKB.AIPos = AbramXY;
-			myAIKB.AIAmmo = &AbramShells;
-			myAIKB.AIHullAngle = &AbramHullAngle;
-			myAIKB.AITurretAngle = &AbramTurretAngle;
-			break;
-		case 'T':
-		case 't':
-			myAIKB.playerHP = &AbramHP;
-			myAIKB.playerPos = AbramXY;
-			myAIKB.playerAmmo = &AbramShells;
-			myAIKB.playerHullAngle = &AbramHullAngle;
-			myAIKB.playerTurretAngle = &AbramTurretAngle;
-
-			myAIKB.AIHP = &IS3HP;
-			myAIKB.AIPos = IS3XY;
-			myAIKB.AIAmmo = &IS3Shells;
-			myAIKB.AIHullAngle = &IS3HullAngle;
-			myAIKB.AITurretAngle = &IS3TurretAngle;
-			break;
-		}
-		myAIKB.agent->env = (SimpleAI::InnerAIKB*)&myAIKB;
-	}
-}
-bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign, int axis,int * ival = NULL, int *jval = NULL)
-{
-	switch (axis)
-	{
-	case 0:
-		for (int j = 0; j < 14; j++)
+		case 0:
 		{
-			for (int i = 0; i < 24; i++)
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+			float startz = MAPEDGEY / 2 + CUBESIZE;
+			float endx = (-MAPEDGEX / 2 - CUBESIZE);
+			float endz = (-MAPEDGEY / 2 - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
 			{
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
+				for (int j = 0; j < grainY; j++)
 				{
-					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY)) &&
-						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY))))
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				}
+			}
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
+			{
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
 					{
-						if (ival != NULL && jval != NULL)
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
 						{
-							*ival = i;
-							*jval = j;
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
 						}
-						return true;
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
 					}
-				}
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
-				{
-					if ((((AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 2) && (AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 2)) &&
-						((AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 2) && (AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 2))))
-						return true;
-				}
-			}
-		}
-		return false;
-	case 1:
-		for (int j = 0; j < 14; j++)
-		{
-			for (int i = 0; i < 24; i++)
-			{
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
-				{
-					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY &&
-						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY &&
-						AY + (0 * sign) < myMap.coord[i][j][1] + BODY && 
-						AY + (0 * sign) > myMap.coord[i][j][1] - BODY)
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
 					{
-						return true;
+
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
+
 					}
 				}
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
-				{
-					if (AX + (Xstride * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
-						AX + (Xstride * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
-						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
-						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
-						return true;
-				}
 			}
-		}
-		return false;
-	case 2:
-		for (int j = 0; j < 14; j++)
-		{
-			for (int i = 0; i < 24; i++)
+			//end of drawing map
+
+			// Push the GL attribute bits so that we don't wreck any settings
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// Enable polygon offsets, and offset filled polygons forward by 2.5
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			// Set the render mode to be line rendering with a thick line width
+			glLineWidth(OUTLINE);
+			// Set the colour to be white
+			glColor3f(.75, .75, .75);
+			// Render the object
+			PatternSilh->Use();
+			//BehnamSaeedi
+			switch (backgroundRand)
 			{
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] != 7)
-				{
-					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY &&
-						AX + (0 * sign) > myMap.coord[i][j][0] - BODY &&
-						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY &&
-						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY)
-					{
-						return true;
-					}
-				}
-				if (myMap.isSolid[i][j] && myMap.color[i][j][0] == 7)
-				{
-					if (AX + (0 * sign) < myMap.coord[i][j][0] + BODY / 1.5 &&
-						AX + (0 * sign) > myMap.coord[i][j][0] - BODY / 1.5 &&
-						AY + (Ystride * sign) < myMap.coord[i][j][1] + BODY / 1.5 &&
-						AY + (Ystride * sign) > myMap.coord[i][j][1] - BODY / 1.5)
-						return true;
-				}
+			case 0:
+				drawHPCrate(0, 0);
+				break;
+			case 1:
+				drawSmokeCrate(0, 0);
+				break;
+			case 2:
+				drawAmmo(0, 0);
+				break;
+			case 3:
+				drawIS3(0, 0, 0, -45, -45);
+				break;
+			case 4:
+				drawAbram(0, 0, 0, -45, -45);
+				break;
+			case 5:
+				drawMine(0, 0);
+				break;
+			case 6:
+				drawT29(0, 0, 0, -45, -45);
+				break;
+			case 7:
+				drawE100(0, 0, 0, -45, -45);
+				break;
+			case 8:
+				drawType59(0, 0, 0, -45, -45);
+				break;
 			}
+			PatternSilh->Use(0);
+			// Set the polygon mode to be filled triangles 
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glShadeModel(GL_FLAT);
+			//glEnable(GL_LIGHTING);
+			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+			// Set the colour to the background
+			glColor3f(0.0f, 0.0f, 0.0f);
+			// Render the object
+			switch (backgroundRand)
+			{
+			case 0:
+				Pattern->Use();
+				drawHPCrate(0, 0);
+				Pattern->Use(0);
+				break;
+			case 1:
+				Pattern->Use();
+				drawSmokeCrate(0, 0);
+				Pattern->Use(0);
+				break;
+			case 2:
+				Pattern->Use();
+				drawAmmo(0, 0);
+				Pattern->Use(0);
+				break;
+			case 3:
+				PatternCamo->Use();
+				drawIS3(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 4:
+				PatternCamo->Use();
+				drawAbram(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 5:
+				Pattern->Use();
+				drawMine(0, 0);
+				Pattern->Use(0);
+				break;
+			case 6:
+				PatternCamo->Use();
+				drawT29(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 7:
+				PatternCamo->Use();
+				drawE100(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 8:
+				PatternCamo->Use();
+				drawType59(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			}
+			// Pop the state changes off the attribute stack
+			// to set things back how they were
+			glPopAttrib();
+
+			//glDisable(GL_LIGHT2);
+			//glDisable(GL_LIGHTING);
+
+			glDisableVertexAttribArray(0);
 		}
-		return false;
-	default:
-		return false;
 		break;
-	}
-}
-int CrateCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign)
-{
-	for (int i = 0; i < CRATECAP; i++)
-	{
-		if (Crates[i].isActive)
+		case 1:
+		case 2:
 		{
-			if ((((AX + (Xstride * sign) < Crates[i].X + BODY) && (AX + (Xstride * sign) > Crates[i].X - BODY)) &&
-				((AY + (Ystride * sign) <Crates[i].Y + BODY) && (AY + (Ystride * sign) > Crates[i].Y - BODY))))
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+			float startz = MAPEDGEY / 2 + CUBESIZE;
+			float endx = (-MAPEDGEX / 2 - CUBESIZE);
+			float endz = (-MAPEDGEY / 2 - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
 			{
-				return i;
+				for (int j = 0; j < grainY; j++)
+				{
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				}
 			}
-		}
-	}
-	return CRATECAP;
-}
-void KeyHandler() {
-	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
-	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
-	float IS3TX = TANKSPEED * (float)sin(IS3HullAngle * (float)((float)PI / (float)180));
-	float IS3TY = TANKSPEED * (float)cos(IS3HullAngle * (float)((float)PI / (float)180));
-	if ((keyBuffer['w'] || keyBuffer['W']) && AbramHP > 0) {
-		if (((AbramXY[0] - AbramTX) < MAPEDGEX && (AbramXY[0] - AbramTX) > -MAPEDGEX) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1),1)) &&
-			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
-			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
-		{
-			AbramXY[0] -= AbramTX;
-		}
-		else
-		{
-			//adjust angle
-			if (AbramTX > 0)
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
 			{
-				//hit a wall horizontal wall from top going down
-				if (AbramTY > 0)
-					AbramHullAngle -=TANKSPEED*5*2;
-				else
-					AbramHullAngle +=TANKSPEED*5*2;
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+					{
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+						{
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
+						}
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
+					}
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+					{
 
-			}
-			else
-			{
-				//hit a wall horizontal wall from bottom going up
-				if (AbramTY > 0)
-					AbramHullAngle +=TANKSPEED*5*2;
-				else
-					AbramHullAngle -=TANKSPEED*5*2;
-			}
-		}
-		if (((AbramXY[1] - AbramTY) < MAPEDGEY && (AbramXY[1] - AbramTY) > -MAPEDGEY) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (-1),2)) &&
-			!(((AbramXY[0] - AbramTX < IS3XY[0] + BODY) && (AbramXY[0] - AbramTX > IS3XY[0] - BODY)) &&
-			((AbramXY[1] - AbramTY < IS3XY[1] + BODY) && (AbramXY[1] - AbramTY > IS3XY[1] - BODY))))
-		{
-			AbramXY[1] -= AbramTY;
-		}
-		else
-		{
-			//adjust angle
-			if (AbramTY > 0)
-			{
-				//hit a wall Vertical wall from right going left
-				if (AbramTX > 0)
-					AbramHullAngle +=TANKSPEED*5*2;
-				else
-					AbramHullAngle -=TANKSPEED*5*2;
-				
-			}
-			else
-			{
-				//hit a wall Vertical wall from left going right
-				if (AbramTX > 0)
-					AbramHullAngle -=TANKSPEED*5*2;
-				else
-					AbramHullAngle +=TANKSPEED*5*2;
-			}
-			
-		}
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
-		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
-			AbramTX,
-			AbramTY,
-			-1
-		);
-		if (cratecheck != CRATECAP)
-		{
-			switch (Crates[cratecheck].type)
-			{
-			case 0:
-				AbramShells = SHELLSTORAGE;
-				alSourcePlay(Sources[12]);
-				break;
-			case 1:
-				AbramSmoke = SMOKECOUNT;
-				alSourcePlay(Sources[12]);
-				break;
-			case 2:
-				AbramHP = TANKHP;
-				alSourcePlay(Sources[11]);
-				break;
-			case 3:
-				AbramHP -= 3;
-				alSourcePlay(Sources[8]);
-				break;
-			}
-			Crates[cratecheck].isActive = false;
-			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
-		}
-	}
-	if ((keyBuffer['s'] || keyBuffer['S']) && AbramHP > 0) {
-		if (((AbramXY[0] + AbramTX) < MAPEDGEX && (AbramXY[0] + AbramTX) > -MAPEDGEX) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1),1)) &&
-			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
-			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
-		{
-			AbramXY[0] += AbramTX;
-		}
-		else
-		{
-			//adjust angle
-			if (AbramTX > 0)
-			{
-				//hit a wall horizontal wall from top going down
-				if (AbramTY > 0)
-					AbramHullAngle -=TANKSPEED*5*2;
-				else
-					AbramHullAngle +=TANKSPEED*5*2;
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
 
+					}
+				}
 			}
-			else
-			{
-				//hit a wall horizontal wall from bottom going up
-				if (AbramTY > 0)
-					AbramHullAngle +=TANKSPEED*5*2;
-				else
-					AbramHullAngle -=TANKSPEED*5*2;
-			}
-		}
-		if (((AbramXY[1] + AbramTY) < MAPEDGEY && (AbramXY[1] + AbramTY) > -MAPEDGEY) &&
-			(!MapCollisionModel(AbramXY[0], AbramXY[1], AbramTX, AbramTY, (1),2)) &&
-			!(((AbramXY[0] + AbramTX < IS3XY[0] + BODY) && (AbramXY[0] + AbramTX > IS3XY[0] - BODY)) &&
-			((AbramXY[1] + AbramTY < IS3XY[1] + BODY) && (AbramXY[1] + AbramTY > IS3XY[1] - BODY))))
-		{
-			AbramXY[1] += AbramTY;
-		}
-		else
-		{
-			//adjust angle
-			if (AbramTY > 0)
-			{
-				//hit a wall Vertical wall from right going left
-				if (AbramTX > 0)
-					AbramHullAngle +=TANKSPEED*5*2;
-				else
-					AbramHullAngle -=TANKSPEED*5*2;
+			//end of drawing map
 
-			}
-			else
-			{
-				//hit a wall Vertical wall from left going right
-				if (AbramTX > 0)
-					AbramHullAngle -=TANKSPEED*5*2;
-				else
-					AbramHullAngle +=TANKSPEED*5*2;
-			}
-		}
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
-		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-		int cratecheck = CrateCollisionModel(AbramXY[0], AbramXY[1],
-			AbramTX,
-			AbramTY,
-			1
-		);
-		if (cratecheck != CRATECAP)
-		{
-			switch (Crates[cratecheck].type)
+			// Push the GL attribute bits so that we don't wreck any settings
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// Enable polygon offsets, and offset filled polygons forward by 2.5
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			// Set the render mode to be line rendering with a thick line width
+			glLineWidth(OUTLINE);
+			// Set the colour to be white
+			glColor3f(.75, .75, .75);
+			// Render the object
+			PatternSilh->Use();
+			//BehnamSaeedi
+			switch (PlayerOne)
 			{
 			case 0:
-				AbramShells = SHELLSTORAGE;
-				alSourcePlay(Sources[12]);
+				drawAbram(0, 0, 3, -45, -45);
 				break;
 			case 1:
-				AbramSmoke = SMOKECOUNT;
-				alSourcePlay(Sources[12]);
+				drawIS3(0, 0, 3, -45, -45);
 				break;
 			case 2:
-				AbramHP = TANKHP;
-				alSourcePlay(Sources[11]);
+				drawT29(0, 0, 3, -45, -45);
 				break;
 			case 3:
-				AbramHP -= 3;
-				alSourcePlay(Sources[8]);
+				drawE100(0, 0, 3, -45, -45);
+				break;
+			case 4:
+				drawType59(0, 0, 3, -45, -45);
 				break;
 			}
-			Crates[cratecheck].isActive = false;
-			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
-		}
-	}
-	if ((keyBuffer['a'] || keyBuffer['A']) && AbramHP > 0) {
-		if (keyBuffer['s'] || keyBuffer['S'])
-			AbramHullAngle -= TANKSPEED * 5;
-		else
-			AbramHullAngle += TANKSPEED * 5;
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
-		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-	}
-	if ((keyBuffer['d'] || keyBuffer['D']) && AbramHP > 0) {
-		if (keyBuffer['s'] || keyBuffer['S'])
-			AbramHullAngle += TANKSPEED * 5;
-		else
-			AbramHullAngle -= TANKSPEED * 5;
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = AbramXY[0];
-		smokeCoordBuffer[smokeIndex][1] = AbramXY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-	}
-	if ((keyBuffer['q'] || keyBuffer['Q']) && AbramHP > 0) {
-		AbramTurretAngle += TANKSPEED * 5;
-	}
-	if ((keyBuffer['e'] || keyBuffer['E']) && AbramHP > 0) {
-		AbramTurretAngle -= TANKSPEED * 5;
-	}
-
-	if ((keyBuffer['i'] || keyBuffer['I'] || keyBuffer['8']) && IS3HP > 0) {
-		if (((IS3XY[0] - IS3TX) < MAPEDGEX && (IS3XY[0] - IS3TX) > -MAPEDGEX) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1),1)) &&
-			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
-			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
-		{
-			IS3XY[0] -= IS3TX;
-		}
-		else
-		{
-			//adjust angle
-			if (IS3TX > 0)
-			{
-				//hit a wall horizontal wall from top going down
-				if (IS3TY > 0)
-					IS3HullAngle -=TANKSPEED*5*2;
-				else
-					IS3HullAngle +=TANKSPEED*5*2;
-
-			}
-			else
-			{
-				//hit a wall horizontal wall from bottom going up
-				if (IS3TY > 0)
-					IS3HullAngle +=TANKSPEED*5*2;
-				else
-					IS3HullAngle -=TANKSPEED*5*2;
-			}
-		}
-		if (((IS3XY[1] - IS3TY) < MAPEDGEY && (IS3XY[1] - IS3TY) > -MAPEDGEY) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (-1),2)) &&
-			!(((IS3XY[0] - IS3TX < AbramXY[0] + BODY) && (IS3XY[0] - IS3TX > AbramXY[0] - BODY)) &&
-			((IS3XY[1] - IS3TY < AbramXY[1] + BODY) && (IS3XY[1] - IS3TY > AbramXY[1] - BODY))))
-		{
-			IS3XY[1] -= IS3TY;
-		}
-		else
-		{
-			//adjust angle
-			if (IS3TY > 0)
-			{
-				//hit a wall Vertical wall from right going left
-				if (IS3TX > 0)
-					IS3HullAngle +=TANKSPEED*5*2;
-				else
-					IS3HullAngle -=TANKSPEED*5*2;
-
-			}
-			else
-			{
-				//hit a wall Vertical wall from left going right
-				if (IS3TX > 0)
-					IS3HullAngle -=TANKSPEED*5*2;
-				else
-					IS3HullAngle +=TANKSPEED*5*2;
-			}
-		}
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
-		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
-			IS3TX,
-			IS3TX,
-			-1
-		);
-		if (cratecheck != CRATECAP)
-		{
-			switch (Crates[cratecheck].type)
+			switch (PlayerTwo)
 			{
 			case 0:
-				IS3Shells = SHELLSTORAGE;
-				alSourcePlay(Sources[12]);
+				drawAbram(0, 0,- 6, -45, -45);
 				break;
 			case 1:
-				IS3Smoke = SMOKECOUNT;
-				alSourcePlay(Sources[12]);
+				drawIS3(0, 0,- 6, -45, -45);
 				break;
 			case 2:
-				IS3HP = TANKHP;
-				alSourcePlay(Sources[11]);
+				drawT29(0, 0,- 6, -45, -45);
 				break;
 			case 3:
-				IS3HP -= 3;
-				alSourcePlay(Sources[8]);
+				drawE100(0, 0,- 6, -45, -45);
+				break;
+			case 4:
+				drawType59(0, 0,- 6, -45, -45);
 				break;
 			}
-			Crates[cratecheck].isActive = false;
-			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
-		}
-	}
-	if ((keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5']) && IS3HP > 0) {
-		if (((IS3XY[0] + IS3TX) < MAPEDGEX && (IS3XY[0] + IS3TX) > -MAPEDGEX) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1),1)) &&
-			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
-			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
-		{
-			IS3XY[0] += IS3TX;
-		}
-		else
-		{
-			//adjust angle
-			if (IS3TX > 0)
-			{
-				//hit a wall horizontal wall from top going down
-				if (IS3TY > 0)
-					IS3HullAngle -=TANKSPEED*5*2;
-				else
-					IS3HullAngle +=TANKSPEED*5*2;
-
-			}
-			else
-			{
-				//hit a wall horizontal wall from bottom going up
-				if (IS3TY > 0)
-					IS3HullAngle +=TANKSPEED*5*2;
-				else
-					IS3HullAngle -=TANKSPEED*5*2;
-			}
-		}
-		if (((IS3XY[1] + IS3TY) < MAPEDGEY && (IS3XY[1] + IS3TY) > -MAPEDGEY) &&
-			(!MapCollisionModel(IS3XY[0], IS3XY[1], IS3TX, IS3TY, (1),2)) &&
-			!(((IS3XY[0] + IS3TX < AbramXY[0] + BODY) && (IS3XY[0] + IS3TX > AbramXY[0] - BODY)) &&
-			((IS3XY[1] + IS3TY < AbramXY[1] + BODY) && (IS3XY[1] + IS3TY > AbramXY[1] - BODY))))
-		{
-			IS3XY[1] += IS3TY;
-		}
-		else
-		{
-			//adjust angle
-			if (IS3TY > 0)
-			{
-				//hit a wall Vertical wall from right going left
-				if (IS3TX > 0)
-					IS3HullAngle +=TANKSPEED*5*2;
-				else
-					IS3HullAngle -=TANKSPEED*5*2;
-
-			}
-			else
-			{
-				//hit a wall Vertical wall from left going right
-				if (IS3TX > 0)
-					IS3HullAngle -=TANKSPEED*5*2;
-				else
-					IS3HullAngle +=TANKSPEED*5*2;
-			}
-		}
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
-		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-	}
-	if ((keyBuffer['j'] || keyBuffer['J'] || keyBuffer['4']) && IS3HP > 0) {
-		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
-			IS3HullAngle -= TANKSPEED * 5;
-		else
-			IS3HullAngle += TANKSPEED * 5;
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
-		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-		int cratecheck = CrateCollisionModel(IS3XY[0], IS3XY[1],
-			IS3TX,
-			IS3TX,
-			1
-		);
-		if (cratecheck != CRATECAP)
-		{
-			switch (Crates[cratecheck].type)
+			PatternSilh->Use(0);
+			// Set the polygon mode to be filled triangles 
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glShadeModel(GL_FLAT);
+			//glEnable(GL_LIGHTING);
+			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+			// Set the colour to the background
+			glColor3f(0.0f, 0.0f, 0.0f);
+			// Render the object
+			switch (PlayerOne)
 			{
 			case 0:
-				IS3Shells = SHELLSTORAGE;
-				alSourcePlay(Sources[12]);
+				PatternCamo->Use();
+				drawAbram(0, 0, 3, -45, -45);
+				PatternCamo->Use(0);
 				break;
 			case 1:
-				IS3Smoke = SMOKECOUNT;
-				alSourcePlay(Sources[12]);
+				PatternCamo->Use();
+				drawIS3(0, 0, 3, -45, -45);
+				PatternCamo->Use(0);
 				break;
 			case 2:
-				IS3HP = TANKHP;
-				alSourcePlay(Sources[11]);
+				PatternCamo->Use();
+				drawT29(0, 0, 3, -45, -45);
+				PatternCamo->Use(0);
 				break;
 			case 3:
-				IS3HP -= 3;
-				alSourcePlay(Sources[8]);
+				PatternCamo->Use();
+				drawE100(0, 0, 3, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 4:
+				PatternCamo->Use();
+				drawType59(0, 0, 3, -45, -45);
+				PatternCamo->Use(0);
 				break;
 			}
-			Crates[cratecheck].isActive = false;
-			myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
-		}
-	}
-	if ((keyBuffer['l'] || keyBuffer['L'] || keyBuffer['6']) && IS3HP > 0) {
-		if (keyBuffer['k'] || keyBuffer['K'] || keyBuffer['5'])
-			IS3HullAngle += TANKSPEED * 5;
-		else
-			IS3HullAngle -= TANKSPEED * 5;
-		if (smokeIndex >= 1000)
-			smokeIndex = 0;
-		smokeIDBuffer[smokeIndex] = Time;
-		smokeCoordBuffer[smokeIndex][0] = IS3XY[0];
-		smokeCoordBuffer[smokeIndex][1] = IS3XY[1];
-		smokeDurBuffer[smokeIndex] = 0.01;
-		smokeAngleBuffer[smokeIndex] = rand() % 360;
-		smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-		smokeActive[smokeIndex] = true;
-		smokeIndex++;
-	}
-	if ((keyBuffer['u'] || keyBuffer['U'] || keyBuffer['7']) && IS3HP > 0) {
-		IS3TurretAngle += TANKSPEED * 5;
-	}
-	if ((keyBuffer['o'] || keyBuffer['O'] || keyBuffer['9']) && IS3HP > 0) {
-		IS3TurretAngle -= TANKSPEED * 5;
-	}
-	if (keyBuffer[ESCAPE]) {
-		mapName = "M";
-		resetState(mapName);
-		isInMenu = true;
-		for (int i = 0; i < 8; i++)
-			alSourceStop(Sources[i]);
-	}
-	if (keyBuffer['f'] || keyBuffer['F'] || keyBuffer[SPACEBAR])
-	{
-		if ((Time - AbramLastShot) < 0)
-			AbramLastShot = 0;
-
-		if (AbramShells > 0 && AbramHP > 0 && ((Time - AbramLastShot) >= RELOADTIME))
-		{
-			alSourcePlay(Sources[8]);
-			AbramLastShot = Time;
-			Shells[shellSize].x = AbramXY[0];
-			Shells[shellSize].y = AbramXY[1];
-			Shells[shellSize].angle = AbramTurretAngle + AbramHullAngle;
-			Shells[shellSize].shooterId = ABRAMID;
-			Shells[shellSize].startTime = Time;
-			Shells[shellSize].active = true;
-			if (shellSize < SHELLMAX - 1)
-				shellSize++;
-			else
-				shellSize = 0;
-			AbramShells--;
-			if (smokeIndex >= 1000)
-				smokeIndex = 0;
-			for (int i = 0; i < 20; i++)
+			switch (PlayerTwo)
 			{
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = AbramXY[0] - 5 * sin((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
-				smokeCoordBuffer[smokeIndex][1] = AbramXY[1] - 5 * cos((AbramTurretAngle + AbramHullAngle) * PI / 180.0);
-				smokeDurBuffer[smokeIndex] = 0.015;
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
+			case 0:
+				PatternCamo->Use();
+				drawAbram(0, 0,- 6, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 1:
+				PatternCamo->Use();
+				drawIS3(0, 0,- 6, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 2:
+				PatternCamo->Use();
+				drawT29(0, 0,- 6, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 3:
+				PatternCamo->Use();
+				drawE100(0, 0,- 6, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 4:
+				PatternCamo->Use();
+				drawType59(0, 0,- 6, -45, -45);
+				PatternCamo->Use(0);
+				break;
 			}
-		}
-	}
-	if (keyBuffer['h'] || keyBuffer['H'] || keyBuffer[ENTER] || keyBuffer['0'])
-	{
-		if ((Time - IS3LastShot) < 0)
-			IS3LastShot = 0;
 
-		if (IS3Shells > 0 && IS3HP > 0 && ((Time - IS3LastShot) >= RELOADTIME))
+			glPopAttrib();
+
+
+			glDisableVertexAttribArray(0);
+		}
+		break;
+		case 3:
 		{
-			alSourcePlay(Sources[8]);
-			IS3LastShot = Time;
-			Shells[shellSize].x = IS3XY[0];
-			Shells[shellSize].y = IS3XY[1];
-			Shells[shellSize].angle = IS3TurretAngle + IS3HullAngle;
-			Shells[shellSize].shooterId = IS3ID;
-			Shells[shellSize].startTime = Time;
-			Shells[shellSize].active = true;
-			if (shellSize < SHELLMAX - 1)
-				shellSize++;
-			else
-				shellSize = 0;
-			IS3Shells--;
-			for (int i = 0; i < 20; i++)
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX + CUBESIZE;
+			float startz = MAPEDGEY + CUBESIZE;
+			float endx = (-MAPEDGEX - CUBESIZE);
+			float endz = (-MAPEDGEY - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX;
+			int grainY = GRASSGRAINY;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
 			{
-				smokeIDBuffer[smokeIndex] = Time;
-				smokeCoordBuffer[smokeIndex][0] = IS3XY[0] - 5 * sin((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
-				smokeCoordBuffer[smokeIndex][1] = IS3XY[1] - 5 * cos((IS3TurretAngle + IS3HullAngle) * PI / 180.0);
-				smokeDurBuffer[smokeIndex] = 0.015;
-				smokeAngleBuffer[smokeIndex] = rand() % 360;
-				smokeIDBufferSet[smokeIndex] = !smokeIDBufferSet[smokeIndex];
-				smokeActive[smokeIndex] = true;
-				smokeIndex++;
+				for (int j = 0; j < grainY; j++)
+				{
+					glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
+					glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
+				}
 			}
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
+			{
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+					{
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+						{
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
+						}
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
+					}
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+					{
+
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
+
+					}
+				}
+			}
+			//end of drawing map
+
+			glDisableVertexAttribArray(0);
 		}
-	}
-	// force a call to :
-	//glutSetWindow(MainWindow);
-	//glutPostRedisplay();
-}
-void Display()
-{
-	if (!clicked && Time > 0.05)
-	{
-		#ifdef WIN32
-		INPUT Inputs[3] = { 0 };
+		break;
+		case 4:
+		{
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+			float startz = MAPEDGEY / 2 + CUBESIZE;
+			float endx = (-MAPEDGEX / 2 - CUBESIZE);
+			float endz = (-MAPEDGEY / 2 - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
+			{
+				for (int j = 0; j < grainY; j++)
+				{
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				}
+			}
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
+			{
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+					{
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+						{
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
+						}
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
+					}
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+					{
 
-		Inputs[0].type = INPUT_MOUSE;
-		Inputs[0].mi.dx = 0; // desired X coordinate
-		Inputs[0].mi.dy = 0; // desired Y coordinate
-		Inputs[0].mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
 
-		Inputs[1].type = INPUT_MOUSE;
-		Inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-
-		Inputs[2].type = INPUT_MOUSE;
-		Inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
-
-		SendInput(3, Inputs, sizeof(INPUT));
-		#endif
-		clicked = true;
-		loading = false;
-	}
-	else {
-		if (!clicked)
-			loading = true;
-	}
-
-	glutSetCursor(GLUT_CURSOR_NONE);
-	// set which window we want to do the graphics into:
-
-	glutSetWindow(MainWindow);
-
-
-	// erase the background:
-
-	glDrawBuffer(GL_BACK);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-	// specify shading to be flat:
-
-	//glShadeModel(GL_FLAT);
+					}
+				}
+			}
+			//end of drawing map
 
 
-	// set the viewport to a square centered in the window:
+
+			glDisableVertexAttribArray(0);
+		}
+		break;
+		case 5:
+		{
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+			float startz = MAPEDGEY / 2 + CUBESIZE;
+			float endx = (-MAPEDGEX / 2 - CUBESIZE);
+			float endz = (-MAPEDGEY / 2 - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
+			{
+				for (int j = 0; j < grainY; j++)
+				{
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				}
+			}
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
+			{
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+					{
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+						{
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
+						}
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
+					}
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+					{
+
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
+
+					}
+				}
+			}
+			//end of drawing map
 
 
-	GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
-	GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
-	GLsizei v = vx < vy ? vx : vy;			// minimum dimension
-	v = vx > vy ? vx : vy;
-	GLint xl = (vx - v) / 2;
-	GLint yb = (vy - v) / 2;
-	glViewport(xl, yb, v, v);
+
+			glDisableVertexAttribArray(0);
+		}
+		break;
+		case 6:
+		{
+			PatternGrass->Use();
+			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+			float startz = MAPEDGEY / 2 + CUBESIZE;
+			float endx = (-MAPEDGEX / 2 - CUBESIZE);
+			float endz = (-MAPEDGEY / 2 - CUBESIZE);
+			float lengthx = startx - endx;
+			float lengthz = startz - endz;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			glEnable(GL_NORMALIZE);
+			glBegin(GL_QUADS);
+			glPushMatrix();
+			glColor3f(0.1, 0.1, 0.0);
+			for (int i = 0; i < grainX; i++)
+			{
+				for (int j = 0; j < grainY; j++)
+				{
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
+					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				}
+			}
+			glPopMatrix();
+			glEnd();
+			PatternGrass->Use(0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+			glVertexAttribPointer(
+				0,                  // attribute
+				3,                  // size
+				GL_FLOAT,           // type
+				GL_FALSE,           // normalized?
+				0,                  // stride
+				(void*)0            // array buffer offset
+			);
+			// draw map
+			Pattern->Use();
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			Pattern->Use(0);
+			for (int j = 0; j < 14; j++)
+			{
+				for (int i = 0; i < 24; i++)
+				{
+					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+					{
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+						{
+							myMap.MCM[i][j] = false;
+							myMap.isSolid[i][j] = false;
+						}
+						/**/// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						// draw map border/**/
+						//DO TOON SHADING
+						PatternSilh->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						/**/glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						//glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+						//glColor3f(0.0f, 0.0f, 0.0f);
+						Pattern->Use();
+						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);/**/
+						Pattern->Use(0);
+					}
+					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+					{
+
+						// Push the GL attribute bits so that we don't wreck any settings
+						glPushAttrib(GL_ALL_ATTRIB_BITS);
+						// Enable polygon offsets, and offset filled polygons forward by 2.5
+						// Set the render mode to be line rendering with a thick line width
+						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						glDisable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						glLineWidth(OUTLINE);
+						// Set the colour to be white
+						glColor3f(.5, .5, .5);
+						// Render the object
+						PatternSilh->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternSilh->Use(0);
+						glEnable(GL_POLYGON_OFFSET_FILL);
+						glPolygonOffset(-2.5f, -2.5f);
+						// Set the polygon mode to be filled triangles
+						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+						glShadeModel(GL_FLAT);
+						//glEnable(GL_LIGHTING);
+						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+						glColor3f(0.0f, 0.0f, 0.0f);
+						PatternTree->Use();
+						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+						PatternTree->Use(0);
+						glPopAttrib();
+						//glDisable(GL_LIGHT1);
+						//glDisable(GL_LIGHTING);
+
+					}
+				}
+			}
+			//end of drawing map
 
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(90., 1., 0.1, 1000.);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
-
-	// set the eye position, look-at position, and up-vector:
-	if (isInMenu)
-	{
-		gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
-		glRotatef((GLfloat)Yrot, 0., 1., 0.);
-		glRotatef((GLfloat)Xrot, 1., 0., 0.);
+			glDisableVertexAttribArray(0);
+		}
+		break;
+		}
 	}
 	else
-		gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
-
-	//glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
-	// set the fog parameters:
-
-	//	glDisable(GL_FOG);
-
-	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
-	
-	if (res && isInMenu)
 	{
 		PatternGrass->Use();
-		float startx = 1+MAPEDGEX/2 + CUBESIZE;
-		float startz = MAPEDGEY/2 + CUBESIZE;
-		float endx = (-MAPEDGEX/2 - CUBESIZE);
-		float endz = (-MAPEDGEY/2 - CUBESIZE);
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
 		float lengthx = startx - endx;
 		float lengthz = startz - endz;
 		int grainX = GRASSGRAINX*MENUMULTIPLIER;
@@ -2807,7 +3761,7 @@ void Display()
 		{
 			for (int j = 0; j < grainY; j++)
 			{
-				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz- MENUZOFFSET - j*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
 				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
 				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
 				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
@@ -2956,7 +3910,7 @@ void Display()
 		case 7:
 			drawE100(0, 0, 0, -45, -45);
 			break;
-		case 8: 
+		case 8:
 			drawType59(0, 0, 0, -45, -45);
 			break;
 		}
@@ -3022,13 +3976,1109 @@ void Display()
 		// Pop the state changes off the attribute stack
 		// to set things back how they were
 		glPopAttrib();
-		
+
 		//glDisable(GL_LIGHT2);
 		//glDisable(GL_LIGHTING);
 
 		glDisableVertexAttribArray(0);
 	}
-	if (res && !isInMenu)
+}
+void drawMenuText()
+{
+	if (!ADVANCEMENU)
+		menuState = 7;
+	switch (menuState)
+	{
+	case 0:	// main: single player, multiplayer, controlls, graphics, credits
+	{
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(60, y, 0,      (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 2, 0,  (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 4, 0,  (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 6, 0,  (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 8, 0,  (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 10, 0, (char *)"Please select the map: Single Player");
+		glColor3f(1., 1., 1.);
+		DoRasterString(60, y, 0, (char *)  "Use Arrow Keys and Enter (Quit: Esc)");
+		glColor3f(1., 1., 0);
+		switch (backgroundRand)
+		{
+		case 0:
+			DoRasterString(10, 30, 0, (char *)"Health Boost: Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
+			break;
+		case 1:
+			DoRasterString(10, 30, 0, (char *)"Smoke Boost: Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
+			break;
+		case 2:
+			DoRasterString(10, 30, 0, (char *)"Ammo Boost: Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
+			break;
+		case 3:
+			DoRasterString(10, 30, 0, (char *)"IS3: This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
+			break;
+		case 4:
+			DoRasterString(10, 30, 0, (char *)"Abram: How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
+			break;
+		case 5:
+			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
+			break;
+		case 6:
+			DoRasterString(10, 30, 0, (char *)"T29: Hate groupmates? just remember that this tank has 6 crew members ... Good Lord!");
+			break;
+		case 7:
+			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
+			break;
+		case 8:
+			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
+			break;
+		}
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+		if (selectIndex == 0)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 2, 0, (char *)"Single Player");
+		if (selectIndex == 1)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 4, 0, (char *)"MultiPlayer");
+		if (selectIndex == 2)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 6, 0, (char *)"Controlls");
+		if (selectIndex == 3)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 8, 0, (char *)"Graphics");
+		if (selectIndex == 4)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 10, 0, (char *)"Credits");
+	}
+	break;
+	case 1:	// single player: Select Tank
+	{
+		isSingle = true;
+		makeAI(isSingle, 'T');
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(55, y, 0, (char *)   "Please select the map: Single Player----------------");
+		glColor3f(1., 1., 1.);
+		DoRasterString(55, y, 0, (char *)"Use A,D,J,L,4, 6 or Enter to select tank (BACK: ESC)");
+		DoStringBox(25, 60, 0, (char *)"Player N");
+		DoStringBox(60, 60, 0, (char *)"Player N");
+		glColor3f(1., 1., 1.);
+		DoRasterString(25, 60, 0, (char *)"Player 1");
+		DoRasterString(60, 60, 0, (char *)"Player 2");
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+	}
+	break;
+	case 2:	// multiplayer: Select Tank
+	{
+		isSingle = false;
+		makeAI(isSingle, 'T');
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(55, y, 0, (char *)   "Please select the map: Single Player----------------");
+		glColor3f(1., 1., 1.);
+		DoRasterString(55, y, 0, (char *)"Use A,D,J,L,4, 6 or Enter to select tank (BACK: ESC)");
+		DoStringBox(25, 60, 0, (char *)"Player N");
+		DoStringBox(60, 60, 0, (char *)"Player N");
+		glColor3f(1., 1., 1.);
+		DoRasterString(25, 60, 0, (char *)"Player 1");
+		DoRasterString(60, 60, 0, (char *)"Player 2");
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+	}
+	break;
+	case 3:	// Select Map
+	{
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(55, y, 0, (char *)     "Please select the map: Single Player---------");
+		DoStringBox(55, y - 2, 0, (char *) "Please select the map: Single Player---------");
+		DoStringBox(55, y - 4, 0, (char *) "Please select the map: Single Player---------");
+		DoStringBox(55, y - 6, 0, (char *) "Please select the map: Single Player---------");
+		DoStringBox(55, y - 8, 0, (char *) "Please select the map: Single Player---------");
+		DoStringBox(55, y - 10, 0, (char *)"Please select the map: Single Player---------");
+		DoStringBox(55, y - 12, 0, (char *)"Please select the map: Single Player---------");
+		DoStringBox(55, y - 14, 0, (char *)"Please select the map: Single Player---------");
+		DoStringBox(55, y - 16, 0, (char *)"Please select the map: Single Player---------");
+		DoStringBox(55, y - 18, 0, (char *)"Please select the map: Single Player---------");
+		DoStringBox(55, y - 20, 0, (char *)"Please select the map: Single Player---------");
+		glColor3f(1., 1., 1.);
+		DoRasterString(55, y, 0, (char *)  "Please select the map: (Up, Dowm, ESC)");
+		glColor3f(1., 1., 0);
+		DoRasterString(65, y - 2 * (selectIndex + 1), 0, (char *)"(Select: Enter)");
+		glColor3f(1., 1., 0);
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+		if (selectIndex == 0)
+		{
+			glColor3f(1., 1., 0);
+			//if ((ActiveButton & LEFT) != 0) 
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 1");
+				mapName = "1";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 2, 0, (char *)"Classic (Medium)");
+		if (selectIndex == 1)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 2");
+				mapName = "2";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 4, 0, (char *)"Duel (Medium)");
+		if (selectIndex == 2)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 7");
+				mapName = "7";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 6, 0, (char *)"Field (Easy)");
+		if (selectIndex == 3)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 9");
+				mapName = "9";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 8, 0, (char *)"aim_map (Easy)");
+		if (selectIndex == 4)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 5");
+				mapName = "5";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 10, 0, (char *)"Joe Graphics (Hard)");
+		if (selectIndex == 5)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 8");
+				mapName = "8";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 12, 0, (char *)"Limbo (Medium)");
+		if (selectIndex == 6)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 3");
+				mapName = "3";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 14, 0, (char *)"Jungle (Hard)");
+		if (selectIndex == 7)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 6");
+				mapName = "6";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 16, 0, (char *)"Maze (Hard)");
+		if (selectIndex == 8)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 4");
+				mapName = "4";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 18, 0, (char *)"Temple (Medium):");
+		if (selectIndex == 9)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" r");
+				mapName = "r";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(55, y - 20, 0, (char *)"Random (Easy)");
+	}
+	break;
+	case 4:	// controlls: Display control options
+	{
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float y = 50;
+
+		DoStringBox(20, y, 0, (char *)     "FUNCTION");
+		glColor3f(1, 1, 1);
+		DoRasterString(20, y, 0, (char *)  "MOVEMENT");
+		DoStringBox(40, y, 0, (char *)     "[   ]");
+		switch (PlayerOne)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
+			break;
+		}
+		DoRasterString(40, y, 0, (char *)  "[ W ]");
+		// Player 2:
+		DoStringBox(60, y, 0, (char *)     "FUNCTION");
+		glColor3f(1, 1, 1);
+		DoRasterString(60, y, 0, (char *)  "MOVEMENT");
+		DoStringBox(80, y, 0, (char *)     "[   ]");
+		switch (PlayerTwo)
+		{
+		case 0:
+			glColor3f(0.5, 0.5, 0);
+			break;
+		case 1:
+			glColor3f(0, 0, 1);
+			break;
+		case 2:
+			glColor3f(0.38, 0.2, 0.01);
+			break;
+		case 3:
+			glColor3f(1, 0.1, 0.5);
+			break;
+		case 4:
+			glColor3f(0, 1, 0);
+			break;
+		}
+		DoRasterString(80, y, 0, (char *)  "[I/8]");
+	}
+	break;
+	case 5:	// graphics: Display Graphics option
+	{
+
+	}
+	break;
+	case 6:	// credits: Display contact information
+	{
+
+	}
+	break;
+	case 7:	// traditional menu
+	{
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(60, y, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 2, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 4, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 6, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 8, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 10, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 12, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 14, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 16, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 18, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(60, y - 20, 0, (char *)"Please select the map: Single Player");
+		switch (PlayerOne)
+		{
+		case 0:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0.5, 0.5, 0);
+			break;
+		case 1:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0, 1);
+			break;
+		case 2:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0.38, 0.2, 0.01);
+			break;
+		case 3:
+			DoStringBoxColor(72, y, 0, (char *)   "", 1, 0.1, 0.5);
+			break;
+		case 4:
+			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0.5, 0);
+			break;
+		}
+		DoStringBox(74, y, 0, (char *)   "");
+		switch (PlayerTwo)
+		{
+		case 0:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0.5, 0.5, 0);
+			break;
+		case 1:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0, 1);
+			break;
+		case 2:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0.38, 0.2, 0.01);
+			break;
+		case 3:
+			DoStringBoxColor(76, y, 0, (char *)   "", 1, 0.1, 0.5);
+			break;
+		case 4:
+			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0.5, 0);
+			break;
+		}
+		glColor3f(1., 1., 1.);
+		DoRasterString(60, y, 0, (char *)"Please select the map:");
+		DoRasterString(72, y, 0, (char *)"1     vs     2");
+		glColor3f(1., 1., 0);
+		if (AIACTIVE)
+		{
+			if (isSingle)
+				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
+			else
+				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
+		}
+		switch (backgroundRand)
+		{
+		case 0:
+			DoRasterString(10, 30, 0, (char *)"Health Boost: Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
+			break;
+		case 1:
+			DoRasterString(10, 30, 0, (char *)"Smoke Boost: Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
+			break;
+		case 2:
+			DoRasterString(10, 30, 0, (char *)"Ammo Boost: Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
+			break;
+		case 3:
+			DoRasterString(10, 30, 0, (char *)"IS3: This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
+			break;
+		case 4:
+			DoRasterString(10, 30, 0, (char *)"Abram: How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
+			break;
+		case 5:
+			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
+			break;
+		case 6:
+			DoRasterString(10, 30, 0, (char *)"T29: Hate groupmates? just remember that this tank has 6 crew members ... Good Lord!");
+			break;
+		case 7:
+			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
+			break;
+		case 8:
+			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
+			break;
+		}
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+		if (selectIndex == 0)
+		{
+			glColor3f(1., 1., 0);
+			//if ((ActiveButton & LEFT) != 0) 
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 1");
+				mapName = "1";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 2, 0, (char *)"Classic (Medium)");
+		if (selectIndex == 1)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 2");
+				mapName = "2";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 4, 0, (char *)"Duel (Medium)");
+		if (selectIndex == 2)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 7");
+				mapName = "7";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 6, 0, (char *)"Field (Easy)");
+		if (selectIndex == 3)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 9");
+				mapName = "9";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 8, 0, (char *)"aim_map (Easy)");
+		if (selectIndex == 4)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 5");
+				mapName = "5";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 10, 0, (char *)"Joe Graphics (Hard)");
+		if (selectIndex == 5)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 8");
+				mapName = "8";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 12, 0, (char *)"Limbo (Medium)");
+		if (selectIndex == 6)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 3");
+				mapName = "3";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 14, 0, (char *)"Jungle (Hard)");
+		if (selectIndex == 7)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 6");
+				mapName = "6";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 16, 0, (char *)"Maze (Hard)");
+		if (selectIndex == 8)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" 4");
+				mapName = "4";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 18, 0, (char *)"Temple (Medium):");
+		if (selectIndex == 9)
+		{
+			glColor3f(1., 1., 0);
+			if (run)
+			{
+				run = false;
+				//system_hidden("\"Tank-2017.exe\" r");
+				mapName = "r";
+				lastMap = mapName;
+				loadMap();
+				isInMenu = false;
+				Sleep(500);
+				backgroundRand = (backgroundRand + rand()) % 9;
+			}
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		DoRasterString(60, y - 20, 0, (char *)"Random (Easy)");
+	}
+	break;
+	}
+}
+void drawinGmaeUI()
+{
+	// Winner Text:
+	if (AbramHP <= 0 && IS3HP <= 0)
+	{
+		glColor3f(1., 1., 1.);
+		DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Draw!");
+	}
+	else
+	{
+		if (AbramHP <= 0)
+		{
+			switch (PlayerTwo)
+			{
+			case 0:
+				glColor3f(0.5, 0.5, 0);
+				break;
+			case 1:
+				glColor3f(0, 0, 1);
+				break;
+			case 2:
+				glColor3f(0.38, 0.2, 0.01);
+				break;
+			case 3:
+				glColor3f(1, 0.1, 0.5);
+				break;
+			case 4:
+				glColor3f(0, 1, 0);
+				break;
+			}
+			DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Player 2 Wins!");
+			if (!ScoreSet)
+			{
+				ScoreSet = true;
+				IS3Score++;
+			}
+		}
+		if (IS3HP <= 0)
+		{
+			switch (PlayerOne)
+			{
+			case 0:
+				glColor3f(0.5, 0.5, 0);
+				break;
+			case 1:
+				glColor3f(0, 0, 1);
+				break;
+			case 2:
+				glColor3f(0.38, 0.2, 0.01);
+				break;
+			case 3:
+				glColor3f(1, 0.1, 0.5);
+				break;
+			case 4:
+				glColor3f(0, 1, 0);
+				break;
+			}
+			DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Player 1 Wins!");
+			if (!ScoreSet)
+			{
+				ScoreSet = true;
+				AbramScore++;
+			}
+		}
+	}
+	// Controlls here:
+	// Player 1:
+	glColor3f(1, 1, 1);
+	DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 45, (char *)"Turret");
+	DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 30, (char *)"Q        E");
+	DoRasterString(MAPEDGEX + 17.5, 3, -MAPEDGEY - 45, (char *)"Movement");
+	DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"    W");
+	DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 28, (char *)"A   S   D");
+	DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 40, (char *)"Ordnance");
+	DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 26, (char *)"  F   C");
+	DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 25, (char *)"G   +   -");
+	switch (PlayerOne)
+	{
+	case 0:
+		glColor3f(0.5, 0.5, 0);
+		break;
+	case 1:
+		glColor3f(0, 0, 1);
+		break;
+	case 2:
+		glColor3f(0.38, 0.2, 0.01);
+		break;
+	case 3:
+		glColor3f(1, 0.1, 0.5);
+		break;
+	case 4:
+		glColor3f(0, 1, 0);
+		break;
+	}
+	DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 31, (char *)"[    ]     [   ]");
+	DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"   [    ]");
+	DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 29, (char *)"[   ][    ][   ]");
+	DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 27, (char *)"  [   ] [   ]");
+	DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 26, (char *)"[    ][   ][   ]");
+
+	// Player 2:
+	glColor3f(1, 1, 1);
+	DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 15, (char *)"Turret");
+	DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 34, (char *)"7        9");
+	DoRasterString(MAPEDGEX + 17.5, 3, MAPEDGEY + 15, (char *)"Movement");
+	DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 34, (char *)"    8");
+	DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 32, (char *)"4   5   6");
+	DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 15, (char *)"Ordnance");
+	DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 30, (char *)"  0   .");
+	DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 29, (char *)"G   +   -");
+	switch (PlayerTwo)
+	{
+	case 0:
+		glColor3f(0.5, 0.5, 0);
+		break;
+	case 1:
+		glColor3f(0, 0, 1);
+		break;
+	case 2:
+		glColor3f(0.38, 0.2, 0.01);
+		break;
+	case 3:
+		glColor3f(1, 0.1, 0.5);
+		break;
+	case 4:
+		glColor3f(0, 1, 0);
+		break;
+	}
+	DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 33, (char *)"[   ]     [   ]");
+	DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 33.5, (char *)"   [   ]");
+	DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 31, (char *)"[   ][   ][   ]");
+	DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 29, (char *)" [   ] [   ]");
+	DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 28, (char *)"[    ][   ][   ]");
+
+
+	if (AbramShells == 0)
+	{
+
+		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
+	}
+	if (IS3Shells == 0)
+	{
+		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
+	}
+	if (AbramSmoke == 0)
+	{
+		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
+	}
+	if (IS3Smoke == 0)
+	{
+		glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
+		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
+	}
+
+	itoa(AbramScore, scoreText, 10);
+	switch (PlayerOne)
+	{
+	case 0:
+		glColor3f(0.5, 0.5, 0);
+		break;
+	case 1:
+		glColor3f(0, 0, 1);
+		break;
+	case 2:
+		glColor3f(0.38, 0.2, 0.01);
+		break;
+	case 3:
+		glColor3f(1, 0.1, 0.5);
+		break;
+	case 4:
+		glColor3f(0, 1, 0);
+		break;
+	}
+	DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY - 10, (char *)scoreText);
+	itoa(IS3Score, scoreText, 10);
+	switch (PlayerTwo)
+	{
+	case 0:
+		glColor3f(0.5, 0.5, 0);
+		break;
+	case 1:
+		glColor3f(0, 0, 1);
+		break;
+	case 2:
+		glColor3f(0.38, 0.2, 0.01);
+		break;
+	case 3:
+		glColor3f(1, 0.1, 0.5);
+		break;
+	case 4:
+		glColor3f(0, 1, 0);
+		break;
+	}
+	DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
+
+	// draw some gratuitous text that is fixed on the screen:
+	//
+	// the projection matrix is reset to define a scene whose
+	// world coordinate system goes from 0-100 in each axis
+	//
+	// this is called "percent units", and is just a convenience
+	//
+	// the modelview matrix is reset to identity as we don't
+	// want to transform these coordinates
+
+	glDisable(GL_DEPTH_TEST);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0., 100., 0., 100.);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1., 1., 1.);
+	//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
+}
+void Display()
+{
+	if (!clicked && Time > 0.05)
+	{
+		#ifdef WIN32
+		INPUT Inputs[3] = { 0 };
+
+		Inputs[0].type = INPUT_MOUSE;
+		Inputs[0].mi.dx = 0; // desired X coordinate
+		Inputs[0].mi.dy = 0; // desired Y coordinate
+		Inputs[0].mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE;
+
+		Inputs[1].type = INPUT_MOUSE;
+		Inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+
+		Inputs[2].type = INPUT_MOUSE;
+		Inputs[2].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+
+		SendInput(3, Inputs, sizeof(INPUT));
+		#endif
+		clicked = true;
+		loading = false;
+	}
+	else {
+		if (!clicked)
+			loading = true;
+	}
+	{
+		glutSetCursor(GLUT_CURSOR_NONE);
+		// set which window we want to do the graphics into:
+
+		glutSetWindow(MainWindow);
+
+
+		// erase the background:
+
+		glDrawBuffer(GL_BACK);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		// specify shading to be flat:
+
+		//glShadeModel(GL_FLAT);
+
+
+		// set the viewport to a square centered in the window:
+
+	}
+	GLsizei vx = glutGet(GLUT_WINDOW_WIDTH);
+	GLsizei vy = glutGet(GLUT_WINDOW_HEIGHT);
+	GLsizei v = vx < vy ? vx : vy;			// minimum dimension
+	v = vx > vy ? vx : vy;
+	GLint xl = (vx - v) / 2;
+	GLint yb = (vy - v) / 2;
+	glViewport(xl, yb, v, v);
+
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(90., 1., 0.1, 1000.);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+
+	// set the eye position, look-at position, and up-vector:
+	if (isInMenu)
+	{
+		if(menuState == 3)
+			gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
+		else
+			gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
+		glRotatef((GLfloat)Yrot, 0., 1., 0.);
+		glRotatef((GLfloat)Xrot, 1., 0., 0.);
+	}
+	else
+		gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
+
+	//glScalef((GLfloat)Scale, (GLfloat)Scale, (GLfloat)Scale);
+	// set the fog parameters:
+
+	//	glDisable(GL_FOG);
+
+	// Costume polys for each frame (instapoly):__________________________________________________________________________________________________________________________
+	
+	if (res && isInMenu)
+		drawMenu();
+	if (res && !isInMenu)//__________________________________________________________________________________________________________________________
+
 	{
 		PatternGrass->Use();
 		//draw grass
@@ -3858,547 +5908,11 @@ void Display()
 		glDisableVertexAttribArray(0);
 	}
 
-	//if (DepthFightingOn != 0)
-
-	// draw some gratuitous text that just rotates on top of the scene:
-
 	glDisable(GL_DEPTH_TEST);
 	if (isInMenu)
-	{
-		glDisable(GL_DEPTH_TEST);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluOrtho2D(0., 100., 0., 100.);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glColor3f(1., 1., 1.);
-		int y = 70;
-		int inc = 0;
-		GLint m_viewport[4];
-		glGetIntegerv(GL_VIEWPORT, m_viewport);
-
-		float amount = 40;
-		selectIndex = selectIndex % 10;
-		glColor3f(0.125,0.125,0.125);
-		DoStringBox(60, y,      0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y -  2, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y -  4, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y -  6, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y -  8, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 10, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 12, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 14, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 16, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 18, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 20, 0, (char *)"Please select the map: Single Player");
-		switch (PlayerOne)
-		{
-		case 0:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0.5, 0.5, 0);
-			break;
-		case 1:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0, 1);
-			break;
-		case 2:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0.38, 0.2, 0.01);
-			break;
-		case 3:
-			DoStringBoxColor(72, y, 0, (char *)   "", 1, 0.1, 0.5);
-			break;
-		case 4:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0.5, 0);
-			break;
-		}
-		DoStringBox(74, y, 0, (char *)   "");
-		switch (PlayerTwo)
-		{
-		case 0:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0.5, 0.5, 0);
-			break;
-		case 1:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0, 1);
-			break;
-		case 2:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0.38, 0.2, 0.01);
-			break;
-		case 3:
-			DoStringBoxColor(76, y, 0, (char *)   "", 1, 0.1, 0.5);
-			break;
-		case 4:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0.5, 0);
-			break;
-		}
-		glColor3f(1., 1., 1.);
-		DoRasterString(60, y, 0, (char *)"Please select the map:");
-		DoRasterString(72, y, 0, (char *)"1     vs     2");
-		glColor3f(1., 1., 0);
-		if (AIACTIVE)
-		{
-			if (isSingle)
-				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
-			else
-				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
-		}
-		switch (backgroundRand)
-		{
-		case 0:
-			DoRasterString(10, 30, 0, (char *)"Health Boost: Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
-			break;
-		case 1:
-			DoRasterString(10, 30, 0, (char *)"Smoke Boost: Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
-			break;
-		case 2:
-			DoRasterString(10, 30, 0, (char *)"Ammo Boost: Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
-			break;
-		case 3:
-			DoRasterString(10, 30, 0, (char *)"IS3: This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
-			break;
-		case 4:
-			DoRasterString(10, 30, 0, (char *)"Abram: How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
-			break;
-		case 5:
-			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
-			break;
-		case 6: 
-			DoRasterString(10, 30, 0, (char *)"T29: Hate groupmates? just remember that this tank has 6 crew members ... Good Lord!");
-			break;
-		case 7:
-			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
-			break;
-		case 8:
-			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
-			break;
-		}
-		glColor3f(0.125, 0.125, 0.125);
-		DoStringBox(80, 25, 0,    (char *)"Developed By Behnam ");
-		DoStringBox(80, 27, 0,    (char *)"Developed By Behnam ");
-		glColor3f(1., 1., 1.);
-		DoRasterString(80, 27, 0, (char *)" Developed By:");
-		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 0)
-		{
-			glColor3f(1., 1., 0);
-			//if ((ActiveButton & LEFT) != 0) 
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 1");
-				mapName = "1";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 2, 0, (char *)"Classic (Medium)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 1)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 2");
-				mapName = "2";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 4, 0, (char *)"Duel (Medium)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 2)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 7");
-				mapName = "7";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 6, 0, (char *)"Field (Easy)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 3)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 9");
-				mapName = "9";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 8, 0, (char *)"aim_map (Easy)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 4)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 5");
-				mapName = "5";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 10, 0, (char *)"Joe Graphics (Hard)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 5)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 8");
-				mapName = "8";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 12, 0, (char *)"Limbo (Medium)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 6)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 3");
-				mapName = "3";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 14, 0, (char *)"Jungle (Hard)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 7)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 6");
-				mapName = "6";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 16, 0, (char *)"Maze (Hard)");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 8)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 4");
-				mapName = "4";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 18, 0, (char *)"Temple (Medium):");
-		if (/*(Xmouse > 1100 && Xmouse < 1500 &&
-			Ymouse > 160 + (float)(inc * amount) && Ymouse < 210 + (float)(inc * amount)) ||*/ selectIndex == 9)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" r");
-				mapName = "r";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 20, 0, (char *)"Random (Easy)");
-	}
+		drawMenuText();
 	else
-	{
-		// Winner Text:
-		if (AbramHP <= 0 && IS3HP <= 0)
-		{
-			glColor3f(1., 1., 1.);
-			DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Draw!");
-		}
-		else
-		{
-			if (AbramHP <= 0)
-			{
-				switch (PlayerTwo)
-				{
-				case 0:
-					glColor3f(0.5, 0.5, 0);
-					break;
-				case 1:
-					glColor3f(0, 0, 1);
-					break;
-				case 2:
-					glColor3f(0.38, 0.2, 0.01);
-					break;
-				case 3:
-					glColor3f(1, 0.1, 0.5);
-					break;
-				case 4:
-					glColor3f(0, 1, 0);
-					break;
-				}
-				DoRasterString(MAPEDGEX+22, 0, -10, (char *)"Player 2 Wins!");
-				if (!ScoreSet)
-				{
-					ScoreSet = true;
-					IS3Score++;
-				}
-			}
-			if (IS3HP <= 0)
-			{
-				switch (PlayerOne)
-				{
-				case 0:
-					glColor3f(0.5, 0.5, 0);
-					break;
-				case 1:
-					glColor3f(0, 0, 1);
-					break;
-				case 2:
-					glColor3f(0.38, 0.2, 0.01);
-					break;
-				case 3:
-					glColor3f(1, 0.1, 0.5);
-					break;
-				case 4:
-					glColor3f(0, 1, 0);
-					break;
-				}
-				DoRasterString(MAPEDGEX + 22, 0, -10, (char *)"Player 1 Wins!");
-				if (!ScoreSet)
-				{
-					ScoreSet = true;
-					AbramScore++;
-				}
-			}
-		}
-		// Controlls here:
-		// Player 1:
-		glColor3f(1, 1, 1);
-		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 45, (char *)"Turret");
-		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 30, (char *)"Q        E");
-		DoRasterString(MAPEDGEX + 17.5, 3, -MAPEDGEY - 45, (char *)"Movement");
-		DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"    W");
-		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 28, (char *)"A   S   D");
-		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 40, (char *)"Ordnance");
-		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 26, (char *)"  F   C");
-		DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 25, (char *)"G   +   -");
-		switch (PlayerOne)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(MAPEDGEX + 25, 3, -MAPEDGEY - 31, (char *)"[    ]     [   ]");
-		DoRasterString(MAPEDGEX + 20, 3, -MAPEDGEY - 29, (char *)"   [    ]");
-		DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY - 29, (char *)"[   ][    ][   ]");
-		DoRasterString(MAPEDGEX + 10, 3, -MAPEDGEY - 27, (char *)"  [   ] [   ]");
-		DoRasterString(MAPEDGEX + 05, 3, -MAPEDGEY - 26, (char *)"[    ][   ][   ]");
-
-		// Player 2:
-		glColor3f(1, 1, 1);
-		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 15, (char *)"Turret");
-		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 34, (char *)"7        9");
-		DoRasterString(MAPEDGEX + 17.5, 3, MAPEDGEY + 15, (char *)"Movement");
-		DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 34, (char *)"    8");
-		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 32, (char *)"4   5   6");
-		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 15, (char *)"Ordnance");
-		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 30, (char *)"  0   .");
-		DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 29, (char *)"G   +   -");
-		switch (PlayerTwo)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(MAPEDGEX + 25, 3, MAPEDGEY + 33, (char *)"[   ]     [   ]");
-		DoRasterString(MAPEDGEX + 20, 3, MAPEDGEY + 33.5, (char *)"   [   ]");
-		DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY + 31, (char *)"[   ][   ][   ]");
-		DoRasterString(MAPEDGEX + 10, 3, MAPEDGEY + 29, (char *)" [   ] [   ]");
-		DoRasterString(MAPEDGEX + 05, 3, MAPEDGEY + 28, (char *)"[    ][   ][   ]");
-		
-
-		if (AbramShells == 0)
-		{
-
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
-			DoRasterString(MAPEDGEX + 15, 3, -MAPEDGEY, (char *)"OUT OF AMMO!");
-		}
-		if (IS3Shells == 0)
-		{
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
-			DoRasterString(MAPEDGEX + 15, 3, MAPEDGEY - 15, (char *)"OUT OF AMMO!");
-		}
-		if (AbramSmoke == 0)
-		{
-			glColor3f(1 - sin(Time * 1000), 1 - sin(Time * 1000), 1 - sin(Time * 1000));
-			DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY, (char *)"OUT OF SMOKE!");
-		}
-		if (IS3Smoke == 0)
-		{
-			glColor3f(1 - sin(Time * 1000),1 - sin(Time * 1000), 1 - sin(Time * 1000));
-			DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY - 15, (char *)"OUT OF SMOKE!");
-		}
-
-		itoa(AbramScore, scoreText, 10);
-		switch (PlayerOne)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(MAPEDGEX + 22, 3, -MAPEDGEY-10, (char *)scoreText);
-		itoa(IS3Score, scoreText, 10);
-		switch (PlayerTwo)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(MAPEDGEX + 22, 3, MAPEDGEY + 10, (char *)scoreText);
-		
-		// draw some gratuitous text that is fixed on the screen:
-		//
-		// the projection matrix is reset to define a scene whose
-		// world coordinate system goes from 0-100 in each axis
-		//
-		// this is called "percent units", and is just a convenience
-		//
-		// the modelview matrix is reset to identity as we don't
-		// want to transform these coordinates
-
-		glDisable(GL_DEPTH_TEST);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluOrtho2D(0., 100., 0., 100.);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glColor3f(1., 1., 1.);
-		//DoRasterString(500., 400, 0., (char *)"Final Project: Tank 2017");
-	}
-
-	// swap the double-buffered framebuffers:
-	/**/
-	// Multipass rendering:
-	/**/
+		drawinGmaeUI();
 	glutSwapBuffers();
 	glFlush();
 }
@@ -5188,164 +6702,659 @@ void Keyboard(unsigned char c, int x, int y)
 {
 	if (isInMenu)
 	{
-		if (DebugOn != 0)
-			fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-		switch (c)
+		if (ADVANCEMENU)
 		{
-		case 'o':
-		case 'O':
-			WhichProjection = ORTHO;
-			break;
+			switch (menuState)
+			{
+			case 0:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
 
-		case 'p':
-		case 'P':
-			WhichProjection = PERSP;
-			break;
-		case 'w':
-		case 'W':
-			if (selectIndex >= 1)
-				selectIndex--;
-			else
-				selectIndex = 9;
-			selectIndex = selectIndex % 10;
-			break;
-		case 's':
-		case 'S':
-			selectIndex++;
-			selectIndex = selectIndex % 10;
-			break;
-		case 'a':
-		case 'A':
-			PlayerOne += 1;
-			PlayerOne = PlayerOne % TOTALTANKS;
-			switch (PlayerOne)
-			{
-			case 0:
-				DrawPointer1 = &drawAbram;
-				DrawPointer1d = &drawAbramDead;
-				break;
-			case 1:
-				DrawPointer1 = &drawIS3;
-				DrawPointer1d = &drawIS3Dead;
-				break;
-			case 2:
-				DrawPointer1 = &drawT29;
-				DrawPointer1d = &drawT29Dead;
-				break;
-			case 3:
-				DrawPointer1 = &drawE100;
-				DrawPointer1d = &drawE100Dead;
-				break;
-			case 4:
-				DrawPointer1 = &drawType59;
-				DrawPointer1d = &drawType59Dead;
-				break;
-			}
-			break;
-		case 'd':
-		case 'D':
-			PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
-			PlayerOne = (PlayerOne-1) % TOTALTANKS;
-			switch (PlayerOne)
-			{
-			case 0:
-				DrawPointer1 = &drawAbram;
-				DrawPointer1d = &drawAbramDead;
-				break;
-			case 1:
-				DrawPointer1 = &drawIS3;
-				DrawPointer1d = &drawIS3Dead;
-				break;
-			case 2:
-				DrawPointer1 = &drawT29;
-				DrawPointer1d = &drawT29Dead;
-				break;
-			case 3:
-				DrawPointer1 = &drawE100;
-				DrawPointer1d = &drawE100Dead;
-				break;
-			case 4:
-				DrawPointer1 = &drawType59;
-				DrawPointer1d = &drawType59Dead;
-				break;
-			}
-			break;
-		case 'j':
-		case 'J':
-		case '4':
-			PlayerTwo += 1;
-			PlayerTwo = PlayerTwo % TOTALTANKS;
-			switch (PlayerTwo)
-			{
-			case 0:
-				DrawPointer2 = &drawAbram;
-				DrawPointer2d = &drawAbramDead;
-				break;
-			case 1:
-				DrawPointer2 = &drawIS3;
-				DrawPointer2d = &drawIS3Dead;
-				break;
-			case 2:
-				DrawPointer2 = &drawT29;
-				DrawPointer2d = &drawT29Dead;
-				break;
-			case 3:
-				DrawPointer2 = &drawE100;
-				DrawPointer2d = &drawE100Dead;
-				break;
-			case 4:
-				DrawPointer2 = &drawType59;
-				DrawPointer2d = &drawType59Dead;
-				break;
-			}
-			break;
-		case 'l':
-		case 'L':
-		case '6':
-			PlayerTwo += TOTALTANKS;
-			PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
-			switch (PlayerTwo)
-			{
-			case 0:
-				DrawPointer2 = &drawAbram;
-				DrawPointer2d = &drawAbramDead;
-				break;
-			case 1:
-				DrawPointer2 = &drawIS3;
-				DrawPointer2d = &drawIS3Dead;
-				break;
-			case 2:
-				DrawPointer2 = &drawT29;
-				DrawPointer2d = &drawT29Dead;
-				break;
-			case 3:
-				DrawPointer2 = &drawE100;
-				DrawPointer2d = &drawE100Dead;
-				break;
-			case 4:
-				DrawPointer2 = &drawType59;
-				DrawPointer2d = &drawType59Dead;
-				break;
-			}
-			break;
+				switch (c)
+				{
+				case 'w':
+				case 'W':
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 4;
+					selectIndex = selectIndex % 5;
+					break;
+				case 's':
+				case 'S':
+					selectIndex++;
+					selectIndex = selectIndex % 5;
+					break;
 
-		case ' ':
-		case 13:
-			run = true;
-			break;
-		case 'q':
-		case 'Q':
-		case ESCAPE:
-			Quit();//DoMainMenu(QUIT);	// will not return here
-			break;				// happy compiler
+				case ' ':
+				case 13:
+					switch (selectIndex)
+					{
+					case 0:
+						menuState = 1;
+						break;
+					case 1:
+						menuState = 2;
+						break;
+					case 2:
+						menuState = 4;
+						break;
+					case 3:
+						menuState = 5;
+						break;
+					case 4:
+						menuState = 6;
+						break;
+					}
+					selectIndex = 0;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					Quit();
+					break;
 
+				}
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+			break;
+			case 1:
+			case 2:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+				switch (c)
+				{
+				case 'a':
+				case 'A':
+					PlayerOne += 1;
+					PlayerOne = PlayerOne % TOTALTANKS;
+					switch (PlayerOne)
+					{
+					case 0:
+						DrawPointer1 = &drawAbram;
+						DrawPointer1d = &drawAbramDead;
+						break;
+					case 1:
+						DrawPointer1 = &drawIS3;
+						DrawPointer1d = &drawIS3Dead;
+						break;
+					case 2:
+						DrawPointer1 = &drawT29;
+						DrawPointer1d = &drawT29Dead;
+						break;
+					case 3:
+						DrawPointer1 = &drawE100;
+						DrawPointer1d = &drawE100Dead;
+						break;
+					case 4:
+						DrawPointer1 = &drawType59;
+						DrawPointer1d = &drawType59Dead;
+						break;
+					}
+					break;
+				case 'd':
+				case 'D':
+					PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
+					PlayerOne = (PlayerOne - 1) % TOTALTANKS;
+					switch (PlayerOne)
+					{
+					case 0:
+						DrawPointer1 = &drawAbram;
+						DrawPointer1d = &drawAbramDead;
+						break;
+					case 1:
+						DrawPointer1 = &drawIS3;
+						DrawPointer1d = &drawIS3Dead;
+						break;
+					case 2:
+						DrawPointer1 = &drawT29;
+						DrawPointer1d = &drawT29Dead;
+						break;
+					case 3:
+						DrawPointer1 = &drawE100;
+						DrawPointer1d = &drawE100Dead;
+						break;
+					case 4:
+						DrawPointer1 = &drawType59;
+						DrawPointer1d = &drawType59Dead;
+						break;
+					}
+					break;
+				case 'j':
+				case 'J':
+				case '4':
+					PlayerTwo += 1;
+					PlayerTwo = PlayerTwo % TOTALTANKS;
+					switch (PlayerTwo)
+					{
+					case 0:
+						DrawPointer2 = &drawAbram;
+						DrawPointer2d = &drawAbramDead;
+						break;
+					case 1:
+						DrawPointer2 = &drawIS3;
+						DrawPointer2d = &drawIS3Dead;
+						break;
+					case 2:
+						DrawPointer2 = &drawT29;
+						DrawPointer2d = &drawT29Dead;
+						break;
+					case 3:
+						DrawPointer2 = &drawE100;
+						DrawPointer2d = &drawE100Dead;
+						break;
+					case 4:
+						DrawPointer2 = &drawType59;
+						DrawPointer2d = &drawType59Dead;
+						break;
+					}
+					break;
+				case 'l':
+				case 'L':
+				case '6':
+					PlayerTwo += TOTALTANKS;
+					PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
+					switch (PlayerTwo)
+					{
+					case 0:
+						DrawPointer2 = &drawAbram;
+						DrawPointer2d = &drawAbramDead;
+						break;
+					case 1:
+						DrawPointer2 = &drawIS3;
+						DrawPointer2d = &drawIS3Dead;
+						break;
+					case 2:
+						DrawPointer2 = &drawT29;
+						DrawPointer2d = &drawT29Dead;
+						break;
+					case 3:
+						DrawPointer2 = &drawE100;
+						DrawPointer2d = &drawE100Dead;
+						break;
+					case 4:
+						DrawPointer2 = &drawType59;
+						DrawPointer2d = &drawType59Dead;
+						break;
+					}
+					break;
+
+				case ' ':
+				case 13:
+					selectIndex = 0;
+					mapName = "1";
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					menuState = 3;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					menuState = 0;
+					break;
+
+				}
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+				break;
+			case 3:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+				switch (c)
+				{
+				case 'w':
+				case 'W':
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 9;
+					selectIndex = selectIndex % 10;
+					switch (selectIndex)
+					{
+					case 0:
+						mapName = '1';
+						break;
+					case 1:
+						mapName = '2';
+						break;
+					case 2:
+						mapName = '7';
+						break;
+					case 3:
+						mapName = '9';
+						break;
+					case 4:
+						mapName = '5';
+						break;
+					case 5:
+						mapName = '8';
+						break;
+					case 6:
+						mapName = '3';
+						break;
+					case 7:
+						mapName = '6';
+						break;
+					case 8:
+						mapName = '4';
+						break;
+					case 9:
+						mapName = 'R';
+						break;
+					}
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					break;
+				case 's':
+				case 'S':
+					selectIndex++;
+					selectIndex = selectIndex % 10;
+					switch (selectIndex)
+					{
+					case 0:
+						mapName = '1';
+						break;
+					case 1:
+						mapName = '2';
+						break;
+					case 2:
+						mapName = '7';
+						break;
+					case 3:
+						mapName = '9';
+						break;
+					case 4:
+						mapName = '5';
+						break;
+					case 5:
+						mapName = '8';
+						break;
+					case 6:
+						mapName = '3';
+						break;
+					case 7:
+						mapName = '6';
+						break;
+					case 8:
+						mapName = '4';
+						break;
+					case 9:
+						mapName = 'R';
+						break;
+					}
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					break;
+				case ' ':
+				case 13:
+					{
+						keyBuffer['w'] = false;
+						keyBuffer['W'] = false;
+						keyBuffer['a'] = false;
+						keyBuffer['A'] = false;
+						keyBuffer['s'] = false;
+						keyBuffer['S'] = false;
+						keyBuffer['d'] = false;
+						keyBuffer['D'] = false;
+						keyBuffer['q'] = false;
+						keyBuffer['Q'] = false;
+						keyBuffer['e'] = false;
+						keyBuffer['E'] = false;
+						keyBuffer['f'] = false;
+						keyBuffer['F'] = false;
+						keyBuffer['c'] = false;
+						keyBuffer['C'] = false;
+						keyBuffer[' '] = false;
+
+						keyBuffer['i'] = false;
+						keyBuffer['I'] = false;
+						keyBuffer['8'] = false;
+						keyBuffer['j'] = false;
+						keyBuffer['J'] = false;
+						keyBuffer['4'] = false;
+						keyBuffer['k'] = false;
+						keyBuffer['K'] = false;
+						keyBuffer['5'] = false;
+						keyBuffer['l'] = false;
+						keyBuffer['L'] = false;
+						keyBuffer['6'] = false;
+						keyBuffer['u'] = false;
+						keyBuffer['U'] = false;
+						keyBuffer['7'] = false;
+						keyBuffer['o'] = false;
+						keyBuffer['O'] = false;
+						keyBuffer['9'] = false;
+						keyBuffer['h'] = false;
+						keyBuffer['H'] = false;
+						keyBuffer['.'] = false;
+						keyBuffer['n'] = false;
+						keyBuffer['N'] = false;
+						keyBuffer['0'] = false;
+
+						keyBuffer['g'] = false;
+						keyBuffer['G'] = false;
+						keyBuffer['-'] = false;
+						keyBuffer['_'] = false;
+						keyBuffer['='] = false;
+						keyBuffer['+'] = false;
+					}
+					run = true;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					mapName = "M";
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					selectIndex = 0;
+					if(isSingle)
+						menuState = 1;
+					else
+						menuState = 2;
+					break;
+
+				}
+				// force a call to Display( ):
+
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+			break;
+			case 4:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+				switch (c)
+				{
+				case 'w':
+				case 'W':
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 9;
+					selectIndex = selectIndex % 10;
+					break;
+				case 's':
+				case 'S':
+					selectIndex++;
+					selectIndex = selectIndex % 10;
+					break;
+				case ' ':
+				case 13:
+					run = true;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					menuState = 0;
+					break;
+
+				}
+
+				// force a call to Display( ):
+
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+				break;
+			case 5:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+				switch (c)
+				{
+				case 'w':
+				case 'W':
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 9;
+					selectIndex = selectIndex % 10;
+					break;
+				case 's':
+				case 'S':
+					selectIndex++;
+					selectIndex = selectIndex % 10;
+					break;
+				case ' ':
+				case 13:
+					run = true;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					menuState = 0;
+					break;
+
+				}
+
+				// force a call to Display( ):
+
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+				break;
+			case 6:
+			{
+				if (DebugOn != 0)
+					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+				switch (c)
+				{
+				case 'w':
+				case 'W':
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 9;
+					selectIndex = selectIndex % 10;
+					break;
+				case 's':
+				case 'S':
+					selectIndex++;
+					selectIndex = selectIndex % 10;
+					break;
+				case ' ':
+				case 13:
+					run = true;
+					break;
+				case 'q':
+				case 'Q':
+				case ESCAPE:
+					menuState = 0;
+					break;
+
+				}
+
+				// force a call to Display( ):
+
+				glutSetWindow(MainWindow);
+				glutPostRedisplay();
+			}
+				break;
+			}
 		}
+		else
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
 
-		// force a call to Display( ):
+			switch (c)
+			{
+			case 'o':
+			case 'O':
+				WhichProjection = ORTHO;
+				break;
 
-		glutSetWindow(MainWindow);
-		glutPostRedisplay();
+			case 'p':
+			case 'P':
+				WhichProjection = PERSP;
+				break;
+			case 'w':
+			case 'W':
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 9;
+				selectIndex = selectIndex % 10;
+				break;
+			case 's':
+			case 'S':
+				selectIndex++;
+				selectIndex = selectIndex % 10;
+				break;
+			case 'a':
+			case 'A':
+				PlayerOne += 1;
+				PlayerOne = PlayerOne % TOTALTANKS;
+				switch (PlayerOne)
+				{
+				case 0:
+					DrawPointer1 = &drawAbram;
+					DrawPointer1d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer1 = &drawIS3;
+					DrawPointer1d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer1 = &drawT29;
+					DrawPointer1d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer1 = &drawE100;
+					DrawPointer1d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer1 = &drawType59;
+					DrawPointer1d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'd':
+			case 'D':
+				PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
+				PlayerOne = (PlayerOne - 1) % TOTALTANKS;
+				switch (PlayerOne)
+				{
+				case 0:
+					DrawPointer1 = &drawAbram;
+					DrawPointer1d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer1 = &drawIS3;
+					DrawPointer1d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer1 = &drawT29;
+					DrawPointer1d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer1 = &drawE100;
+					DrawPointer1d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer1 = &drawType59;
+					DrawPointer1d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'j':
+			case 'J':
+			case '4':
+				PlayerTwo += 1;
+				PlayerTwo = PlayerTwo % TOTALTANKS;
+				switch (PlayerTwo)
+				{
+				case 0:
+					DrawPointer2 = &drawAbram;
+					DrawPointer2d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer2 = &drawIS3;
+					DrawPointer2d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer2 = &drawT29;
+					DrawPointer2d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer2 = &drawE100;
+					DrawPointer2d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer2 = &drawType59;
+					DrawPointer2d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'l':
+			case 'L':
+			case '6':
+				PlayerTwo += TOTALTANKS;
+				PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
+				switch (PlayerTwo)
+				{
+				case 0:
+					DrawPointer2 = &drawAbram;
+					DrawPointer2d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer2 = &drawIS3;
+					DrawPointer2d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer2 = &drawT29;
+					DrawPointer2d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer2 = &drawE100;
+					DrawPointer2d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer2 = &drawType59;
+					DrawPointer2d = &drawType59Dead;
+					break;
+				}
+				break;
+
+			case ' ':
+			case 13:
+				run = true;
+				break;
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				Quit();//DoMainMenu(QUIT);	// will not return here
+				break;				// happy compiler
+
+			}
+
+			// force a call to Display( ):
+
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
 	}
 	else
 	{
@@ -5434,24 +7443,181 @@ void Keyboard(unsigned char c, int x, int y)
 }
 void keySpecial(int key, int x, int y) {
 	if(isInMenu)
-		switch (key)
+		if (ADVANCEMENU)
 		{
-		case GLUT_KEY_UP:
-			if (selectIndex >= 1)
-				selectIndex--;
-			else
-				selectIndex = 9;
-			selectIndex = selectIndex % 10;
-			break;
-		case GLUT_KEY_DOWN:
-			selectIndex++;
-			selectIndex = selectIndex % 10;
-			break;
-		case GLUT_KEY_LEFT:
-		case GLUT_KEY_RIGHT:
-			isSingle = !isSingle;
-			makeAI(isSingle, 'T');
-			break;
+			switch(menuState)
+			{
+			case 0:
+			{
+				switch (key)
+				{
+				case GLUT_KEY_UP:
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 4;
+					selectIndex = selectIndex % 5;
+					break;
+				case GLUT_KEY_DOWN:
+					selectIndex++;
+					selectIndex = selectIndex % 5;
+					break;
+				}
+			}
+				break;
+			case 3:
+			{
+				switch (key)
+				{
+				case GLUT_KEY_UP:
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 9;
+					selectIndex = selectIndex % 10;
+					switch (selectIndex)
+					{
+					case 0:
+						mapName = '1';
+						break;
+					case 1:
+						mapName = '2';
+						break;
+					case 2:
+						mapName = '7';
+						break;
+					case 3:
+						mapName = '9';
+						break;
+					case 4:
+						mapName = '5';
+						break;
+					case 5:
+						mapName = '8';
+						break;
+					case 6:
+						mapName = '3';
+						break;
+					case 7:
+						mapName = '6';
+						break;
+					case 8:
+						mapName = '4';
+						break;
+					case 9:
+						mapName = 'R';
+						break;
+					}
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					break;
+				case GLUT_KEY_DOWN:
+					selectIndex++;
+					selectIndex = selectIndex % 10;
+					switch (selectIndex)
+					{
+					case 0:
+						mapName = '1';
+						break;
+					case 1:
+						mapName = '2';
+						break;
+					case 2:
+						mapName = '7';
+						break;
+					case 3:
+						mapName = '9';
+						break;
+					case 4:
+						mapName = '5';
+						break;
+					case 5:
+						mapName = '8';
+						break;
+					case 6:
+						mapName = '3';
+						break;
+					case 7:
+						mapName = '6';
+						break;
+					case 8:
+						mapName = '4';
+						break;
+					case 9:
+						mapName = 'R';
+						break;
+					}
+					lastMap = mapName;
+					resetState(mapName);
+					isInMenu = true;
+					for (int i = 0; i < 8; i++)
+						alSourceStop(Sources[i]);
+					break;
+				}
+			}
+				break;
+			case 4:
+			{
+				switch (key)
+				{
+				case GLUT_KEY_UP:
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 4;
+					selectIndex = selectIndex % 5;
+					break;
+				case GLUT_KEY_DOWN:
+					selectIndex++;
+					selectIndex = selectIndex % 5;
+					break;
+				}
+			}
+				break;
+			case 5:
+			{
+				switch (key)
+				{
+				case GLUT_KEY_UP:
+					if (selectIndex >= 1)
+						selectIndex--;
+					else
+						selectIndex = 4;
+					selectIndex = selectIndex % 5;
+					break;
+				case GLUT_KEY_DOWN:
+					selectIndex++;
+					selectIndex = selectIndex % 5;
+					break;
+				}
+			}
+				break;
+			}
+		}
+		else
+		{
+			switch (key)
+			{
+			case GLUT_KEY_UP:
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 9;
+				selectIndex = selectIndex % 10;
+				break;
+			case GLUT_KEY_DOWN:
+				selectIndex++;
+				selectIndex = selectIndex % 10;
+				break;
+			case GLUT_KEY_LEFT:
+			case GLUT_KEY_RIGHT:
+				isSingle = !isSingle;
+				makeAI(isSingle, 'T');
+				break;
+			}
 		}
 }
 void keyUp(unsigned char c, int x, int y)

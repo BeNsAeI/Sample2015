@@ -43,7 +43,7 @@ const int GLUIFALSE = { false };
 #define ROCKTHRESH 25
 #define REFLECT -1
 #define SMOKECOUNT 3
-#define TANKHP 3
+#define TANKHP 4
 #define BRICKHP 1
 #define FRONTARMOR 0.75
 #define SIDEARMOR 0.5
@@ -88,4 +88,5 @@ const int GLUIFALSE = { false };
 #define AQUIRE 4
 #define ELIMINATECRATE 5
 #define SC 0.25
+#define ADVANCEMENU true
 #endif

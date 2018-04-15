@@ -251,7 +251,7 @@
 	float	ElapsedSeconds();
 	void	InitGraphics();
 	void	InitLists();
-	void	InitMenus();
+	//void	InitMenus();
 	//void	keySpecial(int key, int x, int y);
 	void	Keyboard(unsigned char, int, int);
 	void	keySpecial(int key, int x, int y);
@@ -304,6 +304,9 @@
 	void(*DrawPointer2)(float X, float Y, float Z, float hullAngle, float turretAngle);
 	void(*DrawPointer1d)(float X, float Y, float Z, float hullAngle, float turretAngle);
 	void(*DrawPointer2d)(float X, float Y, float Z, float hullAngle, float turretAngle);
+
+	int menuState = 0;
+
 	//OS Compatibility
 #ifndef WIN32
 	char * itoa(int i, char * buffer, int radix)

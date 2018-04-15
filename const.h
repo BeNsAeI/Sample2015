@@ -87,5 +87,5 @@ const int GLUIFALSE = { false };
 #define RUN 3
 #define AQUIRE 4
 #define ELIMINATECRATE 5
-#define SC 20
+#define SC 0.25
 #endif

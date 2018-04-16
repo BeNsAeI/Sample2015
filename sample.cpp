@@ -2721,8 +2721,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY / 2 - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -2963,8 +2963,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY / 2 - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -3215,8 +3215,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX;
-			int grainY = GRASSGRAINY;
+			int grainX = GRASSGRAINX*userGrassMultiplier;
+			int grainY = GRASSGRAINY*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -3347,8 +3347,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY / 2 - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -3481,8 +3481,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY / 2 - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -3601,7 +3601,114 @@ void drawMenu()
 			}
 			//end of drawing map
 
+			// Push the GL attribute bits so that we don't wreck any settings
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// Enable polygon offsets, and offset filled polygons forward by 2.5
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			// Set the render mode to be line rendering with a thick line width
+			glLineWidth(OUTLINE);
+			// Set the colour to be white
+			glColor3f(.75, .75, .75);
+			// Render the object
+			PatternSilh->Use();
+			//BehnamSaeedi
+			switch (backgroundRand)
+			{
+			case 0:
+				drawHPCrate(0, 0);
+				break;
+			case 1:
+				drawSmokeCrate(0, 0);
+				break;
+			case 2:
+				drawAmmo(0, 0);
+				break;
+			case 3:
+				drawIS3(0, 0, 0, -45, -45);
+				break;
+			case 4:
+				drawAbram(0, 0, 0, -45, -45);
+				break;
+			case 5:
+				drawMine(0, 0);
+				break;
+			case 6:
+				drawT29(0, 0, 0, -45, -45);
+				break;
+			case 7:
+				drawE100(0, 0, 0, -45, -45);
+				break;
+			case 8:
+				drawType59(0, 0, 0, -45, -45);
+				break;
+			}
+			PatternSilh->Use(0);
+			// Set the polygon mode to be filled triangles 
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glShadeModel(GL_FLAT);
+			//glEnable(GL_LIGHTING);
+			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+			// Set the colour to the background
+			glColor3f(0.0f, 0.0f, 0.0f);
+			// Render the object
+			switch (backgroundRand)
+			{
+			case 0:
+				Pattern->Use();
+				drawHPCrate(0, 0);
+				Pattern->Use(0);
+				break;
+			case 1:
+				Pattern->Use();
+				drawSmokeCrate(0, 0);
+				Pattern->Use(0);
+				break;
+			case 2:
+				Pattern->Use();
+				drawAmmo(0, 0);
+				Pattern->Use(0);
+				break;
+			case 3:
+				PatternCamo->Use();
+				drawIS3(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 4:
+				PatternCamo->Use();
+				drawAbram(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 5:
+				Pattern->Use();
+				drawMine(0, 0);
+				Pattern->Use(0);
+				break;
+			case 6:
+				PatternCamo->Use();
+				drawT29(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 7:
+				PatternCamo->Use();
+				drawE100(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			case 8:
+				PatternCamo->Use();
+				drawType59(0, 0, 0, -45, -45);
+				PatternCamo->Use(0);
+				break;
+			}
+			// Pop the state changes off the attribute stack
+			// to set things back how they were
+			glPopAttrib();
 
+			//glDisable(GL_LIGHT2);
+			//glDisable(GL_LIGHTING);
 
 			glDisableVertexAttribArray(0);
 		}
@@ -3615,8 +3722,8 @@ void drawMenu()
 			float endz = (-MAPEDGEY / 2 - CUBESIZE);
 			float lengthx = startx - endx;
 			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER;
+			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 			glEnable(GL_NORMALIZE);
 			glBegin(GL_QUADS);
 			glPushMatrix();
@@ -3735,7 +3842,47 @@ void drawMenu()
 			}
 			//end of drawing map
 
+			// Push the GL attribute bits so that we don't wreck any settings
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			// Enable polygon offsets, and offset filled polygons forward by 2.5
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			// Set the render mode to be line rendering with a thick line width
+			glLineWidth(OUTLINE);
+			// Set the colour to be white
+			glColor3f(.75, .75, .75);
+			// Render the object
+			PatternSilh->Use();
+			drawE100( -3, 0,  12,   -135, -45);
+			drawIS3(   -2, 0,   6, -112.5, -45);
+			drawT29(    3, 0,   0,    -90,   0);
+			drawAbram(  -2, 0,  -6,  -67.5,  45);
+			drawType59(-3, 0, -12,    -45,  45);
+			PatternSilh->Use(0);
+			// Set the polygon mode to be filled triangles 
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			//glShadeModel(GL_FLAT);
+			//glEnable(GL_LIGHTING);
+			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+			// Set the colour to the background
+			glColor3f(0.0f, 0.0f, 0.0f);
+			// Render the object
+			PatternCamo->Use();
+			drawE100(-3, 0, 12, -135, -45);
+			drawIS3(-2, 0, 6, -112.5, -45);
+			drawT29(3, 0, 0, -90, 0);
+			drawAbram(-2, 0, -6, -67.5, 45);
+			drawType59(-3, 0, -12, -45, 45);
+			PatternCamo->Use(0);
+			// Pop the state changes off the attribute stack
+			// to set things back how they were
+			glPopAttrib();
 
+			//glDisable(GL_LIGHT2);
+			//glDisable(GL_LIGHTING);
 
 			glDisableVertexAttribArray(0);
 		}
@@ -3751,8 +3898,8 @@ void drawMenu()
 		float endz = (-MAPEDGEY / 2 - CUBESIZE);
 		float lengthx = startx - endx;
 		float lengthz = startz - endz;
-		int grainX = GRASSGRAINX*MENUMULTIPLIER;
-		int grainY = GRASSGRAINY*MENUMULTIPLIER;
+		int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
+		int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
 		glEnable(GL_NORMALIZE);
 		glBegin(GL_QUADS);
 		glPushMatrix();
@@ -4407,65 +4554,162 @@ void drawMenuText()
 		GLint m_viewport[4];
 		glGetIntegerv(GL_VIEWPORT, m_viewport);
 
-		float y = 50;
+		float y = 65;
 
-		DoStringBox(20, y, 0, (char *)     "FUNCTION");
+		// Legend
+		DoStringBox(45, y, 0, (char *)     "FUNCTION");
+		DoStringBox(45, y - 5, 0, (char *) "FUNCTION");
+		DoStringBox(45, y - 15, 0, (char *)"FUNCTION");
+		DoStringBox(45, y - 20, 0, (char *)"FUNCTION");
+		DoStringBox(35.75, y - 25, 0, (char *)"[  ]");
+		DoStringBox(45.75, y - 25, 0, (char *)"[  ]");
+		DoStringBox(55.75, y - 25, 0, (char *)"[  ]");
+		DoStringBox(35, y - 28, 0, (char *)"GAMEKEY");
+		DoStringBox(45, y - 28, 0, (char *)"GAMEKEY");
+		DoStringBox(55, y - 28, 0, (char *)"GAMEKEY");
+
+		glColor3f(1, 1, 0);
+
+		DoRasterString(45, y, 0, (char *)  "Turret:");
+		DoRasterString(45, y - 5, 0,(char*)"Movement:");
+		DoRasterString(45, y - 15,0,(char*)"Ordnance:");
+		DoRasterString(45, y - 20, 0, (char *)"Gmae key:");
 		glColor3f(1, 1, 1);
-		DoRasterString(20, y, 0, (char *)  "MOVEMENT");
-		DoStringBox(40, y, 0, (char *)     "[   ]");
-		switch (PlayerOne)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(40, y, 0, (char *)  "[ W ]");
+		DoRasterString(35.75, y - 25, 0, (char *)"[ - ]");
+		DoRasterString(45.75, y - 25, 0, (char *)"[ G ]");
+		DoRasterString(55.75, y - 25, 0, (char *)"[ + ]");
+		glColor3f(1, 1, 0);
+		DoRasterString(35, y - 28, 0, (char *)" Slower");
+		DoRasterString(45, y - 28, 0, (char *)" Reset");
+		DoRasterString(55, y - 28, 0, (char *)" Faster");
+
+		// Player 1:
+		DoStringBox(20, y + 5, 0, (char *) "PLAYER N");
+
+		DoStringBox(15, y, 0, (char *)     "[  ]");
+		DoStringBox(25, y, 0, (char *)     "[  ]");
+
+		DoStringBox(20, y - 5, 0, (char *) "[  ]");
+		DoStringBox(15, y - 10, 0, (char *)"[  ]");
+		DoStringBox(20, y - 10, 0, (char *)"[  ]");
+		DoStringBox(25, y - 10, 0, (char *)"[  ]");
+
+		DoStringBox(15, y - 15, 0, (char *)"[  ]");
+		DoStringBox(25, y - 15, 0, (char *)"[  ]");
+
+		glColor3f(1, 1, 1);
+
+		DoRasterString(20, y + 5, 0, (char *) "Player 1");
+
+		DoRasterString(15, y, 0, (char *)     "[ Q ]");
+		DoRasterString(25, y, 0, (char *)     "[ E ]");
+
+		DoRasterString(20, y - 5, 0, (char *) "[ W ]");
+		DoRasterString(15, y - 10, 0, (char *)"[ A ]");
+		DoRasterString(20, y - 10, 0, (char *)"[ S ]");
+		DoRasterString(25, y - 10, 0, (char *)"[ D ]");
+
+		DoRasterString(15, y - 15, 0, (char *)"[ F ]");
+		DoRasterString(25, y - 15, 0, (char *)"[ C ]");
+
+		
+
 		// Player 2:
-		DoStringBox(60, y, 0, (char *)     "FUNCTION");
+		
+		DoStringBox(75, y + 5, 0, (char *) "PLAYER N");
+
+		DoStringBox(70, y, 0, (char *)     "[  ]");
+		DoStringBox(80, y, 0, (char *)     "[  ]");
+
+		DoStringBox(75, y - 5, 0, (char *) "[  ]");
+		DoStringBox(70, y - 10, 0, (char *)"[  ]");
+		DoStringBox(75, y - 10, 0, (char *)"[  ]");
+		DoStringBox(80, y - 10, 0, (char *)"[  ]");
+
+		DoStringBox(70, y - 15, 0, (char *)"[  ]");
+		DoStringBox(80, y - 15, 0, (char *)"[  ]");
+		
 		glColor3f(1, 1, 1);
-		DoRasterString(60, y, 0, (char *)  "MOVEMENT");
-		DoStringBox(80, y, 0, (char *)     "[   ]");
-		switch (PlayerTwo)
-		{
-		case 0:
-			glColor3f(0.5, 0.5, 0);
-			break;
-		case 1:
-			glColor3f(0, 0, 1);
-			break;
-		case 2:
-			glColor3f(0.38, 0.2, 0.01);
-			break;
-		case 3:
-			glColor3f(1, 0.1, 0.5);
-			break;
-		case 4:
-			glColor3f(0, 1, 0);
-			break;
-		}
-		DoRasterString(80, y, 0, (char *)  "[I/8]");
+		
+		DoRasterString(75, y + 5, 0, (char *) "Player 2");
+
+		DoRasterString(70, y, 0, (char *)     "[U/7]");
+		DoRasterString(80, y, 0, (char *)     "[O/9]");
+
+		DoRasterString(75, y - 5, 0, (char *) "[I/8]");
+		DoRasterString(70, y - 10, 0, (char *)"[J/4]");
+		DoRasterString(75, y - 10, 0, (char *)"[K/5]");
+		DoRasterString(80, y - 10, 0, (char *)"[L/6]");
+
+		DoRasterString(70, y - 15, 0, (char *)"[H/0]");
+		DoRasterString(80, y - 15, 0, (char *)"[N/.]");
+		
 	}
 	break;
 	case 5:	// graphics: Display Graphics option
 	{
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
 
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(40, y, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(40, y - 2, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(40, y - 4, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(40, y - 6, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(40, y - 8, 0, (char *)"Please select the map: Single Player");
+		DoStringBox(40, y - 10, 0, (char *)"Please select the map: Single Player");
+		glColor3f(1., 1., 1.);
+		DoRasterString(40, y, 0, (char *)  "Use Arrow Keys (Back: Esc)");
+		glColor3f(1., 1., 0);
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char *)" Developed By:");
+		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
+		if (selectIndex == 0)
+		{
+			glColor3f(1., 1., 0);
+		}
+		else
+			glColor3f(1., 1., 1.);
+		inc++;
+		char buffer[5];
+		itoa(userGrassMultiplier,buffer,10);
+		char text[50] = "Grass Count: ";
+		DoRasterString(40, y - 2, 0, (char *)strcat(text, buffer));
 	}
 	break;
 	case 6:	// credits: Display contact information
 	{
-
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(45, 67, 0, (char *)"Developed By Behnam ");
+		DoStringBox(45, 65, 0, (char *)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(45, 67, 0, (char *)" Developed By:");
+		DoRasterString(45, 65, 0, (char *)"    - Behnam Saeedi");
 	}
 	break;
 	case 7:	// traditional menu
@@ -5060,8 +5304,12 @@ void Display()
 	{
 		if(menuState == 3)
 			gluLookAt(eyex, eyey, eyez, targetx, targety, targetz, upx, upy, upz);
-		else
-			gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
+		else 
+			if(menuState == 6)
+				gluLookAt(20, 15, 0, 0, 0, 0, 0, 1, 0);
+			else
+				gluLookAt(10, 10, 0, 0, 3, -3, 0, 1, 0);
+
 		glRotatef((GLfloat)Yrot, 0., 1., 0.);
 		glRotatef((GLfloat)Xrot, 1., 0., 0.);
 	}
@@ -6341,324 +6589,327 @@ void InitLists()
 	float dy = BOXSIZE / 2.f;
 	float dz = BOXSIZE / 2.f;
 	glutSetWindow(MainWindow);
-	device = alcOpenDevice(NULL);
-	if (!device)
-		exit(0);
-	else
-		std::cout << "Audio device was created." << std::endl;
-	enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-	if (enumeration == AL_FALSE)
-		std::cout << "enumeration not supported." << std::endl; // enumeration not supported
-	else
-		std::cout << "enumeration supported." << std::endl;// enumeration supported
-	list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
-	context = alcCreateContext(device, NULL);
-	if (!alcMakeContextCurrent(context))
-		exit(0);
-	else
-		std::cout << "Context was created." << std::endl;
-	alGenSources((ALuint)1, &mainMusic1);
-	alGenSources((ALuint)1, &mainMusic2);
-	alGenSources((ALuint)1, &mainMusic3);
-	alGenSources((ALuint)1, &mainMusic4);
-	alGenSources((ALuint)1, &mainMusic5);
-	alGenSources((ALuint)1, &mainMusic6);
-	alGenSources((ALuint)1, &mainMusic7);
-	alGenSources((ALuint)1, &tankShellFire);
-	alGenSources((ALuint)1, &tankShellBounce);
-	alGenSources((ALuint)1, &tankExplode);
-	alGenSources((ALuint)1, &hpRegen);
-	alGenSources((ALuint)1, &AmmoSmoke);
-	// check for errors
+	if (!isSoundLoaded)
+	{
+		device = alcOpenDevice(NULL);
+		if (!device)
+			exit(0);
+		else
+			std::cout << "Audio device was created." << std::endl;
+		enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+		if (enumeration == AL_FALSE)
+			std::cout << "enumeration not supported." << std::endl; // enumeration not supported
+		else
+			std::cout << "enumeration supported." << std::endl;// enumeration supported
+		list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+		context = alcCreateContext(device, NULL);
+		if (!alcMakeContextCurrent(context))
+			exit(0);
+		else
+			std::cout << "Context was created." << std::endl;
+		alGenSources((ALuint)1, &mainMusic1);
+		alGenSources((ALuint)1, &mainMusic2);
+		alGenSources((ALuint)1, &mainMusic3);
+		alGenSources((ALuint)1, &mainMusic4);
+		alGenSources((ALuint)1, &mainMusic5);
+		alGenSources((ALuint)1, &mainMusic6);
+		alGenSources((ALuint)1, &mainMusic7);
+		alGenSources((ALuint)1, &tankShellFire);
+		alGenSources((ALuint)1, &tankShellBounce);
+		alGenSources((ALuint)1, &tankExplode);
+		alGenSources((ALuint)1, &hpRegen);
+		alGenSources((ALuint)1, &AmmoSmoke);
+		// check for errors
 
-	alSourcef(mainMusic1, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic1, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic1, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic1, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic1, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic1, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic1, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic1, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic1, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic1, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic2, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic2, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic2, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic2, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic2, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic2, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic2, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic2, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic2, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic2, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic3, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic3, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic3, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic3, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic3, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic3, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic3, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic3, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic3, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic3, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic4, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic4, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic4, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic4, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic4, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic4, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic4, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic4, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic4, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic4, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic5, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic5, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic5, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic5, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic5, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic5, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic5, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic5, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic5, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic5, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic6, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic6, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic6, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic6, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic6, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic6, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic6, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic6, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic6, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic6, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(mainMusic7, AL_PITCH, 1);
-	// check for errors
-	alSourcef(mainMusic7, AL_GAIN, 1);
-	// check for errors
-	alSource3f(mainMusic7, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(mainMusic7, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(mainMusic7, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(mainMusic7, AL_PITCH, 1);
+		// check for errors
+		alSourcef(mainMusic7, AL_GAIN, 1);
+		// check for errors
+		alSource3f(mainMusic7, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(mainMusic7, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(mainMusic7, AL_LOOPING, AL_FALSE);
+		// check for errros
 
 
 
-	alSourcef(tankShellFire, AL_PITCH, 1);
-	// check for errors
-	alSourcef(tankShellFire, AL_GAIN, 1);
-	// check for errors
-	alSource3f(tankShellFire, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(tankShellFire, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(tankShellFire, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(tankShellFire, AL_PITCH, 1);
+		// check for errors
+		alSourcef(tankShellFire, AL_GAIN, 1);
+		// check for errors
+		alSource3f(tankShellFire, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(tankShellFire, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(tankShellFire, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(tankShellBounce, AL_PITCH, 1);
-	// check for errors
-	alSourcef(tankShellBounce, AL_GAIN, 1);
-	// check for errors
-	alSource3f(tankShellBounce, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(tankShellBounce, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(tankShellBounce, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(tankShellBounce, AL_PITCH, 1);
+		// check for errors
+		alSourcef(tankShellBounce, AL_GAIN, 1);
+		// check for errors
+		alSource3f(tankShellBounce, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(tankShellBounce, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(tankShellBounce, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(tankExplode, AL_PITCH, 1);
-	// check for errors
-	alSourcef(tankExplode, AL_GAIN, 1);
-	// check for errors
-	alSource3f(tankExplode, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(tankExplode, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(tankExplode, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(tankExplode, AL_PITCH, 1);
+		// check for errors
+		alSourcef(tankExplode, AL_GAIN, 1);
+		// check for errors
+		alSource3f(tankExplode, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(tankExplode, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(tankExplode, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(hpRegen, AL_PITCH, 1);
-	// check for errors
-	alSourcef(hpRegen, AL_GAIN, 1);
-	// check for errors
-	alSource3f(hpRegen, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(hpRegen, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(hpRegen, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(hpRegen, AL_PITCH, 1);
+		// check for errors
+		alSourcef(hpRegen, AL_GAIN, 1);
+		// check for errors
+		alSource3f(hpRegen, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(hpRegen, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(hpRegen, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alSourcef(AmmoSmoke, AL_PITCH, 1);
-	// check for errors
-	alSourcef(AmmoSmoke, AL_GAIN, 1);
-	// check for errors
-	alSource3f(AmmoSmoke, AL_POSITION, 0, 0, 0);
-	// check for errors
-	alSource3f(AmmoSmoke, AL_VELOCITY, 0, 0, 0);
-	// check for errors
-	alSourcei(AmmoSmoke, AL_LOOPING, AL_FALSE);
-	// check for errros
+		alSourcef(AmmoSmoke, AL_PITCH, 1);
+		// check for errors
+		alSourcef(AmmoSmoke, AL_GAIN, 1);
+		// check for errors
+		alSource3f(AmmoSmoke, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(AmmoSmoke, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(AmmoSmoke, AL_LOOPING, AL_FALSE);
+		// check for errros
 
-	alGenBuffers(NUM_BUFFERS, Buffers);
-	alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[0], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alGenBuffers(NUM_BUFFERS, Buffers);
+		alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[0], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[1], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[1], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[2], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[2], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[3], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[3], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[4], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[4], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[5], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[5], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[6], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[6], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[7], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[7], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[8], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[8], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[9], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[9], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[10], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[10], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[11], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[11], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
-	alBufferData(Buffers[12], format, data, size, freq);
-	alutUnloadWAV(format, data, size, freq);
+		alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
+		alBufferData(Buffers[12], format, data, size, freq);
+		alutUnloadWAV(format, data, size, freq);
 
-	// Bind buffers into audio sources.
+		// Bind buffers into audio sources.
 
-	alGenSources(NUM_SOURCES, Sources);
+		alGenSources(NUM_SOURCES, Sources);
 
-	alSourcei(Sources[0], AL_BUFFER, Buffers[0]);
-	alSourcef(Sources[0], AL_PITCH, 1.0);
-	alSourcef(Sources[0], AL_GAIN, 1.0);
-	alSource3f(Sources[0], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[0], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[0], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[0], AL_BUFFER, Buffers[0]);
+		alSourcef(Sources[0], AL_PITCH, 1.0);
+		alSourcef(Sources[0], AL_GAIN, 1.0);
+		alSource3f(Sources[0], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[0], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[0], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[1], AL_BUFFER, Buffers[1]);
-	alSourcef(Sources[1], AL_PITCH, 1.0);
-	alSourcef(Sources[1], AL_GAIN, 1.0);
-	alSource3f(Sources[1], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[1], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[1], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[1], AL_BUFFER, Buffers[1]);
+		alSourcef(Sources[1], AL_PITCH, 1.0);
+		alSourcef(Sources[1], AL_GAIN, 1.0);
+		alSource3f(Sources[1], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[1], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[1], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[2], AL_BUFFER, Buffers[2]);
-	alSourcef(Sources[2], AL_PITCH, 1.0);
-	alSourcef(Sources[2], AL_GAIN, 1.0);
-	alSource3f(Sources[2], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[2], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[2], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[2], AL_BUFFER, Buffers[2]);
+		alSourcef(Sources[2], AL_PITCH, 1.0);
+		alSourcef(Sources[2], AL_GAIN, 1.0);
+		alSource3f(Sources[2], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[2], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[2], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[3], AL_BUFFER, Buffers[3]);
-	alSourcef(Sources[3], AL_PITCH, 1.0);
-	alSourcef(Sources[3], AL_GAIN, 1.0);
-	alSource3f(Sources[3], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[3], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[3], AL_BUFFER, Buffers[3]);
+		alSourcef(Sources[3], AL_PITCH, 1.0);
+		alSourcef(Sources[3], AL_GAIN, 1.0);
+		alSource3f(Sources[3], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[3], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[4], AL_BUFFER, Buffers[4]);
-	alSourcef(Sources[4], AL_PITCH, 1.0);
-	alSourcef(Sources[4], AL_GAIN, 1.0);
-	alSource3f(Sources[4], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[4], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[4], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[4], AL_BUFFER, Buffers[4]);
+		alSourcef(Sources[4], AL_PITCH, 1.0);
+		alSourcef(Sources[4], AL_GAIN, 1.0);
+		alSource3f(Sources[4], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[4], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[4], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[5], AL_BUFFER, Buffers[5]);
-	alSourcef(Sources[5], AL_PITCH, 1.0);
-	alSourcef(Sources[5], AL_GAIN, 1.0);
-	alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[5], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[5], AL_BUFFER, Buffers[5]);
+		alSourcef(Sources[5], AL_PITCH, 1.0);
+		alSourcef(Sources[5], AL_GAIN, 1.0);
+		alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[5], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[6], AL_BUFFER, Buffers[6]);
-	alSourcef(Sources[6], AL_PITCH, 1.0);
-	alSourcef(Sources[6], AL_GAIN, 1.0);
-	alSource3f(Sources[6], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[6], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[6], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[6], AL_BUFFER, Buffers[6]);
+		alSourcef(Sources[6], AL_PITCH, 1.0);
+		alSourcef(Sources[6], AL_GAIN, 1.0);
+		alSource3f(Sources[6], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[6], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[6], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[7], AL_BUFFER, Buffers[7]);
-	alSourcef(Sources[7], AL_PITCH, 1.0);
-	alSourcef(Sources[7], AL_GAIN, 1.0);
-	alSource3f(Sources[7], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[7], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[7], AL_LOOPING, AL_TRUE);
+		alSourcei(Sources[7], AL_BUFFER, Buffers[7]);
+		alSourcef(Sources[7], AL_PITCH, 1.0);
+		alSourcef(Sources[7], AL_GAIN, 1.0);
+		alSource3f(Sources[7], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[7], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[7], AL_LOOPING, AL_TRUE);
 
-	alSourcei(Sources[8], AL_BUFFER, Buffers[8]);
-	alSourcef(Sources[8], AL_PITCH, 1.0);
-	alSourcef(Sources[8], AL_GAIN, 1.0);
-	alSource3f(Sources[8], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[8], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[8], AL_LOOPING, AL_FALSE);
+		alSourcei(Sources[8], AL_BUFFER, Buffers[8]);
+		alSourcef(Sources[8], AL_PITCH, 1.0);
+		alSourcef(Sources[8], AL_GAIN, 1.0);
+		alSource3f(Sources[8], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[8], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[8], AL_LOOPING, AL_FALSE);
 
-	alSourcei(Sources[9], AL_BUFFER, Buffers[9]);
-	alSourcef(Sources[9], AL_PITCH, 1.0);
-	alSourcef(Sources[9], AL_GAIN, 1.0);
-	alSource3f(Sources[9], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[9], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[9], AL_LOOPING, AL_FALSE);
+		alSourcei(Sources[9], AL_BUFFER, Buffers[9]);
+		alSourcef(Sources[9], AL_PITCH, 1.0);
+		alSourcef(Sources[9], AL_GAIN, 1.0);
+		alSource3f(Sources[9], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[9], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[9], AL_LOOPING, AL_FALSE);
 
-	alSourcei(Sources[10], AL_BUFFER, Buffers[10]);
-	alSourcef(Sources[10], AL_PITCH, 1.0);
-	alSourcef(Sources[10], AL_GAIN, 1.0);
-	alSource3f(Sources[10], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[10], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[10], AL_LOOPING, AL_FALSE);
+		alSourcei(Sources[10], AL_BUFFER, Buffers[10]);
+		alSourcef(Sources[10], AL_PITCH, 1.0);
+		alSourcef(Sources[10], AL_GAIN, 1.0);
+		alSource3f(Sources[10], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[10], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[10], AL_LOOPING, AL_FALSE);
 
-	alSourcei(Sources[11], AL_BUFFER, Buffers[11]);
-	alSourcef(Sources[11], AL_PITCH, 1.0);
-	alSourcef(Sources[11], AL_GAIN, 1.0);
-	alSource3f(Sources[11], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[11], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[11], AL_LOOPING, AL_FALSE);
+		alSourcei(Sources[11], AL_BUFFER, Buffers[11]);
+		alSourcef(Sources[11], AL_PITCH, 1.0);
+		alSourcef(Sources[11], AL_GAIN, 1.0);
+		alSource3f(Sources[11], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[11], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[11], AL_LOOPING, AL_FALSE);
 
-	alSourcei(Sources[12], AL_BUFFER, Buffers[12]);
-	alSourcef(Sources[12], AL_PITCH, 1.0);
-	alSourcef(Sources[12], AL_GAIN, 1.0);
-	alSource3f(Sources[12], AL_POSITION, 0, 0, 0);
-	alSource3f(Sources[12], AL_VELOCITY, 0, 0, 0);
-	alSourcei(Sources[12], AL_LOOPING, AL_FALSE);
+		alSourcei(Sources[12], AL_BUFFER, Buffers[12]);
+		alSourcef(Sources[12], AL_PITCH, 1.0);
+		alSourcef(Sources[12], AL_GAIN, 1.0);
+		alSource3f(Sources[12], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[12], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[12], AL_LOOPING, AL_FALSE);
+		isSoundLoaded = true;
+	}
+	
 
 	// create the object:
 	BoxList = glGenLists(1);
 	glNewList(BoxList, GL_COMPILE);
 	// Random Objects placed here (polyStack)
-
-
 	//Grass
 	float startx = MAPEDGEX + CUBESIZE;
 	float startz = MAPEDGEY + CUBESIZE;
@@ -6666,8 +6917,8 @@ void InitLists()
 	float endz = (-MAPEDGEY - CUBESIZE);
 	float lengthx = startx - endx;
 	float lengthz = startz - endz;
-	int grainX = GRASSGRAINX;
-	int grainY = GRASSGRAINY;
+	int grainX = GRASSGRAINX*userGrassMultiplier;
+	int grainY = GRASSGRAINY*userGrassMultiplier;
 	glBegin(GL_QUADS);
 	glPushMatrix();
 	glColor3f(0.1, 0.1, 0.0);
@@ -6688,9 +6939,6 @@ void InitLists()
 
 	// Generate the textures
 	
-
-	// create the axes:
-
 	AxesList = glGenLists(1);
 	glNewList(AxesList, GL_COMPILE);
 	glLineWidth(AXES_WIDTH);
@@ -7085,23 +7333,6 @@ void Keyboard(unsigned char c, int x, int y)
 
 				switch (c)
 				{
-				case 'w':
-				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 9;
-					selectIndex = selectIndex % 10;
-					break;
-				case 's':
-				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 10;
-					break;
-				case ' ':
-				case 13:
-					run = true;
-					break;
 				case 'q':
 				case 'Q':
 				case ESCAPE:
@@ -7109,7 +7340,6 @@ void Keyboard(unsigned char c, int x, int y)
 					break;
 
 				}
-
 				// force a call to Display( ):
 
 				glutSetWindow(MainWindow);
@@ -7125,29 +7355,28 @@ void Keyboard(unsigned char c, int x, int y)
 				{
 				case 'w':
 				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 9;
-					selectIndex = selectIndex % 10;
-					break;
 				case 's':
 				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 10;
+					selectIndex = 0;
 					break;
-				case ' ':
-				case 13:
-					run = true;
+				case 'a':
+				case 'A':
+					if (userGrassMultiplier > 1)
+						userGrassMultiplier--;
+					break;
+				case 'd':
+				case 'D':
+					if (userGrassMultiplier < 20)
+						userGrassMultiplier++;
 					break;
 				case 'q':
 				case 'Q':
 				case ESCAPE:
+					InitLists();
 					menuState = 0;
 					break;
 
 				}
-
 				// force a call to Display( ):
 
 				glutSetWindow(MainWindow);
@@ -7158,36 +7387,14 @@ void Keyboard(unsigned char c, int x, int y)
 			{
 				if (DebugOn != 0)
 					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
 				switch (c)
 				{
-				case 'w':
-				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 9;
-					selectIndex = selectIndex % 10;
-					break;
-				case 's':
-				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 10;
-					break;
-				case ' ':
-				case 13:
-					run = true;
-					break;
 				case 'q':
 				case 'Q':
 				case ESCAPE:
 					menuState = 0;
 					break;
-
 				}
-
-				// force a call to Display( ):
-
 				glutSetWindow(MainWindow);
 				glutPostRedisplay();
 			}
@@ -7559,38 +7766,21 @@ void keySpecial(int key, int x, int y) {
 				}
 			}
 				break;
-			case 4:
-			{
-				switch (key)
-				{
-				case GLUT_KEY_UP:
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 4;
-					selectIndex = selectIndex % 5;
-					break;
-				case GLUT_KEY_DOWN:
-					selectIndex++;
-					selectIndex = selectIndex % 5;
-					break;
-				}
-			}
-				break;
 			case 5:
 			{
 				switch (key)
 				{
 				case GLUT_KEY_UP:
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 4;
-					selectIndex = selectIndex % 5;
-					break;
 				case GLUT_KEY_DOWN:
-					selectIndex++;
-					selectIndex = selectIndex % 5;
+					selectIndex = 0;
+					break;
+				case GLUT_KEY_LEFT:
+					if (userGrassMultiplier > 1)
+						userGrassMultiplier--;
+					break;
+				case GLUT_KEY_RIGHT:
+					if (userGrassMultiplier < 20)
+						userGrassMultiplier++;
 					break;
 				}
 			}

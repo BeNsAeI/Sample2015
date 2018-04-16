@@ -30,14 +30,14 @@ const int GLUIFALSE = { false };
 #define RELOADTIME 0.015
 #ifdef WIN32
 #define SHELLSPEED 50000
-#define GRASSGRAINX 2*160
-#define GRASSGRAINY 2*140
+#define GRASSGRAINX 32
+#define GRASSGRAINY 28
 #define MENUMULTIPLIER 2
 #endif
 #ifndef WIN32
 #define SHELLSPEED 30000
-#define GRASSGRAINX 45
-#define GRASSGRAINY 70
+#define GRASSGRAINX 4
+#define GRASSGRAINY 7
 #define MENUMULTIPLIER 6
 #endif
 #define ROCKTHRESH 25

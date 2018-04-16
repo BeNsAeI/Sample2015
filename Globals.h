@@ -306,7 +306,8 @@
 	void(*DrawPointer2d)(float X, float Y, float Z, float hullAngle, float turretAngle);
 
 	int menuState = 0;
-
+	int userGrassMultiplier = 10;
+	bool isSoundLoaded = false;
 	//OS Compatibility
 #ifndef WIN32
 	char * itoa(int i, char * buffer, int radix)

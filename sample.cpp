@@ -796,6 +796,22 @@ void resetState(std::string newMap) {
 	mapName = newMap;
 	loadMap();
 }
+void resetState() {
+	AbramHP = TANKHP;
+	IS3HP = TANKHP;
+	shake = false;
+	//smokeIndex = 0;
+	shakeOnce = false;
+	AbramShells = SHELLSTORAGE;
+	IS3Shells = SHELLSTORAGE;
+	AbramSmoke = SMOKECOUNT;
+	IS3Smoke = SMOKECOUNT;
+	AbramTurretAngle = 0;
+	IS3TurretAngle = 0;
+	AbramLastShot = 0;
+	IS3LastShot = 0;
+	Smokes.erase(Smokes.begin(), Smokes.end());
+}
 float White[4] = { 1,1,1,1 };
 float *Array3(float a, float b, float c)
 {
@@ -1539,6 +1555,7 @@ void KeyHandler() {
 	}
 	if (keyBuffer[ESCAPE]) {
 		isInMenu = true;
+		resetState();
 		for (int i = 0; i < 8; i++)
 			alSourceStop(Sources[i]);
 	}
@@ -7216,6 +7233,7 @@ void Keyboard(unsigned char c, int x, int y)
 						keyBuffer['='] = false;
 						keyBuffer['+'] = false;
 					}
+					resetState();
 					run = true;
 					break;
 				case 'q':

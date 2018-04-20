@@ -35,7 +35,7 @@ const int GLUIFALSE = { false };
 #define MENUMULTIPLIER 2
 #endif
 #ifndef WIN32
-#define SHELLSPEED 30000
+#define SHELLSPEED 40000
 #define GRASSGRAINX 4
 #define GRASSGRAINY 7
 #define MENUMULTIPLIER 6
@@ -43,6 +43,8 @@ const int GLUIFALSE = { false };
 #define ROCKTHRESH 25
 #define REFLECT -1
 #define SMOKECOUNT 3
+#define MAXSMOKE 1000
+#define VEHICLESMOKEMOD 5
 #define TANKHP 4
 #define BRICKHP 1
 #define FRONTARMOR 0.75

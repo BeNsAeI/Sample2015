@@ -6219,33 +6219,26 @@ void Display()
 						int wallState = rand() % 6;
 						myMap.isCrate[tmpi][tmpj] = true;
 						Crate tmpCrate;
+						tmpCrate.X = myMap.coord[tmpi][tmpj][0];
+						tmpCrate.Y = myMap.coord[tmpi][tmpj][1];
+						tmpCrate.isActive = true;
+						tmpCrate.i = tmpi;
+						tmpCrate.j = tmpj;
 						switch (wallState)
 						{
 						case 0:
 						case 1:
 						case 2:
 							tmpCrate.type = AMMOCRATE;
-							tmpCrate.X = myMap.coord[tmpi][tmpj][0];
-							tmpCrate.Y = myMap.coord[tmpi][tmpj][1];
-							tmpCrate.isActive = true;
 							break;
 						case 3:
 							tmpCrate.type = SMOKECRATE;
-							tmpCrate.X = myMap.coord[tmpi][tmpj][0];
-							tmpCrate.Y = myMap.coord[tmpi][tmpj][1];
-							tmpCrate.isActive = true;
 							break;
 						case 4:
 							tmpCrate.type = HPCRATE;
-							tmpCrate.X = myMap.coord[tmpi][tmpj][0];
-							tmpCrate.Y = myMap.coord[tmpi][tmpj][1];
-							tmpCrate.isActive = true;
 							break;
 						case 5:
 							tmpCrate.type = MINECRATE;// RELOADCRATE;
-							tmpCrate.X = myMap.coord[tmpi][tmpj][0];
-							tmpCrate.Y = myMap.coord[tmpi][tmpj][1];
-							tmpCrate.isActive = true;
 							break;
 						}
 						Crates.push_back(tmpCrate);

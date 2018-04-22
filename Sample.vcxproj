@@ -157,8 +157,16 @@
     <ClInclude Include="loader.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="neuron.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="SimpleAI.h" />
     <ClInclude Include="struct.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ico.ico" />
+    <Image Include="icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

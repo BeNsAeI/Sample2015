@@ -4782,6 +4782,7 @@ void drawMenuText()
 		DoStringBox(25, y - 10, 0, (char *)"[  ]");
 
 		DoStringBox(15, y - 15, 0, (char *)"[  ]");
+		DoStringBox(20, y - 15, 0, (char *)"[  ]");
 		DoStringBox(25, y - 15, 0, (char *)"[  ]");
 
 		glColor3f(1, 1, 1);
@@ -4796,7 +4797,8 @@ void drawMenuText()
 		DoRasterString(20, y - 10, 0, (char *)"[ S ]");
 		DoRasterString(25, y - 10, 0, (char *)"[ D ]");
 
-		DoRasterString(15, y - 15, 0, (char *)"[ F ]");
+		DoRasterString(15, y - 15, 0, (char *)"[ R ]");
+		DoRasterString(20, y - 15, 0, (char *)"[ F ]");
 		DoRasterString(25, y - 15, 0, (char *)"[ C ]");
 
 		
@@ -4813,7 +4815,8 @@ void drawMenuText()
 		DoStringBox(75, y - 10, 0, (char *)"[  ]");
 		DoStringBox(80, y - 10, 0, (char *)"[  ]");
 
-		DoStringBox(70, y - 15, 0, (char *)"[  ]");
+		DoStringBox(70, y - 15, 0, (char *)"[      ]");
+		DoStringBox(75, y - 15, 0, (char *)"[  ]");
 		DoStringBox(80, y - 15, 0, (char *)"[  ]");
 		
 		glColor3f(1, 1, 1);
@@ -4828,7 +4831,8 @@ void drawMenuText()
 		DoRasterString(75, y - 10, 0, (char *)"[K/5]");
 		DoRasterString(80, y - 10, 0, (char *)"[L/6]");
 
-		DoRasterString(70, y - 15, 0, (char *)"[H/0]");
+		DoRasterString(70, y - 15, 0, (char *)"[Y/Entr]");
+		DoRasterString(75, y - 15, 0, (char *)"[H/0]");
 		DoRasterString(80, y - 15, 0, (char *)"[N/.]");
 		
 	}

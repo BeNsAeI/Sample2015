@@ -319,6 +319,15 @@
 	int PlayerOne = 0;
 	int PlayerTwo = 1;
 
+	struct User {
+		std::string Name;	// = "";
+		float Level;	// = 0.0;
+		float KDR;	// = 0.0;
+		bool Admin;	// = false;
+		bool Safe;
+		unsigned int Hash;
+	};
+
 	void(*DrawPointer1)(float X, float Y, float Z, float hullAngle, float turretAngle);
 	void(*DrawPointer2)(float X, float Y, float Z, float hullAngle, float turretAngle);
 	void(*DrawPointer1d)(float X, float Y, float Z, float hullAngle, float turretAngle);

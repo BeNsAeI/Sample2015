@@ -15,7 +15,7 @@
 #include <windows.h>
 #include <al.h>
 #include <alc.h>
-#include <alut.h>
+//#include <alut.h>
 #include <omp.h>
 #include "glew.h"
 
@@ -27,13 +27,14 @@
 #include <stdlib.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
+//#include <AL/alut.h>
 #endif
 
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+#include <time.h>
 #include <GLFW/glfw3native.h>
 #include "glut.h"
 #include "glslprogram.h"
@@ -46,10 +47,11 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 #include "Globals.h"
-#include "bmptotexture.h"
 #include "Renderer.h"
 #include "Material.h"
 #include "Utility.h"
+
+
 
 #ifdef WIN32
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, INT nCmdShow)
@@ -86,8 +88,8 @@ int main(int argc, char *argv[])
 	// Do main menu:
 	loading = true;
 	isInMenu = true;
-	backgroundRand = rand() % 9;
-	backgroundRand = (backgroundRand + rand()) % 9;
+	backgroundRand = rand() % 10;
+	backgroundRand = (backgroundRand + rand()) % 10;
 	mapName = "M";
 
 	glutInit(&argc, argv);
@@ -126,7 +128,6 @@ int main(int argc, char *argv[])
 	// this is here to make the compiler happy:
 	for(int i = 0; i < NUMMODEL; i++)
 		glDeleteBuffers(1, &ModelIDList[i]);
-	//glDeleteBuffers(1, &VertexVBOID);
 	alDeleteSources(1, &mainMusic1);
 	alDeleteSources(1, &mainMusic2);
 	alDeleteSources(1, &mainMusic3);
@@ -138,6 +139,7 @@ int main(int argc, char *argv[])
 	alDeleteSources(1, &tankShellBounce);
 	alDeleteSources(1, &tankExplode);
 	alDeleteSources(1, &tankBulletFire);
+	alDeleteSources(1, &A_10);
 	alDeleteBuffers(1, Buffers);
 
 	if (myAIKB.isAI)
@@ -150,6 +152,72 @@ int main(int argc, char *argv[])
 	alcDestroyContext(context);
 	alcCloseDevice(device);
 	return 0;
+}
+void aTenEventHandler()
+{
+	if (aTenActive)
+	{
+		int currentTime = time(NULL);
+
+		if (!drawATenActive)
+		{
+			drawATenActive = true;
+			drawATenActiveTime = clock();
+		}
+		if (aTenTimer)
+		{
+			if (currentTime - aTenStart > aTenWait)
+			{
+				if (aTenTarget == 1)
+				{
+					for (int i = 0; i < 6; i++)
+					{
+						drawSparks(AbramXY[0], AbramXY[1]);
+						aTenTargetCoord = AbramXY[0];
+						struct Smoke tmpSmoke;
+						tmpSmoke.smokeIDBuffer = Time;
+						tmpSmoke.smokeCoordBuffer[0] = AbramXY[0] - 5 + rand() % 10;
+						tmpSmoke.smokeCoordBuffer[1] = AbramXY[1] - 5 + rand() % 10;
+						tmpSmoke.smokeDurBuffer = 0.03;
+						tmpSmoke.smokeAngleBuffer = rand() % 360;
+						tmpSmoke.smokeIDBufferSet = true;
+						tmpSmoke.smokeActive = true;
+						Smokes.push_back(tmpSmoke);
+						AbramSmokeBudget = 0;
+					}
+					AbramHP -= 3.9;
+				}
+				if (aTenTarget == 2)
+				{
+					for (int i = 0; i < 6; i++)
+					{
+						drawSparks(IS3XY[0], IS3XY[1]);
+						aTenTargetCoord = IS3XY[0];
+						struct Smoke tmpSmoke;
+						tmpSmoke.smokeIDBuffer = Time;
+						tmpSmoke.smokeCoordBuffer[0] = IS3XY[0] - 5 + rand() % 10;
+						tmpSmoke.smokeCoordBuffer[1] = IS3XY[1] - 5 + rand() % 10;
+						tmpSmoke.smokeDurBuffer = 0.03;
+						tmpSmoke.smokeAngleBuffer = rand() % 360;
+						tmpSmoke.smokeIDBufferSet = true;
+						tmpSmoke.smokeActive = true;
+						Smokes.push_back(tmpSmoke);
+						IS3SmokeBudget = 0;
+					}
+					IS3HP -= 3.9;
+				}
+				aTenStart = 0;
+				aTenActive = false;
+				aTenTimer = false;
+				aTenTarget = 0;
+			}
+		}
+		else
+		{
+			aTenStart = currentTime;
+			aTenTimer = true;
+		}
+	}
 }
 void Display()
 {
@@ -259,7 +327,25 @@ void Display()
 
 		gamepad();
 		KeyHandler();
-		
+		aTenEventHandler();
+		if (drawATenActive)
+		{
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glDisable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glLineWidth(OUTLINE);
+			PatternSilh->Use();
+			drawA_Ten();
+			PatternSilh->Use(0);
+			glEnable(GL_POLYGON_OFFSET_FILL);
+			glPolygonOffset(-2.5f, -2.5f);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glShadeModel(GL_FLAT);
+			drawA_Ten();
+			glPopAttrib();
+		}
+
 		if (shake)
 		{
 			if ((Time - shakeStartTime) < shakeDuration)
@@ -772,6 +858,9 @@ void Display()
 				case 3:
 					drawMine(it->X, it->Y);
 					break;
+				case 4:
+					drawRadioCrate(it->X, it->Y);
+					break;
 				}
 		}
 
@@ -802,6 +891,9 @@ void Display()
 					break;
 				case 3:
 					drawMine(it->X, it->Y);
+					break;
+				case 4:
+					drawRadioCrate(it->X, it->Y);
 					break;
 				}
 		}
@@ -982,9 +1074,7 @@ void Display()
 				);
 				if (cratecheck != Crates.end())
 				{
-					//Crates[cratecheck].isActive = false;
 					cratecheck->isActive = false;
-					//myMap.isCrate[Crates[cratecheck].i][Crates[cratecheck].j] = false;
 					myMap.isCrate[cratecheck->i][cratecheck->j] = false;
 					Crates.erase(cratecheck);
 				}
@@ -1001,7 +1091,8 @@ void Display()
 				{
 					if (myMap.MCM[tmpi][tmpj] && myMap.isSolid[tmpi][tmpj] && myMap.color[tmpi][tmpj][0] != 7)
 					{
-						int wallState = rand() % 6;
+						int wallState = rand() % 23;
+						//wallState = 22;
 						myMap.isCrate[tmpi][tmpj] = true;
 						Crate tmpCrate;
 						tmpCrate.X = myMap.coord[tmpi][tmpj][0];
@@ -1014,16 +1105,35 @@ void Display()
 						case 0:
 						case 1:
 						case 2:
+						case 3:
+						case 4:
+						case 5:
+						case 6:
+						case 7:
 							tmpCrate.type = AMMOCRATE;
 							break;
-						case 3:
+						case 8:
+						case 9:
+						case 10:
+						case 11:
+						case 12:
+						case 13:
 							tmpCrate.type = SMOKECRATE;
 							break;
-						case 4:
+						case 14:
+						case 15:
+						case 16:
+						case 17:
+						case 18:
+						case 19:
 							tmpCrate.type = HPCRATE;
 							break;
-						case 5:
-							tmpCrate.type = MINECRATE;// RELOADCRATE;
+						case 20:
+						case 21:
+							tmpCrate.type = MINECRATE;
+							break;
+						case 22:
+							tmpCrate.type = RADIO;
 							break;
 						}
 						Crates.push_back(tmpCrate);
@@ -1482,6 +1592,7 @@ void InitLists()
 		alGenSources((ALuint)1, &hpRegen);
 		alGenSources((ALuint)1, &AmmoSmoke);
 		alGenSources((ALuint)1, &tankBulletFire);
+		alGenSources((ALuint)1, &A_10);
 		// check for errors
 
 		alSourcef(mainMusic1, AL_PITCH, 1);
@@ -1629,64 +1740,64 @@ void InitLists()
 		alSourcei(tankBulletFire, AL_LOOPING, AL_FALSE);
 		// check for errros
 
+		alSourcef(A_10, AL_PITCH, 1);
+		// check for errors
+		alSourcef(A_10, AL_GAIN, 1);
+		// check for errors
+		alSource3f(A_10, AL_POSITION, 0, 0, 0);
+		// check for errors
+		alSource3f(A_10, AL_VELOCITY, 0, 0, 0);
+		// check for errors
+		alSourcei(A_10, AL_LOOPING, AL_FALSE);
+		// check for errros
+
 		alGenBuffers(NUM_BUFFERS, Buffers);
-		alutLoadWAVFile("sound/song1.wav", &format, &data, &size, &freq, &loop);
+		
+		int channel, bps;
+		data = loadWAV("sound/song1.asset", channel, freq, bps, size,format);
 		alBufferData(Buffers[0], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song2.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song2.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[1], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song3.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song3.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[2], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song4.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song4.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[3], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song5.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song5.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[4], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song6.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song6.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[5], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song7.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song7.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[6], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/song8.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/song8.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[7], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/shot.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/shot.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[8], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/bounce.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/bounce.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[9], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/explosion.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/explosion.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[10], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/hp.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/hp.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[11], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/ammo.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/ammo.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[12], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		alutLoadWAVFile("sound/bullet.wav", &format, &data, &size, &freq, &loop);
+		data = loadWAV("sound/bullet.asset", channel, freq, bps, size, format);
 		alBufferData(Buffers[13], format, data, size, freq);
-		alutUnloadWAV(format, data, size, freq);
 
-		// Bind buffers into audio sources.
+		data = loadWAV("sound/a-10.asset", channel, freq, bps, size, format);
+		alBufferData(Buffers[14], format, data, size, freq);
 
 		alGenSources(NUM_SOURCES, Sources);
 
@@ -1787,6 +1898,13 @@ void InitLists()
 		alSource3f(Sources[13], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[13], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[13], AL_LOOPING, AL_FALSE);
+
+		alSourcei(Sources[14], AL_BUFFER, Buffers[14]);
+		alSourcef(Sources[14], AL_PITCH, 1.0);
+		alSourcef(Sources[14], AL_GAIN, 1.0);
+		alSource3f(Sources[14], AL_POSITION, 0, 0, 0);
+		alSource3f(Sources[14], AL_VELOCITY, 0, 0, 0);
+		alSourcei(Sources[14], AL_LOOPING, AL_FALSE);
 
 		isSoundLoaded = true;
 	}

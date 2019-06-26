@@ -16,7 +16,6 @@
 #include <windows.h>
 #include <al.h>
 #include <alc.h>
-#include <alut.h>
 #include <omp.h>
 #include "glew.h"
 
@@ -27,7 +26,6 @@
 #include <stdlib.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -45,7 +43,6 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 #include "Globals.h"
-#include "bmptotexture.h"
 #include "Renderer.h"
 #include "Utility.h"
 

@@ -1,4 +1,435 @@
-﻿AI.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
-.\Debug/bmptotexture.obj : warning LNK4042: object specified more than once; extras ignored
-  Sample.vcxproj -> C:\Users\Behnam\Documents\Visual Studio 2015\Projects\Sample2015\.\Debug\Sample.exe
-  Sample.vcxproj -> .\Debug/Sample.pdb (Full PDB)
+﻿  sample.cpp
+C:\Users\Ben\source\repos\Sample2015\Globals.h(149,23): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Globals.h(165,29): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(267,45): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(268,48): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(276,41): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(277,44): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(285,32): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(287,32): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(288,35): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(289,38): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(299,35): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(300,38): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(314,29): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(317,36): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(318,39): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(319,33): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(330,36): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(333,36): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(334,39): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(344,35): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(345,38): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(564,21): warning C4305:  'initializing': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(991,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(992,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1103,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1104,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1164,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1165,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1189,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1190,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1273,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1274,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1386,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1387,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1411,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1412,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1473,34): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1474,39): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1522,47): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1523,47): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1524,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1525,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1556,47): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1557,47): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1558,37): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1559,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1591,45): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1592,45): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1593,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1594,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1625,45): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1626,45): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1627,37): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Utility.h(1628,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(85,37): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(85,27): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(85,17): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(125,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(151,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(159,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(167,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(177,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(188,21): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(196,21): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(203,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(211,21): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(219,21): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(229,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(257,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(265,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(275,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(287,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(295,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(303,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(311,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(321,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(332,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(340,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(348,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(356,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(366,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(377,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(385,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(393,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(401,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(411,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(422,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(430,23): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(438,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(446,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(456,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(467,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(475,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(483,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(491,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(501,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(527,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(535,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(545,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(555,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(563,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(571,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(579,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(594,35): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(597,36): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(648,21): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(660,30): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(661,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(667,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(668,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(674,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(675,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(681,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(682,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(702,32): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(709,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(728,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(734,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(754,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(768,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(781,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(795,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(807,33): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(813,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(833,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(839,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(858,32): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(864,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(921,57): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(921,39): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(921,21): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(938,31): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(938,36): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(938,17): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(941,72): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(941,50): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(941,28): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(959,31): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(967,42): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(980,12): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(981,31): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1014,31): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1031,19): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1047,31): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1053,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1064,75): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1064,46): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1064,17): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1088,19): warning C4244:  'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1101,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1143,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1148,118): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1149,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1150,130): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1151,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1170,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1172,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1174,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1176,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1236,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1247,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1394,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1399,118): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1400,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1401,130): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1402,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1421,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1423,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1425,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1427,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1487,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1498,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1646,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1651,90): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1652,96): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1653,102): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1654,96): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1673,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1675,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1677,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1679,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1739,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1750,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1778,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1783,118): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1784,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1785,130): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1786,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1805,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1807,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1809,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1811,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1871,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1882,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1912,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1917,118): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1918,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1919,130): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1920,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1939,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1941,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1943,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(1945,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2005,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2016,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2162,27): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2167,118): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2168,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2169,130): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2170,124): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2189,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2191,43): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2193,57): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2195,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2255,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2266,102): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2338,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2343,117): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2344,123): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2345,129): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2346,123): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2365,42): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2367,42): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2369,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2371,55): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2431,101): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2442,101): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2597,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2598,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2599,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2600,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2601,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2602,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2604,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2653,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2661,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2669,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2677,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2685,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2707,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2709,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2742,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2744,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2775,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2776,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2777,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2778,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2779,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2780,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2781,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2782,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2783,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2784,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2785,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2787,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2789,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2816,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2835,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2854,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2873,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2892,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2911,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2930,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2949,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2968,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(2987,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3115,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3116,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3117,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3118,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3119,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3120,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3122,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3140,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3152,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3165,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3207,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3208,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3209,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3210,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3211,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3212,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3213,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3214,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3215,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3216,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3217,21): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3221,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3224,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3227,61): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3227,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3230,57): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3230,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3233,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3236,19): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3240,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3243,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3246,61): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3246,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3249,57): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3249,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3252,25): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3256,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3257,22): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3262,26): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3264,26): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3325,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3344,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3363,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3382,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3401,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3420,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3439,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3458,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3477,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3496,24): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3522,30): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3525,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3549,30): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3552,26): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3586,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3589,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3620,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3623,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3668,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3671,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3688,28): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\Renderer.h(3691,24): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(58,1): warning C4007:  'WinMain': must be '__stdcall'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(87,12): warning C4244:  'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(160,19): warning C4244:  'initializing': conversion from 'time_t' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(181,37): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(182,42): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(188,20): warning C4305:  '-=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(200,37): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(201,42): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(207,18): warning C4305:  '-=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(375,106): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(376,107): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(377,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(378,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(379,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(380,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(391,106): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(392,107): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(393,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(394,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(395,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(396,108): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(417,102): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(418,103): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(419,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(420,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(421,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(422,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(433,102): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(434,103): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(435,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(436,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(437,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(438,104): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(476,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(479,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(498,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(501,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(554,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(557,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(564,42): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(576,29): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(579,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(583,41): warning C4244:  'argument': conversion from 'int' to 'GLfloat', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(590,39): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(592,38): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(601,39): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(603,38): warning C4244:  'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(700,42): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(702,42): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(704,56): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(706,55): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(769,101): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(780,101): warning C4244:  'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(805,151): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(815,151): warning C4305:  'argument': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(922,122): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(922,27): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(932,122): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(932,27): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(945,138): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1006,144): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1072,48): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1071,48): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1084,49): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1083,48): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1146,38): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1147,43): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1163,128): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1163,29): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1175,46): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1176,46): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1177,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1178,41): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1184,142): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1246,48): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1247,48): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1248,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1249,41): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1255,148): warning C4244:  '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1321,50): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1320,50): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1335,51): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1334,49): warning C4244:  'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1348,65): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1349,65): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1350,37): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1351,42): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1928,25): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1933,88): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1934,94): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1935,100): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(1936,94): warning C4305:  'argument': truncation from 'double' to 'GLfloat'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2615,35): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2616,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2625,48): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2626,48): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2627,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2628,41): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2646,35): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2647,40): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2656,46): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2657,46): warning C4244:  '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2658,36): warning C4305:  '=': truncation from 'double' to 'float'
+C:\Users\Ben\source\repos\Sample2015\sample.cpp(2659,41): warning C4244:  '=': conversion from 'int' to 'float', possible loss of data
+AI.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+  Sample.vcxproj -> C:\Users\Ben\source\repos\Sample2015\.\Debug\Sample.exe

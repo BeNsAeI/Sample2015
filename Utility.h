@@ -16,7 +16,6 @@
 #include <windows.h>
 #include <al.h>
 #include <alc.h>
-#include <alut.h>
 #include <omp.h>
 #include "glew.h"
 
@@ -28,7 +27,6 @@
 #include <stdlib.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
 #endif
 
 #include <GL/gl.h>
@@ -47,7 +45,6 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 #include "Globals.h"
-#include "bmptotexture.h"
 
 void Quit()
 {
@@ -73,6 +70,71 @@ void Animate()
 
 	glutSetWindow(MainWindow);
 	glutPostRedisplay();
+}
+bool isBigEndian()
+{
+	int a = 1;
+	return !((char*)& a)[0];
+}
+int convertToInt(char* buffer, int len)
+{
+	int a = 0;
+	if (!isBigEndian())
+		for (int i = 0; i < len; i++)
+			((char*)& a)[i] = buffer[i];
+	else
+		for (int i = 0; i < len; i++)
+			((char*)& a)[3 - i] = buffer[i];
+	return a;
+}
+char* loadWAV(const char* fn, int& chan, int& freq, int& bps, int& size, int& form)
+{
+	char buffer[4];
+	std::ifstream in(fn, std::ios::binary);
+	in.read(buffer, 4);
+	if (strncmp(buffer, "RIFF", 4) != 0)
+	{
+		std::cout << "this is not a valid WAVE file" << std::endl;
+		return NULL;
+	}
+	in.read(buffer, 4);
+	in.read(buffer, 4);      //WAVE
+	in.read(buffer, 4);      //fmt
+	in.read(buffer, 4);      //16
+	in.read(buffer, 2);      //1
+	in.read(buffer, 2);
+	chan = convertToInt(buffer, 2);
+	in.read(buffer, 4);
+	freq = convertToInt(buffer, 4);
+	in.read(buffer, 4);
+	in.read(buffer, 2);
+	in.read(buffer, 2);
+	bps = convertToInt(buffer, 2);
+	in.read(buffer, 4);
+	in.read(buffer, 4);
+	size = convertToInt(buffer, 4);
+	char* data = new char[size];
+	in.read(data, size);
+	if (chan == 1)
+	{
+		if (bps == 8)
+		{
+			form = AL_FORMAT_MONO8;
+		}
+		else {
+			form = AL_FORMAT_MONO16;
+		}
+	}
+	else {
+		if (bps == 8)
+		{
+			form = AL_FORMAT_STEREO8;
+		}
+		else {
+			form = AL_FORMAT_STEREO16;
+		}
+	}
+	return data;
 }
 void loadMap()
 {
@@ -497,181 +559,200 @@ void loadingText(char * Text, float percent)
 }
 void loadAll()
 {
-	// Item goes up to 30 -> percent is ~ 3.3
+	// Item goes up to 32 -> percent is ~ 3.1
 	float item = 0;
-	float percent = 3.3;
-	loadingText("Loading Abrams Turret ...", percent * item); // each step is 4.5%
+	float percent = 3.1;
+	loadingText("Loading Abrams Turret ...", percent * item); 
 	item++;
 	Abram[0][START] = vertices.size();
 	res = loadOBJ("models/abram-turret.vbo", vertices, uvs, normals);
 	Abram[0][END] = vertices.size();
 
-	loadingText("Loading Abrams Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading Abrams Hull ...", percent * item); 
 	item++;
 	Abram[1][START] = vertices.size();
 	res = loadOBJ("models/abram-hull.vbo", vertices, uvs, normals);
 	Abram[1][END] = vertices.size();
 
-	loadingText("Loading T29 Turret ...", percent * item); // each step is 4.5%
+	loadingText("Loading T29 Turret ...", percent * item); 
 	item++;
 	T29[0][START] = vertices.size();
 	res = loadOBJ("models/T-29-turret.vbo", vertices, uvs, normals);
 	T29[0][END] = vertices.size();
 
-	loadingText("Loading T29 Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading T29 Hull ...", percent * item); 
 	item++;
 	T29[1][START] = vertices.size();
 	res = loadOBJ("models/T-29-hull.vbo", vertices, uvs, normals);
 	T29[1][END] = vertices.size();
 
-	loadingText("Loading IS3 Turret ...", percent * item); // each step is 4.5%
+	loadingText("Loading IS3 Turret ...", percent * item); 
 	item++;
 	IS3[0][START] = vertices.size();
 	res = loadOBJ("models/IS-3-turret.vbo", vertices, uvs, normals);
 	IS3[0][END] = vertices.size();
 
-	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading IS3 Hull ...", percent * item); 
 	item++;
 	IS3[1][START] = vertices.size();
 	res = loadOBJ("models/IS-3-upper-hull.vbo", vertices, uvs, normals);
 	IS3[1][END] = vertices.size();
 
-	loadingText("Loading IS3 Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading IS3 Hull ...", percent * item); 
 	item++;
 	IS3[2][START] = vertices.size();
 	res = loadOBJ("models/IS-3-lower-hull.vbo", vertices, uvs, normals);
 	IS3[2][END] = vertices.size();
 
-	loadingText("Loading E100 Turret ...", percent * item); // each step is 4.5%
+	loadingText("Loading E100 Turret ...", percent * item); 
 	item++;
 	E100[0][START] = vertices.size();
 	res = loadOBJ("models/E100-turret.vbo", vertices, uvs, normals);
 	E100[0][END] = vertices.size();
 
-	loadingText("Loading E100 Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading E100 Hull ...", percent * item); 
 	item++;
 	E100[1][START] = vertices.size();
 	res = loadOBJ("models/E100-hull.vbo", vertices, uvs, normals);
 	E100[1][END] = vertices.size();
 
-	loadingText("Loading Type 59 Turret ...", percent * item); // each step is 4.5%
+	loadingText("Loading Type 59 Turret ...", percent * item); 
 	item++;
 	Type59[0][START] = vertices.size();
 	res = loadOBJ("models/Type59-turret.vbo", vertices, uvs, normals);
 	Type59[0][END] = vertices.size();
 
-	loadingText("Loading Type 59 Hull ...", percent * item); // each step is 4.5%
+	loadingText("Loading Type 59 Hull ...", percent * item); 
 	item++;
 	Type59[1][START] = vertices.size();
 	res = loadOBJ("models/Type59-hull.vbo", vertices, uvs, normals);
 	Type59[1][END] = vertices.size();
 
-	loadingText("Loading Left Track ...", percent * item); // each step is 4.5%
+	loadingText("Loading Left Track ...", percent * item); 
 	item++;
 	Track[0][START] = vertices.size();
 	res = loadOBJ("models/l-track.vbo", vertices, uvs, normals);
 	Track[0][END] = vertices.size();
 
-	loadingText("Loading Right Track ...", percent * item); // each step is 4.5%
+	loadingText("Loading Right Track ...", percent * item); 
 	item++;
 	Track[1][START] = vertices.size();
 	res = loadOBJ("models/r-track.vbo", vertices, uvs, normals);
 	Track[1][END] = vertices.size();
 
-	loadingText("Loading Walls ...", percent * item); // each step is 4.5%
+	loadingText("Loading Walls ...", percent * item); 
 	item++;
 	cube[START] = vertices.size();
 	res = loadOBJ("models/cube.vbo", vertices, uvs, normals);
 	cube[END] = vertices.size();
 
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[0][START] = vertices.size();
 	res = loadOBJ("models/tree1.vbo", vertices, uvs, normals);
 	trees[0][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[1][START] = vertices.size();
 	res = loadOBJ("models/tree2.vbo", vertices, uvs, normals);
 	trees[1][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[2][START] = vertices.size();
 	res = loadOBJ("models/tree3.vbo", vertices, uvs, normals);
 	trees[2][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[3][START] = vertices.size();
 	res = loadOBJ("models/tree4.vbo", vertices, uvs, normals);
 	trees[3][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[4][START] = vertices.size();
 	res = loadOBJ("models/tree5.vbo", vertices, uvs, normals);
 	trees[4][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[5][START] = vertices.size();
 	res = loadOBJ("models/tree6.vbo", vertices, uvs, normals);
 	trees[5][END] = vertices.size();
-	loadingText("Loading Trees ...", percent * item); // each step is 4.5%
+	loadingText("Loading Trees ...", percent * item); 
 	item++;
 	trees[6][START] = vertices.size();
 	res = loadOBJ("models/tree7.vbo", vertices, uvs, normals);
 	trees[6][END] = vertices.size();
-	loadingText("Loading Particles ...", percent * item); // each step is 4.5%
+	loadingText("Loading Particles ...", percent * item); 
 	item++;
 	trees[7][START] = vertices.size();
 	res = loadOBJ("models/rock.vbo", vertices, uvs, normals);
 	trees[7][END] = vertices.size();
 
-	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
+	loadingText("Loading Power-Ups ...", percent * item); 
 	item++;
 	hpCrate[0][START] = vertices.size();
 	res = loadOBJ("models/hp1.vbo", vertices, uvs, normals);
 	hpCrate[0][END] = vertices.size();
-	loadingText("Loading Power-Ups ...", percent * item); // each step is 4.5%
+	loadingText("Loading Power-Ups ...", percent * item); 
 	item++;
 	hpCrate[1][START] = vertices.size();
 	res = loadOBJ("models/hp2.vbo", vertices, uvs, normals);
 	hpCrate[1][END] = vertices.size();
-	loadingText("Loading Ammunition ...", percent * item); // each step is 4.5%
+	loadingText("Loading Ammunition ...", percent * item); 
 	item++;
 	shell[START] = vertices.size();
 	res = loadOBJ("models/shell.vbo", vertices, uvs, normals);
 	shell[END] = vertices.size();
 
-	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
+	loadingText("Loading Counter Measures ...", percent * item); 
 	item++;
 	smokeCrate[0][START] = vertices.size();
 	res = loadOBJ("models/smoke1.vbo", vertices, uvs, normals);
 	smokeCrate[0][END] = vertices.size();
-	loadingText("Loading Counter Measures ...", percent * item); // each step is 4.5%
+	loadingText("Loading Counter Measures ...", percent * item); 
 	item++;
 	smokeCrate[1][START] = vertices.size();
 	res = loadOBJ("models/smoke2.vbo", vertices, uvs, normals);
 	smokeCrate[1][END] = vertices.size();
-	loadingText("Loading Explosives ...", percent * item); // each step is 4.5%
+	loadingText("Loading Explosives ...", percent * item); 
 	item++;
 	ammo[START] = vertices.size();
 	res = loadOBJ("models/ammo.vbo", vertices, uvs, normals);
 	ammo[END] = vertices.size();
 
-	loadingText("Loading Dima's present ...", percent * item); // each step is 4.5%
+	loadingText("Loading Dima's present ...", percent * item); 
 	item++;
 	mineCrate[START] = vertices.size();
 	res = loadOBJ("models/mine.vbo", vertices, uvs, normals);
 	mineCrate[END] = vertices.size();
 
-	loadingText("Loading Grass ...", percent * item); // each step is 4.5%
+	loadingText("Loading the Radio ...", percent* item); 
+	item++;
+	radioCrate[0][START] = vertices.size();
+	res = loadOBJ("models/radio-main.vbo", vertices, uvs, normals);
+	radioCrate[0][END] = vertices.size();
+	radioCrate[1][START] = vertices.size();
+	res = loadOBJ("models/radio-black.vbo", vertices, uvs, normals);
+	radioCrate[1][END] = vertices.size();
+
+	loadingText("Loading the A-10 ...", percent* item); 
+	item++;
+	A_10_M[0][START] = vertices.size();
+	res = loadOBJ("models/A-10-main.vbo", vertices, uvs, normals);
+	A_10_M[0][END] = vertices.size();
+	A_10_M[1][START] = vertices.size();
+	res = loadOBJ("models/A-10-window.vbo", vertices, uvs, normals);
+	A_10_M[1][END] = vertices.size();
+	A_10_M[2][START] = vertices.size();
+	res = loadOBJ("models/A-10-black.vbo", vertices, uvs, normals);
+	A_10_M[2][END] = vertices.size();
+
+	loadingText("Loading Grass ...", percent * item); 
 	item++;
 	grass[START] = vertices.size();
 	res = loadOBJ("models/grass.vbo", vertices, uvs, normals);
 	grass[END] = vertices.size();
 
-	loadingText("Loading Finished ...", 100); // each step is 4.5%
-
-											  //Texture needs to be loaded here
+	loadingText("Loading Finished ...", 100); 
 
 	if (res)
 	{
@@ -694,6 +775,12 @@ void resetState(std::string newMap) {
 	IS3TurretAngle = 0;
 	AbramLastShot = 0;
 	IS3LastShot = 0;
+	aTenActive = false;
+	aTenTimer = false;
+	aTenTarget = 0;
+	aTenStart = 0;
+	drawATenActive = false;
+	aTenTargetCoord = 0;
 	Smokes.erase(Smokes.begin(), Smokes.end());
 	mapName = newMap;
 	loadMap();
@@ -712,6 +799,12 @@ void resetState() {
 	IS3TurretAngle = 0;
 	AbramLastShot = 0;
 	IS3LastShot = 0;
+	aTenActive = false;
+	aTenTimer = false;
+	aTenTarget = 0;
+	aTenStart = 0;
+	drawATenActive = false;
+	aTenTargetCoord = 0;
 	Smokes.erase(Smokes.begin(), Smokes.end());
 }
 bool MapCollisionModel(float AX, float AY, float Xstride, float Ystride, int sign, int axis, int * ival = NULL, int *jval = NULL)
@@ -818,6 +911,14 @@ std::vector<Crate>::iterator CrateCollisionModel(float AX, float AY, float Xstri
 	}
 	return Crates.end();
 }
+void aTen(char player)
+{
+	aTenActive = true;
+	if (player == '1')
+		aTenTarget = 2;
+	else
+		aTenTarget = 1;
+}
 void KeyHandler() {
 	float AbramTX = TANKSPEED * (float)sin(AbramHullAngle * (float)((float)PI / (float)180));
 	float AbramTY = TANKSPEED * (float)cos(AbramHullAngle * (float)((float)PI / (float)180));
@@ -922,6 +1023,10 @@ void KeyHandler() {
 			case 3:
 				AbramHP -= TANKHP;
 				alSourcePlay(Sources[8]);
+				break;
+			case 4:
+				alSourcePlay(Sources[14]);
+				aTen('1');
 				break;
 			}
 			//Crates[cratecheck].isActive = false;
@@ -1031,6 +1136,10 @@ void KeyHandler() {
 			case 3:
 				AbramHP -= TANKHP;
 				alSourcePlay(Sources[8]);
+				break;
+			case 4:
+				alSourcePlay(Sources[14]);
+				aTen('1');
 				break;
 			}
 			//Crates[cratecheck].isActive = false;
@@ -1198,6 +1307,10 @@ void KeyHandler() {
 				IS3HP -= TANKHP;
 				alSourcePlay(Sources[8]);
 				break;
+			case 4:
+				alSourcePlay(Sources[14]);
+				aTen('2');
+				break;
 			}
 			//Crates[cratecheck].isActive = false;
 			cratecheck->isActive = false;
@@ -1332,6 +1445,10 @@ void KeyHandler() {
 			case 3:
 				IS3HP -= TANKHP;
 				alSourcePlay(Sources[8]);
+				break;
+			case 4:
+				alSourcePlay(Sources[14]);
+				aTen('2');
 				break;
 			}
 			//Crates[cratecheck].isActive = false;

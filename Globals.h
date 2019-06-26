@@ -7,6 +7,7 @@
 	ALuint mainMusic1, mainMusic2, mainMusic3, mainMusic4, mainMusic5, mainMusic6, mainMusic7;
 	ALuint tankShellFire;
 	ALuint tankBulletFire;
+	ALuint A_10;
 	ALuint tankShellBounce;
 	ALuint tankExplode;
 	ALuint hpRegen;
@@ -127,17 +128,10 @@
 	int smokeCrate[2][2];
 	int hpCrate[2][2];
 	int mineCrate[2];
+	int radioCrate[2][2];
+	int A_10_M[3][2];
 	int grass[2];
-	//float smokeBeginTime = 0;
-	//bool smokeSet = false;
-	/*
-	float smokeIDBuffer[1000];
-	float smokeCoordBuffer[1000][2];
-	float smokeDurBuffer[1000];
-	float smokeAngleBuffer[1000];
-	bool  smokeIDBufferSet[1000];
-	bool  smokeActive[1000];
-	int smokeIndex = 0;*/
+
 	
 	struct Smoke {
 		float smokeIDBuffer;
@@ -153,6 +147,17 @@
 	float destructionTimeBuffer[24][14];
 
 	float TANKSPEED = 0.3;
+
+	bool aTenActive = false;
+	bool aTenTimer = false;
+	int aTenTarget = 0;
+	int aTenStart = 0;
+	int aTenWait = 6;
+	bool drawATenActive = false;
+	int drawATenActiveTime;
+	int flightDuration = 15;
+	float aTenTargetCoord = 0;
+
 
 	//explosion and fire
 	bool shake = false;
@@ -178,12 +183,8 @@
 	float AbramSmoke = SMOKECOUNT;
 	float IS3Smoke = SMOKECOUNT;
 
-	//texture
-	#include "bmptotexture.h"
 	int width, height;
 	GLuint tex0 = 1;
-	BTT myTexture;
-	unsigned char *Texture = myTexture.BmpToTexture("textures\\camo.bmp", &width, &height);
 
 	GLSLProgram *Pattern;
 	GLSLProgram *PatternGrass;

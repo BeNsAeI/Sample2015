@@ -66,6 +66,7 @@ const int GLUIFALSE = { false };
 #define SMOKECRATE 1;
 #define HPCRATE 2;
 #define MINECRATE 3;
+#define RADIO 4;
 #define RELOADCRATE 3;
 #define DAMAGECRATE 4;
 #define RAMSPEEDCRATE 5;
@@ -74,8 +75,8 @@ const int GLUIFALSE = { false };
 #define TOTAL_MS (180 * 1000)
 #define NUMMODEL 1
 #define BUFFER_OFFSET(i) ((void*)(i))
-#define NUM_BUFFERS 14
-#define NUM_SOURCES 14
+#define NUM_BUFFERS 15
+#define NUM_SOURCES 15
 #define _USE_MATH_DEFINES
 #define PLANSIZE 3
 #define AIMTHRESH 1

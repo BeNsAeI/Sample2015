@@ -16,7 +16,6 @@
 #include <windows.h>
 #include <al.h>
 #include <alc.h>
-#include <alut.h>
 #include <omp.h>
 #include "glew.h"
 
@@ -27,13 +26,13 @@
 #include <stdlib.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <AL/alut.h>
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
+#include <time.h>
 #include "glut.h"
 #include "glslprogram.h"
 
@@ -45,18 +44,33 @@
 #include "SimpleAI.h"
 #include "neuron.h"
 #include "Globals.h"
-#include "bmptotexture.h"
 #include "Renderer.h"
 #include "Material.h"
 #include "Utility.h"
 
+void drawSparks(float X, float Y)
+{
+	glBegin(GL_LINES);
+	glColor3f(1, 1, 1);
+	glVertex3f(X, 0, Y);
+	glVertex3f(X + (rand() % 10), 10, Y + (rand() % 10));
+	glEnd();
+	glBegin(GL_LINES);
+	glColor3f(1, 1, 0);
+	glVertex3f(X, 0, Y);
+	glVertex3f(X + (rand() % 10), 10, Y + (rand() % 10));
+	glEnd();
+	glColor3f(1, 0, 0);
+	glVertex3f(X, 0, Y);
+	glVertex3f(X + (rand() % 10), 10, Y + (rand() % 10));
+	glEnd();
+}
 void drawSmoke(float X, float Y, float Z, float angle, float scale, float r, float g, float b, float beginTime, float duration)
 {
 	int beginPoint;
 	int endPoint;
 	if ((Time - beginTime) >= 0 && (Time - beginTime) <= duration)
 	{
-		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
 		glPushMatrix();
 		glTranslatef(X, Z + 3 + (Time - beginTime) * 100, Y);
 		glScalef(1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
@@ -84,7 +98,6 @@ void drawExplosion(float X, float Y, float Z, float angle, float scale, float r,
 	int endPoint;
 	if ((Time - beginTime) >= 0 && (Time - beginTime) <= duration)
 	{
-		//std::cout << (Time - beginTime) << ", " << duration << std::endl;
 		glPushMatrix();
 		glTranslatef(X, Z + 3 + (Time - beginTime) * 100, Y);
 		glScalef(1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000, 1 + (Time - beginTime) * 10000);
@@ -121,14 +134,7 @@ void drawIS3(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0.25, 1);
-	//SetMaterial(0, 0, 0.5, 1.0);
-	//glColor3f(0, 0.75, 0);
-	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[1][START];
@@ -136,26 +142,14 @@ void drawIS3(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0.25, 1);
-	//SetMaterial(0, 0, 0.5, 1.0);
-	//glColor3f(0, 0.75, 0);
-	//SetMaterial(0, 0.5, 0, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[2][START];
 	endPoint = IS3[2][END] - IS3[2][START];
 	glPushMatrix();
 	glColor3f(0.2, 0.2, 0.2);
-	//SetMaterial(0.1, 0.1, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -163,12 +157,7 @@ void drawIS3(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -176,12 +165,7 @@ void drawIS3(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -202,12 +186,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
 	glColor3f(0, 0, 0.1);
-	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[1][START];
@@ -215,24 +194,14 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0.75, 0, 0);
 	glColor3f(0, 0, 0.1);
-	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = IS3[2][START];
 	endPoint = IS3[2][END] - IS3[2][START];
 	glPushMatrix();
 	glColor3f(0.2, 0.2, 0.2);
-	//SetMaterial(0.1, 0.1, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -240,12 +209,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0, 0, 0.1);
-	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -253,12 +217,7 @@ void drawIS3Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0, 0, 0.1);
-	//SetMaterial(0, 0, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -279,56 +238,32 @@ void drawAbram(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0.25);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Abram[1][START];
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
 	glTranslatef(-1, 0, 0.25);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.5, 0);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-12.75, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(-0.25, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -349,52 +284,32 @@ void drawAbramDead(float X, float Y, float Z, float hullAngle, float turretAngle
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
 	glTranslatef(1.75, 0, 0.25);
-	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Abram[1][START];
 	endPoint = Abram[1][END] - Abram[1][START];
 	glPushMatrix();
 	glTranslatef(-1, 0, 0.25);
-	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-12.75, 0, -3);
-	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(-0.25, 0, -3);
-	//SetMaterial(0.15, 0.15, 0, 1.0);
 	glColor3f(0.1, 0.1, 0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -414,56 +329,32 @@ void drawT29(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glTranslatef(0, 3, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.38, 0.2, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = T29[1][START];
 	endPoint = T29[1][END] - T29[1][START];
 	glPushMatrix();
 	glTranslatef(0, 1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.38, 0.2, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-14.75, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(1.75, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.3, 0.25, 0.18);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -483,56 +374,32 @@ void drawT29Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glTranslatef(0, 3, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -3, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = T29[1][START];
 	endPoint = T29[1][END] - T29[1][START];
 	glPushMatrix();
 	glTranslatef(0, 1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
 	endPoint = Track[0][END] - Track[0][START];
 	glPushMatrix();
 	glTranslatef(-14.75, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
 	endPoint = Track[1][END] - Track[1][START];
 	glPushMatrix();
 	glTranslatef(1.75, 0, -3);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
@@ -552,30 +419,16 @@ void drawE100(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glTranslatef(0, 1, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.1, 0.5);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = E100[1][START];
 	endPoint = E100[1][END] - E100[1][START];
 	glPushMatrix();
 	glTranslatef(0, 1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(1, 0.1, 0.5);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -583,12 +436,7 @@ void drawE100(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -596,7 +444,6 @@ void drawE100(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
@@ -617,30 +464,16 @@ void drawE100Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glTranslatef(0, 1, 0);
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0, -1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = E100[1][START];
 	endPoint = E100[1][END] - E100[1][START];
 	glPushMatrix();
 	glTranslatef(0, 1, 0);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -648,12 +481,7 @@ void drawE100Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -661,7 +489,6 @@ void drawE100Dead(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
@@ -681,30 +508,16 @@ void drawType59(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0.75, 0, -8);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0, 0.5, 0.125);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Type59[1][START];
 	endPoint = Type59[1][END] - Type59[1][START];
 	glPushMatrix();
 	glTranslatef(0.75, 0, -8);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0, 0.5, 0.125);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -712,12 +525,7 @@ void drawType59(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -725,7 +533,6 @@ void drawType59(float X, float Y, float Z, float hullAngle, float turretAngle)
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
@@ -745,30 +552,16 @@ void drawType59Dead(float X, float Y, float Z, float hullAngle, float turretAngl
 	glPushMatrix();
 	glRotatef(turretAngle, 0, 0, 1);
 	glTranslatef(0.75, 0, -8);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Type59[1][START];
 	endPoint = Type59[1][END] - Type59[1][START];
 	glPushMatrix();
 	glTranslatef(0.75, 0, -8);
-	//SetMaterial(0.5, 0.5, 0, 1.0);
 	glColor3f(0.1, 0.1, 0.01);
-	//glColor3f(0.6, 0.6, 0.3);
-	//SetMaterial(0.3, 0.3, 0.1, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0.25, 0.25, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[0][START];
@@ -776,12 +569,7 @@ void drawType59Dead(float X, float Y, float Z, float hullAngle, float turretAngl
 	glPushMatrix();
 	glTranslatef(-13, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
-	//glColor3f(0, 0, 0);
-	//glDrawArrays(GL_LINES, beginPoint, endPoint);
-	//glColor3f(1, 0, 0);
-	//glDrawArrays(GL_POINTS, beginPoint, endPoint);
 	glPopMatrix();
 
 	beginPoint = Track[1][START];
@@ -789,11 +577,59 @@ void drawType59Dead(float X, float Y, float Z, float hullAngle, float turretAngl
 	glPushMatrix();
 	glTranslatef(0, 0, -3);
 	glColor3f(0.3, 0.25, 0.18);
-	//SetMaterial(0.3, 0.25, 0.18, 1.0);
 	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
 	glPopMatrix();
 
 	glPopMatrix();
+}
+void drawA_Ten()
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	int currentTime = clock();
+
+	glTranslatef(aTenTargetCoord, 20 - 10 *sin((currentTime - drawATenActiveTime) % 360) / 150, (float)((400 * 33) - (int)((currentTime - drawATenActiveTime)) % (600 * 33)) / 33);
+	glRotatef((float)(-(90*150) + (int)((currentTime - drawATenActiveTime)) % (120 * 150))/150, 1, 0, 0);
+	glRotatef(270, 0, 1, 0);
+	glScalef(0.03625, 0.03625, 0.03625);
+
+	beginPoint = A_10_M[0][START];
+	endPoint = A_10_M[0][END] - A_10_M[0][START];
+
+	glColor3f(0.5, 0.5, 0.5);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = A_10_M[1][START];
+	endPoint = A_10_M[1][END] - A_10_M[1][START];
+
+	glColor3f(0, 0.75, 1);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = A_10_M[2][START];
+	endPoint = A_10_M[2][END] - A_10_M[2][START];
+
+	glColor3f(0.0625, 0.0625, 0.0625);
+	glPushMatrix();
+	glRotatef(270, 1, 0, 0);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+	if ((currentTime - drawATenActiveTime)/CLOCKS_PER_SEC > flightDuration)
+	{
+		drawATenActive = false;
+		drawATenActiveTime = 0;
+
+	}
 }
 void drawCube(float X, float Y, float Z, float r, float g, float b)
 {
@@ -1200,6 +1036,41 @@ void drawHPCrate(float X, float Y)
 
 	glPopMatrix();
 }
+void drawRadioCrate(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1, Y);	//movement
+	glRotatef((int)(Time * 5000) % 360, 0, 1, 0);
+	glScalef(0.5, 0.5, 0.5);
+
+	beginPoint = radioCrate[0][START];
+	endPoint = radioCrate[0][END] - radioCrate[0][START];
+
+	glColor3f(0.05, 0.31, 0.1);
+	glPushMatrix();
+	glTranslatef(0, 5, 0);
+	glRotatef(315, 1, 0, 0);
+	glScalef(0.25, 0.25, 0.25);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = radioCrate[1][START];
+	endPoint = radioCrate[1][END] - radioCrate[1][START];
+
+	glColor3f(0.25 - sin(Time * 1000) / 4, 0.25 - sin(Time * 1000) / 4, 0.25 - sin(Time * 1000) / 4);
+	glPushMatrix();
+	glTranslatef(0, 5, 0);
+	glRotatef(315, 1, 0, 0);
+	glScalef(0.25, 0.25, 0.25);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawMine(float X, float Y)
 {
 	int beginPoint;
@@ -1396,7 +1267,7 @@ void drawMenu()
 			glColor3f(.75, .75, .75);
 			// Render the object
 			PatternSilh->Use();
-			//BehnamSaeedi
+			//backgroundRand = 9;
 			switch (backgroundRand)
 			{
 			case 0:
@@ -1425,6 +1296,9 @@ void drawMenu()
 				break;
 			case 8:
 				drawType59(0, 0, 0, -45, -45);
+				break;
+			case 9:
+				drawRadioCrate(0, 0);
 				break;
 			}
 			PatternSilh->Use(0);
@@ -1438,6 +1312,7 @@ void drawMenu()
 			// Set the colour to the background
 			glColor3f(0.0f, 0.0f, 0.0f);
 			// Render the object
+			//backgroundRand = 9;
 			switch (backgroundRand)
 			{
 			case 0:
@@ -1484,6 +1359,11 @@ void drawMenu()
 				PatternCamo->Use();
 				drawType59(0, 0, 0, -45, -45);
 				PatternCamo->Use(0);
+				break;
+			case 9:
+				Pattern->Use();
+				drawRadioCrate(0, 0);
+				Pattern->Use(0);
 				break;
 			}
 			// Pop the state changes off the attribute stack
@@ -2156,7 +2036,7 @@ void drawMenu()
 			glColor3f(.75, .75, .75);
 			// Render the object
 			PatternSilh->Use();
-			//BehnamSaeedi
+			//backgroundRand = 9;
 			switch (backgroundRand)
 			{
 			case 0:
@@ -2185,6 +2065,9 @@ void drawMenu()
 				break;
 			case 8:
 				drawType59(0, 0, 0, -45, -45);
+				break;
+			case 9:
+				drawRadioCrate(0, 0);
 				break;
 			}
 			PatternSilh->Use(0);
@@ -2198,6 +2081,7 @@ void drawMenu()
 			// Set the colour to the background
 			glColor3f(0.0f, 0.0f, 0.0f);
 			// Render the object
+			//backgroundRand = 9;
 			switch (backgroundRand)
 			{
 			case 0:
@@ -2244,6 +2128,11 @@ void drawMenu()
 				PatternCamo->Use();
 				drawType59(0, 0, 0, -45, -45);
 				PatternCamo->Use(0);
+				break;
+			case 9:
+				Pattern->Use();
+				drawRadioCrate(0, 0);
+				Pattern->Use(0);
 				break;
 			}
 			// Pop the state changes off the attribute stack
@@ -2573,7 +2462,7 @@ void drawMenu()
 		glColor3f(.75, .75, .75);
 		// Render the object
 		PatternSilh->Use();
-		//BehnamSaeedi
+		//backgroundRand = 9;
 		switch (backgroundRand)
 		{
 		case 0:
@@ -2602,6 +2491,9 @@ void drawMenu()
 			break;
 		case 8:
 			drawType59(0, 0, 0, -45, -45);
+			break;
+		case 9:
+			drawRadioCrate(0, 0);
 			break;
 		}
 		PatternSilh->Use(0);
@@ -2615,6 +2507,7 @@ void drawMenu()
 		// Set the colour to the background
 		glColor3f(0.0f, 0.0f, 0.0f);
 		// Render the object
+		//backgroundRand = 9;
 		switch (backgroundRand)
 		{
 		case 0:
@@ -2661,6 +2554,11 @@ void drawMenu()
 			PatternCamo->Use();
 			drawType59(0, 0, 0, -45, -45);
 			PatternCamo->Use(0);
+			break;
+		case 9:
+			Pattern->Use();
+			drawRadioCrate(0, 0);
+			Pattern->Use(0);
 			break;
 		}
 		// Pop the state changes off the attribute stack
@@ -2705,6 +2603,7 @@ void drawMenuText()
 		glColor3f(1., 1., 1.);
 		DoRasterString(60, y, 0, (char *)  "Use Arrow Keys and Enter (Quit: Esc)");
 		glColor3f(1., 1., 0);
+		//backgroundRand = 9;
 		switch (backgroundRand)
 		{
 		case 0:
@@ -2733,6 +2632,9 @@ void drawMenuText()
 			break;
 		case 8:
 			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
+			break;
+		case 9:
+			DoRasterString(10, 30, 0, (char*)"This bad boy can call in the real fire power!");
 			break;
 		}
 		glColor3f(0.125, 0.125, 0.125);
@@ -2905,7 +2807,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -2924,7 +2826,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -2943,7 +2845,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -2962,7 +2864,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -2981,7 +2883,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3000,7 +2902,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3019,7 +2921,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3038,7 +2940,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3057,7 +2959,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3076,7 +2978,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3361,6 +3263,7 @@ void drawMenuText()
 			else
 				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
 		}
+		//backgroundRand = 9;
 		switch (backgroundRand)
 		{
 		case 0:
@@ -3390,6 +3293,9 @@ void drawMenuText()
 		case 8:
 			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
 			break;
+		case 9:
+			DoRasterString(10, 30, 0, (char*)"This bad boy can call in the real fire power!");
+			break;
 		}
 		glColor3f(0.125, 0.125, 0.125);
 		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
@@ -3410,7 +3316,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3429,7 +3335,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3448,7 +3354,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3467,7 +3373,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3486,7 +3392,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3505,7 +3411,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3524,7 +3430,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3543,7 +3449,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3562,7 +3468,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3581,7 +3487,7 @@ void drawMenuText()
 				loadMap();
 				isInMenu = false;
 				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 9;
+				backgroundRand = (backgroundRand + rand()) % 10;
 			}
 		}
 		else
@@ -3857,6 +3763,4 @@ void DoStringBoxColor(float x, float y, float z, char *s)
 	}
 	glRectd(x - 1, y - 1, x2, y + 1);
 }
-
-
 #endif

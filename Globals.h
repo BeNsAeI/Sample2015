@@ -1,6 +1,5 @@
 #ifndef GLOBALS_H
 	#define GLOBALS_H
-
 	ALCdevice *device;
 	ALboolean enumeration;
 	ALCcontext *context;
@@ -92,7 +91,11 @@
 
 	bool freeze = false;
 	float Time;
-
+	#ifdef WIN32
+		//#include <WS2tcpip.h>
+		//#pragma comment (lib, "ws2_32.lib")
+		// make the socket object class here
+	#endif
 	float factor = 0;
 	float eyex = CAMX;
 	float eyey = CAMY;
@@ -105,6 +108,10 @@
 	float upz = 0;
 	int camState = 0;
 	bool res;
+
+	//Multiplayer mode select:
+	int multiplayerMode = OFFLINE;
+	bool host = false;
 
 	bool resArray[NUMMODEL];
 	std::vector< glm::vec3 > vertices;
@@ -129,9 +136,13 @@
 	int hpCrate[2][2];
 	int mineCrate[2];
 	int radioCrate[2][2];
+	int laptop[2][2];
 	int A_10_M[3][2];
 	int grass[2];
-
+	bool playerOneSmokeGrace;
+	float playerOneSmokeGraceStart;
+	bool playerTwoSmokeGrace;
+	float playerTwoSmokeGraceStart;
 	
 	struct Smoke {
 		float smokeIDBuffer;

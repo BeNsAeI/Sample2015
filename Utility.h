@@ -18,7 +18,8 @@
 #include <alc.h>
 #include <omp.h>
 #include "glew.h"
-
+//#include <WS2tcpip.h>
+//#pragma comment (lib, "ws2_32.lib")
 #pragma warning(disable:4996)
 #endif
 
@@ -135,6 +136,35 @@ char* loadWAV(const char* fn, int& chan, int& freq, int& bps, int& size, int& fo
 		}
 	}
 	return data;
+}
+char getIP()
+{
+	return NULL;
+}
+void connect(int* ip)
+{
+
+}
+void startServer()
+{
+	// init winsock
+
+}
+void killServer()
+{
+	//shutdown winsock
+}
+void listen()
+{
+
+}
+void sendKey()
+{
+
+}
+char getKey()
+{
+	return NULL;
 }
 void loadMap()
 {
@@ -559,9 +589,9 @@ void loadingText(char * Text, float percent)
 }
 void loadAll()
 {
-	// Item goes up to 32 -> percent is ~ 3.1
+	// Item goes up to 33 -> percent is ~ 3.1
 	float item = 0;
-	float percent = 3.1;
+	float percent = 3.0;
 	loadingText("Loading Abrams Turret ...", percent * item); 
 	item++;
 	Abram[0][START] = vertices.size();
@@ -734,6 +764,15 @@ void loadAll()
 	res = loadOBJ("models/radio-black.vbo", vertices, uvs, normals);
 	radioCrate[1][END] = vertices.size();
 
+	loadingText("Loading the Laptop ...", percent* item);
+	item++;
+	laptop[0][START] = vertices.size();
+	res = loadOBJ("models/laptop-main.vbo", vertices, uvs, normals);
+	laptop[0][END] = vertices.size();
+	laptop[1][START] = vertices.size();
+	res = loadOBJ("models/laptop-black.vbo", vertices, uvs, normals);
+	laptop[1][END] = vertices.size();
+
 	loadingText("Loading the A-10 ...", percent* item); 
 	item++;
 	A_10_M[0][START] = vertices.size();
@@ -762,6 +801,10 @@ void loadAll()
 	}
 }
 void resetState(std::string newMap) {
+	for (int i = 0; i < NUM_SOURCES; i++)
+	{
+		alSourceStop(i);
+	}
 	AbramHP = TANKHP;
 	IS3HP = TANKHP;
 	shake = false;
@@ -775,6 +818,10 @@ void resetState(std::string newMap) {
 	IS3TurretAngle = 0;
 	AbramLastShot = 0;
 	IS3LastShot = 0;
+	playerOneSmokeGrace = false;
+	playerOneSmokeGraceStart = 0;
+	playerTwoSmokeGrace = false;
+	playerTwoSmokeGraceStart = 0;
 	aTenActive = false;
 	aTenTimer = false;
 	aTenTarget = 0;
@@ -786,6 +833,10 @@ void resetState(std::string newMap) {
 	loadMap();
 }
 void resetState() {
+	for (int i = 0; i < NUM_SOURCES; i++)
+	{
+		alSourceStop(i);
+	}
 	AbramHP = TANKHP;
 	IS3HP = TANKHP;
 	shake = false;
@@ -799,6 +850,10 @@ void resetState() {
 	IS3TurretAngle = 0;
 	AbramLastShot = 0;
 	IS3LastShot = 0;
+	playerOneSmokeGrace = false;
+	playerOneSmokeGraceStart = 0;
+	playerTwoSmokeGrace = false;
+	playerTwoSmokeGraceStart = 0;
 	aTenActive = false;
 	aTenTimer = false;
 	aTenTarget = 0;

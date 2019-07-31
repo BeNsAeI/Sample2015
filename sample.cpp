@@ -155,6 +155,16 @@ int main(int argc, char *argv[])
 }
 void aTenEventHandler()
 {
+	if (Time - playerOneSmokeGraceStart > SMOKEGRACE + SMOKEGRACEDELAY)
+	{
+		playerOneSmokeGrace = false;
+		playerOneSmokeGraceStart = 0;
+	}
+	if (Time - playerTwoSmokeGraceStart > SMOKEGRACE + SMOKEGRACEDELAY)
+	{
+		playerTwoSmokeGrace = false;
+		playerTwoSmokeGraceStart = 0;
+	}
 	if (aTenActive)
 	{
 		int currentTime = time(NULL);
@@ -185,7 +195,12 @@ void aTenEventHandler()
 						Smokes.push_back(tmpSmoke);
 						AbramSmokeBudget = 0;
 					}
-					AbramHP -= 3.9;
+					bool safe = Time - playerOneSmokeGraceStart > SMOKEGRACEDELAY;
+					if (playerOneSmokeGrace && safe)
+						AbramHP -= 0.5;
+					else
+						AbramHP = 0;
+					
 				}
 				if (aTenTarget == 2)
 				{
@@ -204,7 +219,11 @@ void aTenEventHandler()
 						Smokes.push_back(tmpSmoke);
 						IS3SmokeBudget = 0;
 					}
-					IS3HP -= 3.9;
+					bool safe = Time - playerTwoSmokeGraceStart > SMOKEGRACEDELAY;
+					if (playerTwoSmokeGrace && safe)
+						IS3HP -= 0.5;
+					else
+						IS3HP = 0;
 				}
 				aTenStart = 0;
 				aTenActive = false;
@@ -1803,56 +1822,56 @@ void InitLists()
 
 		alSourcei(Sources[0], AL_BUFFER, Buffers[0]);
 		alSourcef(Sources[0], AL_PITCH, 1.0);
-		alSourcef(Sources[0], AL_GAIN, 1.0);
+		alSourcef(Sources[0], AL_GAIN, 0.50);
 		alSource3f(Sources[0], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[0], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[0], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[1], AL_BUFFER, Buffers[1]);
 		alSourcef(Sources[1], AL_PITCH, 1.0);
-		alSourcef(Sources[1], AL_GAIN, 1.0);
+		alSourcef(Sources[1], AL_GAIN, 0.50);
 		alSource3f(Sources[1], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[1], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[1], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[2], AL_BUFFER, Buffers[2]);
 		alSourcef(Sources[2], AL_PITCH, 1.0);
-		alSourcef(Sources[2], AL_GAIN, 1.0);
+		alSourcef(Sources[2], AL_GAIN, 0.50);
 		alSource3f(Sources[2], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[2], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[2], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[3], AL_BUFFER, Buffers[3]);
 		alSourcef(Sources[3], AL_PITCH, 1.0);
-		alSourcef(Sources[3], AL_GAIN, 1.0);
+		alSourcef(Sources[3], AL_GAIN, 0.50);
 		alSource3f(Sources[3], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[3], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[3], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[4], AL_BUFFER, Buffers[4]);
 		alSourcef(Sources[4], AL_PITCH, 1.0);
-		alSourcef(Sources[4], AL_GAIN, 1.0);
+		alSourcef(Sources[4], AL_GAIN, 0.50);
 		alSource3f(Sources[4], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[4], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[4], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[5], AL_BUFFER, Buffers[5]);
 		alSourcef(Sources[5], AL_PITCH, 1.0);
-		alSourcef(Sources[5], AL_GAIN, 1.0);
+		alSourcef(Sources[5], AL_GAIN, 0.50);
 		alSource3f(Sources[5], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[5], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[5], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[6], AL_BUFFER, Buffers[6]);
 		alSourcef(Sources[6], AL_PITCH, 1.0);
-		alSourcef(Sources[6], AL_GAIN, 1.0);
+		alSourcef(Sources[6], AL_GAIN, 0.50);
 		alSource3f(Sources[6], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[6], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[6], AL_LOOPING, AL_TRUE);
 
 		alSourcei(Sources[7], AL_BUFFER, Buffers[7]);
 		alSourcef(Sources[7], AL_PITCH, 1.0);
-		alSourcef(Sources[7], AL_GAIN, 1.0);
+		alSourcef(Sources[7], AL_GAIN, 0.50);
 		alSource3f(Sources[7], AL_POSITION, 0, 0, 0);
 		alSource3f(Sources[7], AL_VELOCITY, 0, 0, 0);
 		alSourcei(Sources[7], AL_LOOPING, AL_TRUE);
@@ -1954,518 +1973,69 @@ void Keyboard(unsigned char c, int x, int y)
 {
 	if (isInMenu)
 	{
-		if (ADVANCEMENU)
+		switch (menuState)
 		{
-			switch (menuState)
-			{
-			case 0:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-				switch (c)
-				{
-				case 'w':
-				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 4;
-					selectIndex = selectIndex % 5;
-					break;
-				case 's':
-				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 5;
-					break;
-
-				case ' ':
-				case 13:
-					switch (selectIndex)
-					{
-					case 0:
-						menuState = 1;
-						break;
-					case 1:
-						menuState = 2;
-						break;
-					case 2:
-						menuState = 4;
-						break;
-					case 3:
-						menuState = 5;
-						break;
-					case 4:
-						menuState = 6;
-						break;
-					}
-					selectIndex = 0;
-					break;
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					Quit();
-					break;
-
-				}
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-			break;
-			case 1:
-			case 2:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-				switch (c)
-				{
-				case 'a':
-				case 'A':
-					PlayerOne += 1;
-					PlayerOne = PlayerOne % TOTALTANKS;
-					switch (PlayerOne)
-					{
-					case 0:
-						DrawPointer1 = &drawAbram;
-						DrawPointer1d = &drawAbramDead;
-						break;
-					case 1:
-						DrawPointer1 = &drawIS3;
-						DrawPointer1d = &drawIS3Dead;
-						break;
-					case 2:
-						DrawPointer1 = &drawT29;
-						DrawPointer1d = &drawT29Dead;
-						break;
-					case 3:
-						DrawPointer1 = &drawE100;
-						DrawPointer1d = &drawE100Dead;
-						break;
-					case 4:
-						DrawPointer1 = &drawType59;
-						DrawPointer1d = &drawType59Dead;
-						break;
-					}
-					break;
-				case 'd':
-				case 'D':
-					PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
-					PlayerOne = (PlayerOne - 1) % TOTALTANKS;
-					switch (PlayerOne)
-					{
-					case 0:
-						DrawPointer1 = &drawAbram;
-						DrawPointer1d = &drawAbramDead;
-						break;
-					case 1:
-						DrawPointer1 = &drawIS3;
-						DrawPointer1d = &drawIS3Dead;
-						break;
-					case 2:
-						DrawPointer1 = &drawT29;
-						DrawPointer1d = &drawT29Dead;
-						break;
-					case 3:
-						DrawPointer1 = &drawE100;
-						DrawPointer1d = &drawE100Dead;
-						break;
-					case 4:
-						DrawPointer1 = &drawType59;
-						DrawPointer1d = &drawType59Dead;
-						break;
-					}
-					break;
-				case 'j':
-				case 'J':
-				case '4':
-					PlayerTwo += 1;
-					PlayerTwo = PlayerTwo % TOTALTANKS;
-					switch (PlayerTwo)
-					{
-					case 0:
-						DrawPointer2 = &drawAbram;
-						DrawPointer2d = &drawAbramDead;
-						break;
-					case 1:
-						DrawPointer2 = &drawIS3;
-						DrawPointer2d = &drawIS3Dead;
-						break;
-					case 2:
-						DrawPointer2 = &drawT29;
-						DrawPointer2d = &drawT29Dead;
-						break;
-					case 3:
-						DrawPointer2 = &drawE100;
-						DrawPointer2d = &drawE100Dead;
-						break;
-					case 4:
-						DrawPointer2 = &drawType59;
-						DrawPointer2d = &drawType59Dead;
-						break;
-					}
-					break;
-				case 'l':
-				case 'L':
-				case '6':
-					PlayerTwo += TOTALTANKS;
-					PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
-					switch (PlayerTwo)
-					{
-					case 0:
-						DrawPointer2 = &drawAbram;
-						DrawPointer2d = &drawAbramDead;
-						break;
-					case 1:
-						DrawPointer2 = &drawIS3;
-						DrawPointer2d = &drawIS3Dead;
-						break;
-					case 2:
-						DrawPointer2 = &drawT29;
-						DrawPointer2d = &drawT29Dead;
-						break;
-					case 3:
-						DrawPointer2 = &drawE100;
-						DrawPointer2d = &drawE100Dead;
-						break;
-					case 4:
-						DrawPointer2 = &drawType59;
-						DrawPointer2d = &drawType59Dead;
-						break;
-					}
-					break;
-
-				case ' ':
-				case 13:
-					selectIndex = 0;
-					mapName = "1";
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					menuState = 3;
-					break;
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					menuState = 0;
-					break;
-
-				}
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-				break;
-			case 3:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-				switch (c)
-				{
-				case 'w':
-				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 9;
-					selectIndex = selectIndex % 10;
-					switch (selectIndex)
-					{
-					case 0:
-						mapName = '1';
-						break;
-					case 1:
-						mapName = '2';
-						break;
-					case 2:
-						mapName = '7';
-						break;
-					case 3:
-						mapName = '9';
-						break;
-					case 4:
-						mapName = '5';
-						break;
-					case 5:
-						mapName = '8';
-						break;
-					case 6:
-						mapName = '3';
-						break;
-					case 7:
-						mapName = '6';
-						break;
-					case 8:
-						mapName = '4';
-						break;
-					case 9:
-						mapName = 'R';
-						break;
-					}
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					break;
-				case 's':
-				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 10;
-					switch (selectIndex)
-					{
-					case 0:
-						mapName = '1';
-						break;
-					case 1:
-						mapName = '2';
-						break;
-					case 2:
-						mapName = '7';
-						break;
-					case 3:
-						mapName = '9';
-						break;
-					case 4:
-						mapName = '5';
-						break;
-					case 5:
-						mapName = '8';
-						break;
-					case 6:
-						mapName = '3';
-						break;
-					case 7:
-						mapName = '6';
-						break;
-					case 8:
-						mapName = '4';
-						break;
-					case 9:
-						mapName = 'R';
-						break;
-					}
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					break;
-				case ' ':
-				case 13:
-					{
-						keyBuffer['w'] = false;
-						keyBuffer['W'] = false;
-						keyBuffer['a'] = false;
-						keyBuffer['A'] = false;
-						keyBuffer['s'] = false;
-						keyBuffer['S'] = false;
-						keyBuffer['d'] = false;
-						keyBuffer['D'] = false;
-						keyBuffer['q'] = false;
-						keyBuffer['Q'] = false;
-						keyBuffer['e'] = false;
-						keyBuffer['E'] = false;
-						keyBuffer['f'] = false;
-						keyBuffer['F'] = false;
-						keyBuffer['c'] = false;
-						keyBuffer['C'] = false;
-						keyBuffer[' '] = false;
-
-						keyBuffer['i'] = false;
-						keyBuffer['I'] = false;
-						keyBuffer['8'] = false;
-						keyBuffer['j'] = false;
-						keyBuffer['J'] = false;
-						keyBuffer['4'] = false;
-						keyBuffer['k'] = false;
-						keyBuffer['K'] = false;
-						keyBuffer['5'] = false;
-						keyBuffer['l'] = false;
-						keyBuffer['L'] = false;
-						keyBuffer['6'] = false;
-						keyBuffer['u'] = false;
-						keyBuffer['U'] = false;
-						keyBuffer['7'] = false;
-						keyBuffer['o'] = false;
-						keyBuffer['O'] = false;
-						keyBuffer['9'] = false;
-						keyBuffer['h'] = false;
-						keyBuffer['H'] = false;
-						keyBuffer['.'] = false;
-						keyBuffer['n'] = false;
-						keyBuffer['N'] = false;
-						keyBuffer['0'] = false;
-
-						keyBuffer['g'] = false;
-						keyBuffer['G'] = false;
-						keyBuffer['-'] = false;
-						keyBuffer['_'] = false;
-						keyBuffer['='] = false;
-						keyBuffer['+'] = false;
-					}
-					resetState();
-					run = true;
-					break;
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					mapName = "M";
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					selectIndex = 0;
-					if(isSingle)
-						menuState = 1;
-					else
-						menuState = 2;
-					break;
-
-				}
-				// force a call to Display( ):
-
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-			break;
-			case 4:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-				switch (c)
-				{
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					menuState = 0;
-					break;
-
-				}
-				// force a call to Display( ):
-
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-				break;
-			case 5:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-
-				switch (c)
-				{
-				case 'w':
-				case 'W':
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 1;
-					selectIndex = selectIndex % 2;
-					break;
-				case 's':
-				case 'S':
-					selectIndex++;
-					selectIndex = selectIndex % 2;
-					break;
-				case 'a':
-				case 'A':
-					if (selectIndex == 0)
-					{
-						if (userGrassMultiplier > 0)
-							userGrassMultiplier--;
-					}
-					if (selectIndex == 1)
-					{
-						if (TANKSPEED > 0.1)
-							TANKSPEED /= 1.5;
-					}
-					if (selectIndex == 2 && false)
-					{
-
-					}
-					break;
-				case 'd':
-				case 'D':
-					if (selectIndex == 0)
-					{
-						if (userGrassMultiplier < 20)
-							userGrassMultiplier++;
-					}
-					if (selectIndex == 1)
-					{
-						if (TANKSPEED < 1.0)
-							TANKSPEED *= 1.5;
-					}
-					if (selectIndex == 2 && false)
-					{
-
-					}
-					break;
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					InitLists();
-					menuState = 0;
-					break;
-
-				}
-				// force a call to Display( ):
-
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-				break;
-			case 6:
-			{
-				if (DebugOn != 0)
-					fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
-				switch (c)
-				{
-				case 'q':
-				case 'Q':
-				case ESCAPE:
-					menuState = 0;
-					break;
-				}
-				glutSetWindow(MainWindow);
-				glutPostRedisplay();
-			}
-				break;
-			}
-		}
-		else
+		case 0: // Main menu
 		{
 			if (DebugOn != 0)
 				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
 
 			switch (c)
 			{
-			case 'o':
-			case 'O':
-				WhichProjection = ORTHO;
-				break;
-
-			case 'p':
-			case 'P':
-				WhichProjection = PERSP;
-				break;
 			case 'w':
 			case 'W':
 				if (selectIndex >= 1)
 					selectIndex--;
 				else
-					selectIndex = 9;
-				selectIndex = selectIndex % 10;
+					selectIndex = 4;
+				selectIndex = selectIndex % 5;
 				break;
 			case 's':
 			case 'S':
 				selectIndex++;
-				selectIndex = selectIndex % 10;
+				selectIndex = selectIndex % 5;
 				break;
+
+			case ' ':
+			case 13:
+				switch (selectIndex)
+				{
+				case 0:
+					menuState = 1;
+					break;
+				case 1:
+					menuState = 7;
+					break;
+				case 2:
+					menuState = 4;
+					break;
+				case 3:
+					menuState = 5;
+					break;
+				case 4:
+					menuState = 6;
+					break;
+				}
+				selectIndex = 0;
+				break;
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				Quit();
+				break;
+
+			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 1: // Tank Selection
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+			switch (c)
+			{
 			case 'a':
 			case 'A':
 				PlayerOne += 1;
@@ -2583,20 +2153,525 @@ void Keyboard(unsigned char c, int x, int y)
 
 			case ' ':
 			case 13:
-				run = true;
+				selectIndex = 0;
+				mapName = "1";
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
+				menuState = 3;
 				break;
 			case 'q':
 			case 'Q':
 			case ESCAPE:
-				Quit();//DoMainMenu(QUIT);	// will not return here
-				break;				// happy compiler
+				menuState = 0;
+				break;
 
 			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 2: // Tank selection
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
 
+			switch (c)
+			{
+			case 'a':
+			case 'A':
+				PlayerOne += 1;
+				PlayerOne = PlayerOne % TOTALTANKS;
+				switch (PlayerOne)
+				{
+				case 0:
+					DrawPointer1 = &drawAbram;
+					DrawPointer1d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer1 = &drawIS3;
+					DrawPointer1d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer1 = &drawT29;
+					DrawPointer1d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer1 = &drawE100;
+					DrawPointer1d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer1 = &drawType59;
+					DrawPointer1d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'd':
+			case 'D':
+				PlayerOne += TOTALTANKS; // 4 + 5 = 9, 9 % 5 = 4
+				PlayerOne = (PlayerOne - 1) % TOTALTANKS;
+				switch (PlayerOne)
+				{
+				case 0:
+					DrawPointer1 = &drawAbram;
+					DrawPointer1d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer1 = &drawIS3;
+					DrawPointer1d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer1 = &drawT29;
+					DrawPointer1d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer1 = &drawE100;
+					DrawPointer1d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer1 = &drawType59;
+					DrawPointer1d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'j':
+			case 'J':
+			case '4':
+				PlayerTwo += 1;
+				PlayerTwo = PlayerTwo % TOTALTANKS;
+				switch (PlayerTwo)
+				{
+				case 0:
+					DrawPointer2 = &drawAbram;
+					DrawPointer2d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer2 = &drawIS3;
+					DrawPointer2d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer2 = &drawT29;
+					DrawPointer2d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer2 = &drawE100;
+					DrawPointer2d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer2 = &drawType59;
+					DrawPointer2d = &drawType59Dead;
+					break;
+				}
+				break;
+			case 'l':
+			case 'L':
+			case '6':
+				PlayerTwo += TOTALTANKS;
+				PlayerTwo = (PlayerTwo - 1) % TOTALTANKS;
+				switch (PlayerTwo)
+				{
+				case 0:
+					DrawPointer2 = &drawAbram;
+					DrawPointer2d = &drawAbramDead;
+					break;
+				case 1:
+					DrawPointer2 = &drawIS3;
+					DrawPointer2d = &drawIS3Dead;
+					break;
+				case 2:
+					DrawPointer2 = &drawT29;
+					DrawPointer2d = &drawT29Dead;
+					break;
+				case 3:
+					DrawPointer2 = &drawE100;
+					DrawPointer2d = &drawE100Dead;
+					break;
+				case 4:
+					DrawPointer2 = &drawType59;
+					DrawPointer2d = &drawType59Dead;
+					break;
+				}
+				break;
+
+			case ' ':
+			case 13:
+				selectIndex = 0;
+				mapName = "1";
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
+				menuState = 3;
+				break;
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				if (multiplayerMode == ONLINE)
+					menuState = 8;
+				else
+					menuState = 7;
+			break;
+
+			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 3: // Map selection
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+			switch (c)
+			{
+			case 'w':
+			case 'W':
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 9;
+				selectIndex = selectIndex % 10;
+				switch (selectIndex)
+				{
+				case 0:
+					mapName = '1';
+					break;
+				case 1:
+					mapName = '2';
+					break;
+				case 2:
+					mapName = '7';
+					break;
+				case 3:
+					mapName = '9';
+					break;
+				case 4:
+					mapName = '5';
+					break;
+				case 5:
+					mapName = '8';
+					break;
+				case 6:
+					mapName = '3';
+					break;
+				case 7:
+					mapName = '6';
+					break;
+				case 8:
+					mapName = '4';
+					break;
+				case 9:
+					mapName = 'R';
+					break;
+				}
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
+				break;
+			case 's':
+			case 'S':
+				selectIndex++;
+				selectIndex = selectIndex % 10;
+				switch (selectIndex)
+				{
+				case 0:
+					mapName = '1';
+					break;
+				case 1:
+					mapName = '2';
+					break;
+				case 2:
+					mapName = '7';
+					break;
+				case 3:
+					mapName = '9';
+					break;
+				case 4:
+					mapName = '5';
+					break;
+				case 5:
+					mapName = '8';
+					break;
+				case 6:
+					mapName = '3';
+					break;
+				case 7:
+					mapName = '6';
+					break;
+				case 8:
+					mapName = '4';
+					break;
+				case 9:
+					mapName = 'R';
+					break;
+				}
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
+				break;
+			case ' ':
+			case 13:
+			{
+				keyBuffer['w'] = false;
+				keyBuffer['W'] = false;
+				keyBuffer['a'] = false;
+				keyBuffer['A'] = false;
+				keyBuffer['s'] = false;
+				keyBuffer['S'] = false;
+				keyBuffer['d'] = false;
+				keyBuffer['D'] = false;
+				keyBuffer['q'] = false;
+				keyBuffer['Q'] = false;
+				keyBuffer['e'] = false;
+				keyBuffer['E'] = false;
+				keyBuffer['f'] = false;
+				keyBuffer['F'] = false;
+				keyBuffer['c'] = false;
+				keyBuffer['C'] = false;
+				keyBuffer[' '] = false;
+
+				keyBuffer['i'] = false;
+				keyBuffer['I'] = false;
+				keyBuffer['8'] = false;
+				keyBuffer['j'] = false;
+				keyBuffer['J'] = false;
+				keyBuffer['4'] = false;
+				keyBuffer['k'] = false;
+				keyBuffer['K'] = false;
+				keyBuffer['5'] = false;
+				keyBuffer['l'] = false;
+				keyBuffer['L'] = false;
+				keyBuffer['6'] = false;
+				keyBuffer['u'] = false;
+				keyBuffer['U'] = false;
+				keyBuffer['7'] = false;
+				keyBuffer['o'] = false;
+				keyBuffer['O'] = false;
+				keyBuffer['9'] = false;
+				keyBuffer['h'] = false;
+				keyBuffer['H'] = false;
+				keyBuffer['.'] = false;
+				keyBuffer['n'] = false;
+				keyBuffer['N'] = false;
+				keyBuffer['0'] = false;
+
+				keyBuffer['g'] = false;
+				keyBuffer['G'] = false;
+				keyBuffer['-'] = false;
+				keyBuffer['_'] = false;
+				keyBuffer['='] = false;
+				keyBuffer['+'] = false;
+			}
+			resetState();
+			run = true;
+			break;
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				mapName = "M";
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
+				selectIndex = 0;
+				if (isSingle)
+					menuState = 1;
+				else
+					menuState = 2;
+				break;
+
+			}
 			// force a call to Display( ):
 
 			glutSetWindow(MainWindow);
 			glutPostRedisplay();
+		}
+		break;
+		case 4: // Key binding
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+			switch (c)
+			{
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				menuState = 0;
+				break;
+
+			}
+			// force a call to Display( ):
+
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 5: // Settings
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+			switch (c)
+			{
+			case 'w':
+			case 'W':
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 1;
+				selectIndex = selectIndex % 2;
+				break;
+			case 's':
+			case 'S':
+				selectIndex++;
+				selectIndex = selectIndex % 2;
+				break;
+			case 'a':
+			case 'A':
+				if (selectIndex == 0)
+				{
+					if (userGrassMultiplier > 0)
+						userGrassMultiplier--;
+				}
+				if (selectIndex == 1)
+				{
+					if (TANKSPEED > 0.1)
+						TANKSPEED /= 1.5;
+				}
+				if (selectIndex == 2 && false)
+				{
+
+				}
+				break;
+			case 'd':
+			case 'D':
+				if (selectIndex == 0)
+				{
+					if (userGrassMultiplier < 20)
+						userGrassMultiplier++;
+				}
+				if (selectIndex == 1)
+				{
+					if (TANKSPEED < 1.0)
+						TANKSPEED *= 1.5;
+				}
+				if (selectIndex == 2 && false)
+				{
+
+				}
+				break;
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				InitLists();
+				menuState = 0;
+				break;
+
+			}
+			// force a call to Display( ):
+
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 6: // credits
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+			switch (c)
+			{
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				menuState = 0;
+				break;
+			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 7: // Online offline selection
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+			switch (c)
+			{
+			case 'a':
+			case 'A':
+			case 'j':
+			case 'J':
+			case '4':
+			case 'd':
+			case 'D':
+			case 'l':
+			case 'L':
+			case '6':
+				multiplayerMode += 1;
+				multiplayerMode %= 2;
+				break;
+
+			case ' ':
+			case 13:
+				if (multiplayerMode == OFFLINE)
+					menuState = 2;
+				else
+					menuState = 8;
+				break;
+
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				menuState = 0;
+				break;
+			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
+		case 8: // host or connect selection
+		{
+			if (DebugOn != 0)
+				fprintf(stderr, "Keyboard: '%c' (0x%0x)\n", c, c);
+
+			switch (c)
+			{
+			case 'a':
+			case 'A':
+			case 'j':
+			case 'J':
+			case '4':
+			case 'd':
+			case 'D':
+			case 'l':
+			case 'L':
+			case '6':
+				host = !host;
+				break;
+
+			case ' ':
+			case 13:
+				menuState = 2;
+				break;
+
+			case 'q':
+			case 'Q':
+			case ESCAPE:
+				menuState = 7;
+				break;
+			}
+			glutSetWindow(MainWindow);
+			glutPostRedisplay();
+		}
+		break;
 		}
 	}
 	else
@@ -2617,7 +2692,8 @@ void Keyboard(unsigned char c, int x, int y)
 				tmpSmoke.smokeIDBufferSet = true;
 				tmpSmoke.smokeActive = true;
 				Smokes.push_back(tmpSmoke);
-				
+				playerOneSmokeGrace = true;
+				playerOneSmokeGraceStart = Time;
 				for (int i = 0; i < 12; i++)
 				{
 					struct Smoke tmpSmoke;
@@ -2648,7 +2724,8 @@ void Keyboard(unsigned char c, int x, int y)
 				tmpSmoke.smokeIDBufferSet = true;
 				tmpSmoke.smokeActive = true;
 				Smokes.push_back(tmpSmoke);
-				
+				playerTwoSmokeGrace = true;
+				playerTwoSmokeGraceStart = Time;
 				for (int i = 0; i < 12; i++)
 				{
 					struct Smoke tmpSmoke;
@@ -2686,175 +2763,28 @@ void Keyboard(unsigned char c, int x, int y)
 }
 void keySpecial(int key, int x, int y) {
 	if(isInMenu)
-		if (ADVANCEMENU)
+	{
+		switch (menuState)
 		{
-			switch(menuState)
+		case 0:
+		{
+			switch (key)
 			{
-			case 0:
-			{
-				switch (key)
-				{
-				case GLUT_KEY_UP:
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 4;
-					selectIndex = selectIndex % 5;
-					break;
-				case GLUT_KEY_DOWN:
-					selectIndex++;
-					selectIndex = selectIndex % 5;
-					break;
-				}
-			}
+			case GLUT_KEY_UP:
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 4;
+				selectIndex = selectIndex % 5;
 				break;
-			case 3:
-			{
-				switch (key)
-				{
-				case GLUT_KEY_UP:
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 9;
-					selectIndex = selectIndex % 10;
-					switch (selectIndex)
-					{
-					case 0:
-						mapName = '1';
-						break;
-					case 1:
-						mapName = '2';
-						break;
-					case 2:
-						mapName = '7';
-						break;
-					case 3:
-						mapName = '9';
-						break;
-					case 4:
-						mapName = '5';
-						break;
-					case 5:
-						mapName = '8';
-						break;
-					case 6:
-						mapName = '3';
-						break;
-					case 7:
-						mapName = '6';
-						break;
-					case 8:
-						mapName = '4';
-						break;
-					case 9:
-						mapName = 'R';
-						break;
-					}
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					break;
-				case GLUT_KEY_DOWN:
-					selectIndex++;
-					selectIndex = selectIndex % 10;
-					switch (selectIndex)
-					{
-					case 0:
-						mapName = '1';
-						break;
-					case 1:
-						mapName = '2';
-						break;
-					case 2:
-						mapName = '7';
-						break;
-					case 3:
-						mapName = '9';
-						break;
-					case 4:
-						mapName = '5';
-						break;
-					case 5:
-						mapName = '8';
-						break;
-					case 6:
-						mapName = '3';
-						break;
-					case 7:
-						mapName = '6';
-						break;
-					case 8:
-						mapName = '4';
-						break;
-					case 9:
-						mapName = 'R';
-						break;
-					}
-					lastMap = mapName;
-					resetState(mapName);
-					isInMenu = true;
-					for (int i = 0; i < 8; i++)
-						alSourceStop(Sources[i]);
-					break;
-				}
-			}
-				break;
-			case 5:
-			{
-				switch (key)
-				{
-				case GLUT_KEY_UP:
-					if (selectIndex >= 1)
-						selectIndex--;
-					else
-						selectIndex = 1;
-					selectIndex = selectIndex % 2;
-					break;
-				case GLUT_KEY_DOWN:
-					selectIndex++;
-					selectIndex = selectIndex % 2;
-					break;
-				case GLUT_KEY_LEFT:
-					if (selectIndex == 0)
-					{
-						if (userGrassMultiplier > 0)
-							userGrassMultiplier--;
-					}
-					if (selectIndex == 1)
-					{
-						if (TANKSPEED > 0.1)
-							TANKSPEED /= 1.5;
-					}
-					if (selectIndex == 2 && false)
-					{
-
-					}
-					break;
-				case GLUT_KEY_RIGHT:
-					if (selectIndex == 0)
-					{
-						if (userGrassMultiplier < 20)
-							userGrassMultiplier++;
-					}
-					if (selectIndex == 1)
-					{
-						if (TANKSPEED < 1.0)
-							TANKSPEED *= 1.5;
-					}
-					if (selectIndex == 2 && false)
-					{
-
-					}
-					break;
-				}
-			}
+			case GLUT_KEY_DOWN:
+				selectIndex++;
+				selectIndex = selectIndex % 5;
 				break;
 			}
 		}
-		else
+		break;
+		case 3:
 		{
 			switch (key)
 			{
@@ -2864,18 +2794,170 @@ void keySpecial(int key, int x, int y) {
 				else
 					selectIndex = 9;
 				selectIndex = selectIndex % 10;
+				switch (selectIndex)
+				{
+				case 0:
+					mapName = '1';
+					break;
+				case 1:
+					mapName = '2';
+					break;
+				case 2:
+					mapName = '7';
+					break;
+				case 3:
+					mapName = '9';
+					break;
+				case 4:
+					mapName = '5';
+					break;
+				case 5:
+					mapName = '8';
+					break;
+				case 6:
+					mapName = '3';
+					break;
+				case 7:
+					mapName = '6';
+					break;
+				case 8:
+					mapName = '4';
+					break;
+				case 9:
+					mapName = 'R';
+					break;
+				}
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
 				break;
 			case GLUT_KEY_DOWN:
 				selectIndex++;
 				selectIndex = selectIndex % 10;
-				break;
-			case GLUT_KEY_LEFT:
-			case GLUT_KEY_RIGHT:
-				isSingle = !isSingle;
-				makeAI(isSingle, 'T');
+				switch (selectIndex)
+				{
+				case 0:
+					mapName = '1';
+					break;
+				case 1:
+					mapName = '2';
+					break;
+				case 2:
+					mapName = '7';
+					break;
+				case 3:
+					mapName = '9';
+					break;
+				case 4:
+					mapName = '5';
+					break;
+				case 5:
+					mapName = '8';
+					break;
+				case 6:
+					mapName = '3';
+					break;
+				case 7:
+					mapName = '6';
+					break;
+				case 8:
+					mapName = '4';
+					break;
+				case 9:
+					mapName = 'R';
+					break;
+				}
+				lastMap = mapName;
+				resetState(mapName);
+				isInMenu = true;
+				for (int i = 0; i < 8; i++)
+					alSourceStop(Sources[i]);
 				break;
 			}
 		}
+		break;
+		case 5:
+		{
+			switch (key)
+			{
+			case GLUT_KEY_UP:
+				if (selectIndex >= 1)
+					selectIndex--;
+				else
+					selectIndex = 1;
+				selectIndex = selectIndex % 2;
+				break;
+			case GLUT_KEY_DOWN:
+				selectIndex++;
+				selectIndex = selectIndex % 2;
+				break;
+			case GLUT_KEY_LEFT:
+				if (selectIndex == 0)
+				{
+					if (userGrassMultiplier > 0)
+						userGrassMultiplier--;
+				}
+				if (selectIndex == 1)
+				{
+					if (TANKSPEED > 0.1)
+						TANKSPEED /= 1.5;
+				}
+				if (selectIndex == 2 && false)
+				{
+
+				}
+				break;
+			case GLUT_KEY_RIGHT:
+				if (selectIndex == 0)
+				{
+					if (userGrassMultiplier < 20)
+						userGrassMultiplier++;
+				}
+				if (selectIndex == 1)
+				{
+					if (TANKSPEED < 1.0)
+						TANKSPEED *= 1.5;
+				}
+				if (selectIndex == 2 && false)
+				{
+
+				}
+				break;
+			}
+		}
+		break;
+		case 7:
+		{
+			switch (key)
+			{
+			case GLUT_KEY_LEFT:
+			case GLUT_KEY_RIGHT:
+			case GLUT_KEY_UP:
+			case GLUT_KEY_DOWN:
+				multiplayerMode += 1;
+				multiplayerMode %= 2;
+				break;
+			}
+		}
+		break;
+		case 8:
+		{
+			switch (key)
+			{
+			case GLUT_KEY_LEFT:
+			case GLUT_KEY_RIGHT:
+			case GLUT_KEY_UP:
+			case GLUT_KEY_DOWN:
+				host = !host;
+				break;
+			}
+		}
+		break;
+		}
+	}
+
 }
 void keyUp(unsigned char c, int x, int y)
 {

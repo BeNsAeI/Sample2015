@@ -1071,6 +1071,41 @@ void drawRadioCrate(float X, float Y)
 
 	glPopMatrix();
 }
+void drawLaptop(float X, float Y)
+{
+	int beginPoint;
+	int endPoint;
+
+	glPushMatrix();
+
+	glTranslatef(X, 1.25, Y);	//movement
+	glRotatef((int)(Time * 5000) % 360, 0, 1, 0);
+	glScalef(0.2, 0.2, 0.2);
+
+	beginPoint = laptop[0][START];
+	endPoint = laptop[0][END] - laptop[0][START];
+
+	glColor3f(0.05, 0.31, 0.1);
+	glPushMatrix();
+	glTranslatef(0, 0, 0);
+	glRotatef(0, 1, 0, 0);
+	glScalef(0.25, 0.25, 0.25);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	beginPoint = laptop[1][START];
+	endPoint = laptop[1][END] - laptop[1][START];
+
+	glColor3f(0.25 - sin(Time * 1000) / 4, 0.25 - sin(Time * 1000) / 4, 0.25 - sin(Time * 1000) / 4);
+	glPushMatrix();
+	glTranslatef(0, 0, 0);
+	glRotatef(0, 1, 0, 0);
+	glScalef(0.25, 0.25, 0.25);
+	glDrawArrays(GL_TRIANGLES, beginPoint, endPoint);
+	glPopMatrix();
+
+	glPopMatrix();
+}
 void drawMine(float X, float Y)
 {
 	int beginPoint;
@@ -1119,1209 +1154,14 @@ void drawSpark(float X, float Y, float angle, float timeIndex)
 }
 void drawMenu()
 {
-	if (ADVANCEMENU)
+	switch (menuState)
 	{
-		switch (menuState)
-		{
-		case -1: // Login menue for users
+	case -1: // Login menue for users
+	{
 
-			break;
-		case 0:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
-			float startz = MAPEDGEY / 2 + CUBESIZE;
-			float endx = (-MAPEDGEX / 2 - CUBESIZE);
-			float endz = (-MAPEDGEY / 2 - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-			// Push the GL attribute bits so that we don't wreck any settings
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			// Enable polygon offsets, and offset filled polygons forward by 2.5
-			glDisable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			// Set the render mode to be line rendering with a thick line width
-			glLineWidth(OUTLINE);
-			// Set the colour to be white
-			glColor3f(.75, .75, .75);
-			// Render the object
-			PatternSilh->Use();
-			//backgroundRand = 9;
-			switch (backgroundRand)
-			{
-			case 0:
-				drawHPCrate(0, 0);
-				break;
-			case 1:
-				drawSmokeCrate(0, 0);
-				break;
-			case 2:
-				drawAmmo(0, 0);
-				break;
-			case 3:
-				drawIS3(0, 0, 0, -45, -45);
-				break;
-			case 4:
-				drawAbram(0, 0, 0, -45, -45);
-				break;
-			case 5:
-				drawMine(0, 0);
-				break;
-			case 6:
-				drawT29(0, 0, 0, -45, -45);
-				break;
-			case 7:
-				drawE100(0, 0, 0, -45, -45);
-				break;
-			case 8:
-				drawType59(0, 0, 0, -45, -45);
-				break;
-			case 9:
-				drawRadioCrate(0, 0);
-				break;
-			}
-			PatternSilh->Use(0);
-			// Set the polygon mode to be filled triangles 
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//glShadeModel(GL_FLAT);
-			//glEnable(GL_LIGHTING);
-			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
-			// Set the colour to the background
-			glColor3f(0.0f, 0.0f, 0.0f);
-			// Render the object
-			//backgroundRand = 9;
-			switch (backgroundRand)
-			{
-			case 0:
-				Pattern->Use();
-				drawHPCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			case 1:
-				Pattern->Use();
-				drawSmokeCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			case 2:
-				Pattern->Use();
-				drawAmmo(0, 0);
-				Pattern->Use(0);
-				break;
-			case 3:
-				PatternCamo->Use();
-				drawIS3(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 4:
-				PatternCamo->Use();
-				drawAbram(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 5:
-				Pattern->Use();
-				drawMine(0, 0);
-				Pattern->Use(0);
-				break;
-			case 6:
-				PatternCamo->Use();
-				drawT29(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 7:
-				PatternCamo->Use();
-				drawE100(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 8:
-				PatternCamo->Use();
-				drawType59(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 9:
-				Pattern->Use();
-				drawRadioCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			}
-			// Pop the state changes off the attribute stack
-			// to set things back how they were
-			glPopAttrib();
-
-			//glDisable(GL_LIGHT2);
-			//glDisable(GL_LIGHTING);
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		case 1:
-		case 2:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
-			float startz = MAPEDGEY / 2 + CUBESIZE;
-			float endx = (-MAPEDGEX / 2 - CUBESIZE);
-			float endz = (-MAPEDGEY / 2 - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-			// Push the GL attribute bits so that we don't wreck any settings
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			// Enable polygon offsets, and offset filled polygons forward by 2.5
-			glDisable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			// Set the render mode to be line rendering with a thick line width
-			glLineWidth(OUTLINE);
-			// Set the colour to be white
-			glColor3f(.75, .75, .75);
-			// Render the object
-			PatternSilh->Use();
-			//BehnamSaeedi
-			switch (PlayerOne)
-			{
-			case 0:
-				drawAbram(0, 0, 3, -45, -45);
-				break;
-			case 1:
-				drawIS3(0, 0, 3, -45, -45);
-				break;
-			case 2:
-				drawT29(0, 0, 3, -45, -45);
-				break;
-			case 3:
-				drawE100(0, 0, 3, -45, -45);
-				break;
-			case 4:
-				drawType59(0, 0, 3, -45, -45);
-				break;
-			}
-			switch (PlayerTwo)
-			{
-			case 0:
-				drawAbram(0, 0, -6, -45, -45);
-				break;
-			case 1:
-				drawIS3(0, 0, -6, -45, -45);
-				break;
-			case 2:
-				drawT29(0, 0, -6, -45, -45);
-				break;
-			case 3:
-				drawE100(0, 0, -6, -45, -45);
-				break;
-			case 4:
-				drawType59(0, 0, -6, -45, -45);
-				break;
-			}
-			PatternSilh->Use(0);
-			// Set the polygon mode to be filled triangles 
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//glShadeModel(GL_FLAT);
-			//glEnable(GL_LIGHTING);
-			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
-			// Set the colour to the background
-			glColor3f(0.0f, 0.0f, 0.0f);
-			// Render the object
-			switch (PlayerOne)
-			{
-			case 0:
-				PatternCamo->Use();
-				drawAbram(0, 0, 3, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 1:
-				PatternCamo->Use();
-				drawIS3(0, 0, 3, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 2:
-				PatternCamo->Use();
-				drawT29(0, 0, 3, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 3:
-				PatternCamo->Use();
-				drawE100(0, 0, 3, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 4:
-				PatternCamo->Use();
-				drawType59(0, 0, 3, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			}
-			switch (PlayerTwo)
-			{
-			case 0:
-				PatternCamo->Use();
-				drawAbram(0, 0, -6, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 1:
-				PatternCamo->Use();
-				drawIS3(0, 0, -6, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 2:
-				PatternCamo->Use();
-				drawT29(0, 0, -6, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 3:
-				PatternCamo->Use();
-				drawE100(0, 0, -6, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 4:
-				PatternCamo->Use();
-				drawType59(0, 0, -6, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			}
-
-			glPopAttrib();
-
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		case 3:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX + CUBESIZE;
-			float startz = MAPEDGEY + CUBESIZE;
-			float endx = (-MAPEDGEX - CUBESIZE);
-			float endz = (-MAPEDGEY - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*userGrassMultiplier;
-			int grainY = GRASSGRAINY*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
-					glVertex3f(startx - i*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		case 4:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
-			float startz = MAPEDGEY / 2 + CUBESIZE;
-			float endx = (-MAPEDGEX / 2 - CUBESIZE);
-			float endz = (-MAPEDGEY / 2 - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		case 5:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
-			float startz = MAPEDGEY / 2 + CUBESIZE;
-			float endx = (-MAPEDGEX / 2 - CUBESIZE);
-			float endz = (-MAPEDGEY / 2 - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-			// Push the GL attribute bits so that we don't wreck any settings
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			// Enable polygon offsets, and offset filled polygons forward by 2.5
-			glDisable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			// Set the render mode to be line rendering with a thick line width
-			glLineWidth(OUTLINE);
-			// Set the colour to be white
-			glColor3f(.75, .75, .75);
-			// Render the object
-			PatternSilh->Use();
-			//backgroundRand = 9;
-			switch (backgroundRand)
-			{
-			case 0:
-				drawHPCrate(0, 0);
-				break;
-			case 1:
-				drawSmokeCrate(0, 0);
-				break;
-			case 2:
-				drawAmmo(0, 0);
-				break;
-			case 3:
-				drawIS3(0, 0, 0, -45, -45);
-				break;
-			case 4:
-				drawAbram(0, 0, 0, -45, -45);
-				break;
-			case 5:
-				drawMine(0, 0);
-				break;
-			case 6:
-				drawT29(0, 0, 0, -45, -45);
-				break;
-			case 7:
-				drawE100(0, 0, 0, -45, -45);
-				break;
-			case 8:
-				drawType59(0, 0, 0, -45, -45);
-				break;
-			case 9:
-				drawRadioCrate(0, 0);
-				break;
-			}
-			PatternSilh->Use(0);
-			// Set the polygon mode to be filled triangles 
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//glShadeModel(GL_FLAT);
-			//glEnable(GL_LIGHTING);
-			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
-			// Set the colour to the background
-			glColor3f(0.0f, 0.0f, 0.0f);
-			// Render the object
-			//backgroundRand = 9;
-			switch (backgroundRand)
-			{
-			case 0:
-				Pattern->Use();
-				drawHPCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			case 1:
-				Pattern->Use();
-				drawSmokeCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			case 2:
-				Pattern->Use();
-				drawAmmo(0, 0);
-				Pattern->Use(0);
-				break;
-			case 3:
-				PatternCamo->Use();
-				drawIS3(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 4:
-				PatternCamo->Use();
-				drawAbram(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 5:
-				Pattern->Use();
-				drawMine(0, 0);
-				Pattern->Use(0);
-				break;
-			case 6:
-				PatternCamo->Use();
-				drawT29(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 7:
-				PatternCamo->Use();
-				drawE100(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 8:
-				PatternCamo->Use();
-				drawType59(0, 0, 0, -45, -45);
-				PatternCamo->Use(0);
-				break;
-			case 9:
-				Pattern->Use();
-				drawRadioCrate(0, 0);
-				Pattern->Use(0);
-				break;
-			}
-			// Pop the state changes off the attribute stack
-			// to set things back how they were
-			glPopAttrib();
-
-			//glDisable(GL_LIGHT2);
-			//glDisable(GL_LIGHTING);
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		case 6:
-		{
-			PatternGrass->Use();
-			float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
-			float startz = MAPEDGEY / 2 + CUBESIZE;
-			float endx = (-MAPEDGEX / 2 - CUBESIZE);
-			float endz = (-MAPEDGEY / 2 - CUBESIZE);
-			float lengthx = startx - endx;
-			float lengthz = startz - endz;
-			int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-			int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
-			glEnable(GL_NORMALIZE);
-			glBegin(GL_QUADS);
-			glPushMatrix();
-			glColor3f(0.1, 0.1, 0.0);
-			for (int i = 0; i < grainX; i++)
-			{
-				for (int j = 0; j < grainY; j++)
-				{
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-					glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				}
-			}
-			glPopMatrix();
-			glEnd();
-			PatternGrass->Use(0);
-			glEnableVertexAttribArray(0);
-			glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
-			glVertexAttribPointer(
-				0,                  // attribute
-				3,                  // size
-				GL_FLOAT,           // type
-				GL_FALSE,           // normalized?
-				0,                  // stride
-				(void*)0            // array buffer offset
-			);
-			// draw map
-			Pattern->Use();
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-				drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
-			Pattern->Use(0);
-			for (int j = 0; j < 14; j++)
-			{
-				for (int i = 0; i < 24; i++)
-				{
-					if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
-					{
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
-							myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
-						if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
-						{
-							myMap.MCM[i][j] = false;
-							myMap.isSolid[i][j] = false;
-						}
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						// draw map border
-						//DO TOON SHADING
-						PatternSilh->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						//glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
-						//glColor3f(0.0f, 0.0f, 0.0f);
-						Pattern->Use();
-						drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-						Pattern->Use(0);
-					}
-					if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
-					{
-
-						// Push the GL attribute bits so that we don't wreck any settings
-						glPushAttrib(GL_ALL_ATTRIB_BITS);
-						// Enable polygon offsets, and offset filled polygons forward by 2.5
-						// Set the render mode to be line rendering with a thick line width
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-						glDisable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						glLineWidth(OUTLINE);
-						// Set the colour to be white
-						glColor3f(.5, .5, .5);
-						// Render the object
-						PatternSilh->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternSilh->Use(0);
-						glEnable(GL_POLYGON_OFFSET_FILL);
-						glPolygonOffset(-2.5f, -2.5f);
-						// Set the polygon mode to be filled triangles
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						glShadeModel(GL_FLAT);
-						//glEnable(GL_LIGHTING);
-						//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
-						glColor3f(0.0f, 0.0f, 0.0f);
-						PatternTree->Use();
-						drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
-						PatternTree->Use(0);
-						glPopAttrib();
-						//glDisable(GL_LIGHT1);
-						//glDisable(GL_LIGHTING);
-
-					}
-				}
-			}
-			//end of drawing map
-
-			// Push the GL attribute bits so that we don't wreck any settings
-			glPushAttrib(GL_ALL_ATTRIB_BITS);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			// Enable polygon offsets, and offset filled polygons forward by 2.5
-			glDisable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			// Set the render mode to be line rendering with a thick line width
-			glLineWidth(OUTLINE);
-			// Set the colour to be white
-			glColor3f(.75, .75, .75);
-			// Render the object
-			PatternSilh->Use();
-			drawE100(-3, 0, 12, -135, -45);
-			drawIS3(-2, 0, 6, -112.5, -45);
-			drawT29(3, 0, 0, -90, 0);
-			drawAbram(-2, 0, -6, -67.5, 45);
-			drawType59(-3, 0, -12, -45, 45);
-			PatternSilh->Use(0);
-			// Set the polygon mode to be filled triangles 
-			glEnable(GL_POLYGON_OFFSET_FILL);
-			glPolygonOffset(-2.5f, -2.5f);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			//glShadeModel(GL_FLAT);
-			//glEnable(GL_LIGHTING);
-			////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
-			// Set the colour to the background
-			glColor3f(0.0f, 0.0f, 0.0f);
-			// Render the object
-			PatternCamo->Use();
-			drawE100(-3, 0, 12, -135, -45);
-			drawIS3(-2, 0, 6, -112.5, -45);
-			drawT29(3, 0, 0, -90, 0);
-			drawAbram(-2, 0, -6, -67.5, 45);
-			drawType59(-3, 0, -12, -45, 45);
-			PatternCamo->Use(0);
-			// Pop the state changes off the attribute stack
-			// to set things back how they were
-			glPopAttrib();
-
-			//glDisable(GL_LIGHT2);
-			//glDisable(GL_LIGHTING);
-
-			glDisableVertexAttribArray(0);
-		}
-		break;
-		}
 	}
-	else
+		break;
+	case 0:
 	{
 		PatternGrass->Use();
 		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
@@ -2330,8 +1170,8 @@ void drawMenu()
 		float endz = (-MAPEDGEY / 2 - CUBESIZE);
 		float lengthx = startx - endx;
 		float lengthz = startz - endz;
-		int grainX = GRASSGRAINX*MENUMULTIPLIER*userGrassMultiplier;
-		int grainY = GRASSGRAINY*MENUMULTIPLIER*userGrassMultiplier;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
 		glEnable(GL_NORMALIZE);
 		glBegin(GL_QUADS);
 		glPushMatrix();
@@ -2340,10 +1180,10 @@ void drawMenu()
 		{
 			for (int j = 0; j < grainY; j++)
 			{
-				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
-				glVertex3f(startx - MENUXOFFSET - i*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1)*(lengthz) / grainY);
-				glVertex3f(startx - MENUXOFFSET - (i + 1)*(lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j*(lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
 			}
 		}
 		glPopMatrix();
@@ -2362,13 +1202,13 @@ void drawMenu()
 		// draw map
 		Pattern->Use();
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i*CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
 		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
-			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i*CUBESIZE, 0, 0.5, 0.5, 0.5);
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
 		Pattern->Use(0);
 		for (int j = 0; j < 14; j++)
 		{
@@ -2570,11 +1410,1298 @@ void drawMenu()
 
 		glDisableVertexAttribArray(0);
 	}
+	break;
+	case 1:
+	case 2:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		PatternSilh->Use();
+		//BehnamSaeedi
+		switch (PlayerOne)
+		{
+		case 0:
+			drawAbram(0, 0, 3, -45, -45);
+			break;
+		case 1:
+			drawIS3(0, 0, 3, -45, -45);
+			break;
+		case 2:
+			drawT29(0, 0, 3, -45, -45);
+			break;
+		case 3:
+			drawE100(0, 0, 3, -45, -45);
+			break;
+		case 4:
+			drawType59(0, 0, 3, -45, -45);
+			break;
+		}
+		switch (PlayerTwo)
+		{
+		case 0:
+			drawAbram(0, 0, -6, -45, -45);
+			break;
+		case 1:
+			drawIS3(0, 0, -6, -45, -45);
+			break;
+		case 2:
+			drawT29(0, 0, -6, -45, -45);
+			break;
+		case 3:
+			drawE100(0, 0, -6, -45, -45);
+			break;
+		case 4:
+			drawType59(0, 0, -6, -45, -45);
+			break;
+		}
+		PatternSilh->Use(0);
+		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		switch (PlayerOne)
+		{
+		case 0:
+			PatternCamo->Use();
+			drawAbram(0, 0, 3, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 1:
+			PatternCamo->Use();
+			drawIS3(0, 0, 3, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 2:
+			PatternCamo->Use();
+			drawT29(0, 0, 3, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 3:
+			PatternCamo->Use();
+			drawE100(0, 0, 3, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 4:
+			PatternCamo->Use();
+			drawType59(0, 0, 3, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		}
+		switch (PlayerTwo)
+		{
+		case 0:
+			PatternCamo->Use();
+			drawAbram(0, 0, -6, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 1:
+			PatternCamo->Use();
+			drawIS3(0, 0, -6, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 2:
+			PatternCamo->Use();
+			drawT29(0, 0, -6, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 3:
+			PatternCamo->Use();
+			drawE100(0, 0, -6, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 4:
+			PatternCamo->Use();
+			drawType59(0, 0, -6, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		}
+
+		glPopAttrib();
+
+
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 3:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX + CUBESIZE;
+		float startz = MAPEDGEY + CUBESIZE;
+		float endx = (-MAPEDGEX - CUBESIZE);
+		float endz = (-MAPEDGEY - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * userGrassMultiplier;
+		int grainY = GRASSGRAINY * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - i * (lengthx) / grainX, MENUYOFFSET, startz - j * (lengthz) / grainY);
+				glVertex3f(startx - i * (lengthx) / grainX, MENUYOFFSET, startz - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 4:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+
+
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 5:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		PatternSilh->Use();
+		//backgroundRand = 9;
+		switch (backgroundRand)
+		{
+		case 0:
+			drawHPCrate(0, 0);
+			break;
+		case 1:
+			drawSmokeCrate(0, 0);
+			break;
+		case 2:
+			drawAmmo(0, 0);
+			break;
+		case 3:
+			drawIS3(0, 0, 0, -45, -45);
+			break;
+		case 4:
+			drawAbram(0, 0, 0, -45, -45);
+			break;
+		case 5:
+			drawMine(0, 0);
+			break;
+		case 6:
+			drawT29(0, 0, 0, -45, -45);
+			break;
+		case 7:
+			drawE100(0, 0, 0, -45, -45);
+			break;
+		case 8:
+			drawType59(0, 0, 0, -45, -45);
+			break;
+		case 9:
+			drawRadioCrate(0, 0);
+			break;
+		}
+		PatternSilh->Use(0);
+		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		//backgroundRand = 9;
+		switch (backgroundRand)
+		{
+		case 0:
+			Pattern->Use();
+			drawHPCrate(0, 0);
+			Pattern->Use(0);
+			break;
+		case 1:
+			Pattern->Use();
+			drawSmokeCrate(0, 0);
+			Pattern->Use(0);
+			break;
+		case 2:
+			Pattern->Use();
+			drawAmmo(0, 0);
+			Pattern->Use(0);
+			break;
+		case 3:
+			PatternCamo->Use();
+			drawIS3(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 4:
+			PatternCamo->Use();
+			drawAbram(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 5:
+			Pattern->Use();
+			drawMine(0, 0);
+			Pattern->Use(0);
+			break;
+		case 6:
+			PatternCamo->Use();
+			drawT29(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 7:
+			PatternCamo->Use();
+			drawE100(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 8:
+			PatternCamo->Use();
+			drawType59(0, 0, 0, -45, -45);
+			PatternCamo->Use(0);
+			break;
+		case 9:
+			Pattern->Use();
+			drawRadioCrate(0, 0);
+			Pattern->Use(0);
+			break;
+		}
+		// Pop the state changes off the attribute stack
+		// to set things back how they were
+		glPopAttrib();
+
+		//glDisable(GL_LIGHT2);
+		//glDisable(GL_LIGHTING);
+
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 6:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		PatternSilh->Use();
+		drawE100(-3, 0, 12, -135, -45);
+		drawIS3(-2, 0, 6, -112.5, -45);
+		drawT29(3, 0, 0, -90, 0);
+		drawAbram(-2, 0, -6, -67.5, 45);
+		drawType59(-3, 0, -12, -45, 45);
+		PatternSilh->Use(0);
+		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		PatternCamo->Use();
+		drawE100(-3, 0, 12, -135, -45);
+		drawIS3(-2, 0, 6, -112.5, -45);
+		drawT29(3, 0, 0, -90, 0);
+		drawAbram(-2, 0, -6, -67.5, 45);
+		drawType59(-3, 0, -12, -45, 45);
+		PatternCamo->Use(0);
+		// Pop the state changes off the attribute stack
+		// to set things back how they were
+		glPopAttrib();
+
+		//glDisable(GL_LIGHT2);
+		//glDisable(GL_LIGHTING);
+
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 7:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		PatternSilh->Use();
+		//BehnamSaeedi
+		if (multiplayerMode == ONLINE)
+		{
+			drawLaptop(0, -7);
+			drawLaptop(0, 3);
+		}
+		else {
+			drawLaptop(0, -2);
+		}
+		PatternSilh->Use(0);
+		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		if (multiplayerMode == ONLINE)
+		{
+			drawLaptop(0, -7);
+			drawLaptop(0, 3);
+		}
+		else {
+			drawLaptop(0, -2);
+		}
+		glPopAttrib();
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	case 8:
+	{
+		PatternGrass->Use();
+		float startx = 1 + MAPEDGEX / 2 + CUBESIZE;
+		float startz = MAPEDGEY / 2 + CUBESIZE;
+		float endx = (-MAPEDGEX / 2 - CUBESIZE);
+		float endz = (-MAPEDGEY / 2 - CUBESIZE);
+		float lengthx = startx - endx;
+		float lengthz = startz - endz;
+		int grainX = GRASSGRAINX * MENUMULTIPLIER * userGrassMultiplier;
+		int grainY = GRASSGRAINY * MENUMULTIPLIER * userGrassMultiplier;
+		glEnable(GL_NORMALIZE);
+		glBegin(GL_QUADS);
+		glPushMatrix();
+		glColor3f(0.1, 0.1, 0.0);
+		for (int i = 0; i < grainX; i++)
+		{
+			for (int j = 0; j < grainY; j++)
+			{
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - i * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - (j + 1) * (lengthz) / grainY);
+				glVertex3f(startx - MENUXOFFSET - (i + 1) * (lengthx) / grainX, MENUYOFFSET, startz - MENUZOFFSET - j * (lengthz) / grainY);
+			}
+		}
+		glPopMatrix();
+		glEnd();
+		PatternGrass->Use(0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexVBOID);
+		glVertexAttribPointer(
+			0,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+		// draw map
+		Pattern->Use();
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, -MAPEDGEY - CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEX) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE / 2 - 2 + i * CUBESIZE, MAPEDGEY + CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(-MAPEDGEX - CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		for (int i = 0; i < (2 * MAPEDGEY) / CUBESIZE + 2; i++)
+			drawCube(MAPEDGEX + CUBESIZE, -MAPEDGEY - CUBESIZE + i * CUBESIZE, 0, 0.5, 0.5, 0.5);
+		Pattern->Use(0);
+		for (int j = 0; j < 14; j++)
+		{
+			for (int i = 0; i < 24; i++)
+			{
+				if (myMap.MCM[i][j] && myMap.isSolid[i][j] && (myMap.color[i][j][0] != 7))
+				{
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) > 0 && (Time - destructionTimeBuffer[i][j]) < 0.0025)
+						myMap.coord[i][j][2] -= (Time - destructionTimeBuffer[i][j]) * 500;
+					if (destructionTimeBuffer[i][j] > 0 && (Time - destructionTimeBuffer[i][j]) >= 0.0025)
+					{
+						myMap.MCM[i][j] = false;
+						myMap.isSolid[i][j] = false;
+					}
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					// draw map border
+					//DO TOON SHADING
+					PatternSilh->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					//glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 0, 60, 90, 0.65, 0.5, 0.5);
+					//glColor3f(0.0f, 0.0f, 0.0f);
+					Pattern->Use();
+					drawCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.coord[i][j][2], myMap.color[i][j][0], myMap.color[i][j][1], myMap.color[i][j][2]);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+					Pattern->Use(0);
+				}
+				if ((myMap.MCM[i][j] && !myMap.isSolid[i][j]) || (myMap.color[i][j][0] == 7))
+				{
+
+					// Push the GL attribute bits so that we don't wreck any settings
+					glPushAttrib(GL_ALL_ATTRIB_BITS);
+					// Enable polygon offsets, and offset filled polygons forward by 2.5
+					// Set the render mode to be line rendering with a thick line width
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					glDisable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					glLineWidth(OUTLINE);
+					// Set the colour to be white
+					glColor3f(.5, .5, .5);
+					// Render the object
+					PatternSilh->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternSilh->Use(0);
+					glEnable(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-2.5f, -2.5f);
+					// Set the polygon mode to be filled triangles
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					glShadeModel(GL_FLAT);
+					//glEnable(GL_LIGHTING);
+					//SetPointLight(GL_LIGHT1, 20, 50, 35, 0.9, 0.9, 0.9);
+					glColor3f(0.0f, 0.0f, 0.0f);
+					PatternTree->Use();
+					drawTreeCube(myMap.coord[i][j][0], myMap.coord[i][j][1], myMap.angle[i][j], myMap.color[i][j][0]);
+					PatternTree->Use(0);
+					glPopAttrib();
+					//glDisable(GL_LIGHT1);
+					//glDisable(GL_LIGHTING);
+
+				}
+			}
+		}
+		//end of drawing map
+
+		// Push the GL attribute bits so that we don't wreck any settings
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// Enable polygon offsets, and offset filled polygons forward by 2.5
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		// Set the render mode to be line rendering with a thick line width
+		glLineWidth(OUTLINE);
+		// Set the colour to be white
+		glColor3f(.75, .75, .75);
+		// Render the object
+		PatternSilh->Use();
+		//BehnamSaeedi
+		if (host)
+		{
+			drawLaptop(0, -2);
+		}
+		else {
+			drawRadioCrate(0, -2);
+		}
+		PatternSilh->Use(0);
+		// Set the polygon mode to be filled triangles 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(-2.5f, -2.5f);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glShadeModel(GL_FLAT);
+		//glEnable(GL_LIGHTING);
+		////SetPointLight(GL_LIGHT2, 0, 15, 0, 0.75, 0.75, 0.75);
+		// Set the colour to the background
+		glColor3f(0.0f, 0.0f, 0.0f);
+		// Render the object
+		if (host)
+		{
+			drawLaptop(0, -2);
+		}
+		else {
+			drawRadioCrate(0, -2);
+		}
+		glPopAttrib();
+		glDisableVertexAttribArray(0);
+	}
+	break;
+	}
 }
 void drawMenuText()
 {
-	if (!ADVANCEMENU)
-		menuState = 7;
 	switch (menuState)
 	{
 	case 0:	// main: single player, multiplayer, controlls, graphics, credits
@@ -2739,7 +2866,7 @@ void drawMenuText()
 		float amount = 40;
 		selectIndex = selectIndex % 10;
 		glColor3f(0.125, 0.125, 0.125);
-		DoStringBox(55, y, 0, (char *)   "Please select the map: Single Player----------------");
+		DoStringBox(55, y, 0, (char *) "Please select the map: Single Player----------------");
 		glColor3f(1., 1., 1.);
 		DoRasterString(55, y, 0, (char *)"Use A,D,J,L,4, 6 or Enter to select tank (BACK: ESC)");
 		DoStringBox(25, 60, 0, (char *)"Player N");
@@ -3187,8 +3314,10 @@ void drawMenuText()
 		DoRasterString(45, 65, 0, (char *)"    - Behnam Saeedi");
 	}
 	break;
-	case 7:	// traditional menu
+	case 7:	// Multiplayer select online or offline mode
 	{
+		isSingle = false;
+		makeAI(isSingle, 'T');
 		glDisable(GL_DEPTH_TEST);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -3204,298 +3333,69 @@ void drawMenuText()
 		float amount = 40;
 		selectIndex = selectIndex % 10;
 		glColor3f(0.125, 0.125, 0.125);
-		DoStringBox(60, y, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 2, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 4, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 6, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 8, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 10, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 12, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 14, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 16, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 18, 0, (char *)"Please select the map: Single Player");
-		DoStringBox(60, y - 20, 0, (char *)"Please select the map: Single Player");
-		switch (PlayerOne)
-		{
-		case 0:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0.5, 0.5, 0);
-			break;
-		case 1:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0, 1);
-			break;
-		case 2:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0.38, 0.2, 0.01);
-			break;
-		case 3:
-			DoStringBoxColor(72, y, 0, (char *)   "", 1, 0.1, 0.5);
-			break;
-		case 4:
-			DoStringBoxColor(72, y, 0, (char *)   "", 0, 0.5, 0);
-			break;
-		}
-		DoStringBox(74, y, 0, (char *)   "");
-		switch (PlayerTwo)
-		{
-		case 0:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0.5, 0.5, 0);
-			break;
-		case 1:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0, 1);
-			break;
-		case 2:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0.38, 0.2, 0.01);
-			break;
-		case 3:
-			DoStringBoxColor(76, y, 0, (char *)   "", 1, 0.1, 0.5);
-			break;
-		case 4:
-			DoStringBoxColor(76, y, 0, (char *)   "", 0, 0.5, 0);
-			break;
-		}
+		DoStringBox(55, y, 0, (char*) "Please select the map: Single Player----------------");
 		glColor3f(1., 1., 1.);
-		DoRasterString(60, y, 0, (char *)"Please select the map:");
-		DoRasterString(72, y, 0, (char *)"1     vs     2");
-		glColor3f(1., 1., 0);
-		if (AIACTIVE)
-		{
-			if (isSingle)
-				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-Single Player->");
-			else
-				DoRasterString(70, y - 2 * (selectIndex + 1), 0, (char *)"<-CO-OP->");
-		}
-		//backgroundRand = 9;
-		switch (backgroundRand)
-		{
-		case 0:
-			DoRasterString(10, 30, 0, (char *)"Health Boost: Took a few hits? Try snatching one of these bad boys, and you'll be back in action in no time!");
-			break;
-		case 1:
-			DoRasterString(10, 30, 0, (char *)"Smoke Boost: Do you like ninjas? These Ninjutsu certified smoke canisters can take your breath away!");
-			break;
-		case 2:
-			DoRasterString(10, 30, 0, (char *)"Ammo Boost: Don't you hated when your finger gets stuck on the fire button? This will feed that addiction.");
-			break;
-		case 3:
-			DoRasterString(10, 30, 0, (char *)"IS3: This tanks is called Joseph Stalin 3 or IS3 ... but trust me, nothing about this tank is stalin' ...");
-			break;
-		case 4:
-			DoRasterString(10, 30, 0, (char *)"Abram: How Abram tanks moves so fast? Well ask the turbine jet engine behind it!");
-			break;
-		case 5:
-			DoRasterString(10, 30, 0, (char *)"Dima's present: Dima (our powerup supplier) is a psychopath ... watch out for these powerups!");
-			break;
-		case 6:
-			DoRasterString(10, 30, 0, (char *)"T29: Hate groupmates? just remember that this tank has 6 crew members ... Good Lord!");
-			break;
-		case 7:
-			DoRasterString(10, 30, 0, (char *)"E100: Don't let the color intimidate you ... The tank is only as good as its commander.");
-			break;
-		case 8:
-			DoRasterString(10, 30, 0, (char *)"Type 59: If it looks russian, sound russian, or smells russian ... it's from communist China!");
-			break;
-		case 9:
-			DoRasterString(10, 30, 0, (char*)"This bad boy can call in the real fire power!");
-			break;
-		}
+		DoRasterString(55, y, 0, (char*)"Use A,D,J,L,4, 6 or Enter to select Mode (BACK: ESC)");
+		DoStringBox(45, 60, 0, (char*)"---line mode");
+		glColor3f(1., 1., 1.);
+		if (multiplayerMode == ONLINE)
+			DoRasterString(45, 60, 0, (char*)" Online mode");
+		else
+			DoRasterString(45, 60, 0, (char*)"Offline mode");
 		glColor3f(0.125, 0.125, 0.125);
-		DoStringBox(80, 25, 0, (char *)"Developed By Behnam ");
-		DoStringBox(80, 27, 0, (char *)"Developed By Behnam ");
+		DoStringBox(80, 25, 0, (char*)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char*)"Developed By Behnam ");
 		glColor3f(1., 1., 1.);
-		DoRasterString(80, 27, 0, (char *)" Developed By:");
-		DoRasterString(80, 25, 0, (char *)"    - Behnam Saeedi");
-		if (selectIndex == 0)
-		{
-			glColor3f(1., 1., 0);
-			//if ((ActiveButton & LEFT) != 0) 
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 1");
-				mapName = "1";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 2, 0, (char *)"Classic (Medium)");
-		if (selectIndex == 1)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 2");
-				mapName = "2";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 4, 0, (char *)"Duel (Medium)");
-		if (selectIndex == 2)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 7");
-				mapName = "7";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 6, 0, (char *)"Field (Easy)");
-		if (selectIndex == 3)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 9");
-				mapName = "9";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 8, 0, (char *)"aim_map (Easy)");
-		if (selectIndex == 4)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 5");
-				mapName = "5";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 10, 0, (char *)"Joe Graphics (Hard)");
-		if (selectIndex == 5)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 8");
-				mapName = "8";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 12, 0, (char *)"Limbo (Medium)");
-		if (selectIndex == 6)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 3");
-				mapName = "3";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 14, 0, (char *)"Jungle (Hard)");
-		if (selectIndex == 7)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 6");
-				mapName = "6";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 16, 0, (char *)"Maze (Hard)");
-		if (selectIndex == 8)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" 4");
-				mapName = "4";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 18, 0, (char *)"Temple (Medium):");
-		if (selectIndex == 9)
-		{
-			glColor3f(1., 1., 0);
-			if (run)
-			{
-				run = false;
-				//system_hidden("\"Tank-2017.exe\" r");
-				mapName = "r";
-				lastMap = mapName;
-				loadMap();
-				isInMenu = false;
-				Sleep(500);
-				backgroundRand = (backgroundRand + rand()) % 10;
-			}
-		}
-		else
-			glColor3f(1., 1., 1.);
-		inc++;
-		DoRasterString(60, y - 20, 0, (char *)"Random (Easy)");
+		DoRasterString(80, 27, 0, (char*)" Developed By:");
+		DoRasterString(80, 25, 0, (char*)"    - Behnam Saeedi");
 	}
 	break;
+	case 8:	// Multiplayer select online mode select host or
+	{
+		isSingle = false;
+		makeAI(isSingle, 'T');
+		glDisable(GL_DEPTH_TEST);
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluOrtho2D(0., 100., 0., 100.);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glColor3f(1., 1., 1.);
+		int y = 70;
+		int inc = 0;
+		GLint m_viewport[4];
+		glGetIntegerv(GL_VIEWPORT, m_viewport);
+
+		float amount = 40;
+		selectIndex = selectIndex % 10;
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(55, y, 0, (char*) "Please select the map: Single Player----------------");
+		glColor3f(1., 1., 1.);
+		DoRasterString(55, y, 0, (char*)"Use A,D,J,L,4, 6 or Enter to select Mode (BACK: ESC)");
+		DoStringBox(45, 65, 0, (char*)       "                 ");
+		if (host)
+		{
+			glColor3f(1., 1., 1.);
+			DoRasterString(45, 65, 0, (char*)"      Host a Game");
+			DoStringBox(45, 30, 0, (char*)       "                 ");
+			glColor3f(1., 1., 1.);
+			DoRasterString(45, 30, 0, (char*)"IP: ");
+		}
+		else
+		{
+			glColor3f(1., 1., 1.);
+			DoRasterString(45, 65, 0, (char*)" Connect to a game");
+			DoStringBox(45, 30, 0, (char*)       "                 ");
+			glColor3f(1., 1., 1.);
+			DoRasterString(45, 30, 0, (char*)"IP: ");
+		}
+		glColor3f(0.125, 0.125, 0.125);
+		DoStringBox(80, 25, 0, (char*)"Developed By Behnam ");
+		DoStringBox(80, 27, 0, (char*)"Developed By Behnam ");
+		glColor3f(1., 1., 1.);
+		DoRasterString(80, 27, 0, (char*)" Developed By:");
+		DoRasterString(80, 25, 0, (char*)"    - Behnam Saeedi");
+	}
 	}
 }
 void drawinGmaeUI()

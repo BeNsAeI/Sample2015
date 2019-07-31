@@ -96,5 +96,8 @@ const int GLUIFALSE = { false };
 #define AQUIRE 4
 #define ELIMINATECRATE 5
 #define SC 0.25
-#define ADVANCEMENU true
+#define ONLINE 1
+#define OFFLINE 0
+#define SMOKEGRACEDELAY 0.015
+#define SMOKEGRACE 0.075
 #endif
